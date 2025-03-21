@@ -1,0 +1,217 @@
+{
+  "version": "0.1.0",
+  "name": "reputation_program",
+  "instructions": [
+    {
+      "name": "initialize",
+      "accounts": [
+        {
+          "name": "reputationState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "insuranceProgramId",
+          "type": "publicKey"
+        },
+        {
+          "name": "escrowProgramId",
+          "type": "publicKey"
+        },
+        {
+          "name": "initialReputationScore",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "createProfile",
+      "accounts": [
+        {
+          "name": "userProfile",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "reputationState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateContractCompletion",
+      "accounts": [
+        {
+          "name": "userProfile",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "reputationState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "successful",
+          "type": "bool"
+        },
+        {
+          "name": "disputed",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "updateClaimSubmission",
+      "accounts": [
+        {
+          "name": "userProfile",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "reputationState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "approved",
+          "type": "bool"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ReputationState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "insuranceProgramId",
+            "type": "publicKey"
+          },
+          {
+            "name": "escrowProgramId",
+            "type": "publicKey"
+          },
+          {
+            "name": "initialReputationScore",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "publicKey"
+          },
+          {
+            "name": "reputationScore",
+            "type": "u8"
+          },
+          {
+            "name": "completedContracts",
+            "type": "u32"
+          },
+          {
+            "name": "successfulContracts",
+            "type": "u32"
+          },
+          {
+            "name": "disputedContracts",
+            "type": "u32"
+          },
+          {
+            "name": "claimsSubmitted",
+            "type": "u32"
+          },
+          {
+            "name": "claimsApproved",
+            "type": "u32"
+          },
+          {
+            "name": "claimsRejected",
+            "type": "u32"
+          },
+          {
+            "name": "lastUpdated",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidAuthority",
+      "msg": "Only the authority can perform this action"
+    },
+    {
+      "code": 6001,
+      "name": "ProfileAlreadyExists",
+      "msg": "User profile already exists"
+    },
+    {
+      "code": 6002,
+      "name": "ProfileNotFound",
+      "msg": "User profile not found"
+    }
+  ]
+}

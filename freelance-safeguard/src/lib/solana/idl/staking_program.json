@@ -1,0 +1,625 @@
+{
+  "version": "0.1.0",
+  "name": "staking_program",
+  "instructions": [
+    {
+      "name": "initialize",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "stakingState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "riskPoolId",
+          "type": "publicKey"
+        },
+        {
+          "name": "daoGovernanceId",
+          "type": "publicKey"
+        },
+        {
+          "name": "minStakePeriodDays",
+          "type": "u16"
+        },
+        {
+          "name": "earlyUnstakePenaltyPercent",
+          "type": "u8"
+        },
+        {
+          "name": "rewardDistributionInterval",
+          "type": "i64"
+        },
+        {
+          "name": "baseRewardRate",
+          "type": "u16"
+        },
+        {
+          "name": "performanceMultiplierCap",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "addSupportedToken",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "stakingState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "tokenMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "tokenName",
+          "type": "string"
+        },
+        {
+          "name": "weight",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "stake",
+      "accounts": [
+        {
+          "name": "staker",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "stakingState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stakerInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "stakerTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stakingPoolTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "lockPeriodDays",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "unstake",
+      "accounts": [
+        {
+          "name": "staker",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "stakingState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stakerInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "stakerTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stakingPoolTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "positionId",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "distributeRewards",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "stakingState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "premiumAmount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "claimRewards",
+      "accounts": [
+        {
+          "name": "staker",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "stakingState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stakerInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "rewardsMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "stakerRewardsAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "rewardsPoolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "positionId",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "updateStakingConfig",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "stakingState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "minStakePeriodDays",
+          "type": {
+            "option": "u16"
+          }
+        },
+        {
+          "name": "earlyUnstakePenaltyPercent",
+          "type": {
+            "option": "u8"
+          }
+        },
+        {
+          "name": "rewardDistributionInterval",
+          "type": {
+            "option": "i64"
+          }
+        },
+        {
+          "name": "baseRewardRate",
+          "type": {
+            "option": "u16"
+          }
+        },
+        {
+          "name": "performanceMultiplierCap",
+          "type": {
+            "option": "u16"
+          }
+        },
+        {
+          "name": "premiumSharePercent",
+          "type": {
+            "option": "u8"
+          }
+        },
+        {
+          "name": "isPaused",
+          "type": {
+            "option": "bool"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateTokenConfig",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "stakingState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "tokenMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "weight",
+          "type": {
+            "option": "u8"
+          }
+        },
+        {
+          "name": "isActive",
+          "type": {
+            "option": "bool"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "StakingState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "riskPoolId",
+            "type": "publicKey"
+          },
+          {
+            "name": "daoGovernanceId",
+            "type": "publicKey"
+          },
+          {
+            "name": "minStakePeriodDays",
+            "type": "u16"
+          },
+          {
+            "name": "earlyUnstakePenaltyPercent",
+            "type": "u8"
+          },
+          {
+            "name": "rewardDistributionInterval",
+            "type": "i64"
+          },
+          {
+            "name": "baseRewardRate",
+            "type": "u16"
+          },
+          {
+            "name": "performanceMultiplierCap",
+            "type": "u16"
+          },
+          {
+            "name": "totalStakedAmount",
+            "type": "u64"
+          },
+          {
+            "name": "totalStakers",
+            "type": "u64"
+          },
+          {
+            "name": "totalRewardsDistributed",
+            "type": "u64"
+          },
+          {
+            "name": "lastRewardDistribution",
+            "type": "i64"
+          },
+          {
+            "name": "premiumSharePercent",
+            "type": "u8"
+          },
+          {
+            "name": "isPaused",
+            "type": "bool"
+          },
+          {
+            "name": "supportedTokens",
+            "type": {
+              "vec": {
+                "defined": "SupportedToken"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StakerInfo",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "staker",
+            "type": "publicKey"
+          },
+          {
+            "name": "stakedAmount",
+            "type": "u64"
+          },
+          {
+            "name": "nextPositionId",
+            "type": "u64"
+          },
+          {
+            "name": "lastStakeTime",
+            "type": "i64"
+          },
+          {
+            "name": "positions",
+            "type": {
+              "vec": {
+                "defined": "StakePosition"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "SupportedToken",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "weight",
+            "type": "u8"
+          },
+          {
+            "name": "totalStaked",
+            "type": "u64"
+          },
+          {
+            "name": "isActive",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StakePosition",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "tokenMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "startTime",
+            "type": "i64"
+          },
+          {
+            "name": "unlockTime",
+            "type": "i64"
+          },
+          {
+            "name": "lockPeriodDays",
+            "type": "u16"
+          },
+          {
+            "name": "bonusMultiplier",
+            "type": "u8"
+          },
+          {
+            "name": "claimedRewards",
+            "type": "u64"
+          },
+          {
+            "name": "isActive",
+            "type": "bool"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "You are not authorized to perform this action"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidAmount",
+      "msg": "Invalid amount"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidLockPeriod",
+      "msg": "Invalid lock period"
+    },
+    {
+      "code": 6003,
+      "name": "TokenNotSupported",
+      "msg": "Token not supported for staking"
+    },
+    {
+      "code": 6004,
+      "name": "TokenAlreadySupported",
+      "msg": "Token already supported for staking"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidTokenWeight",
+      "msg": "Invalid token weight"
+    },
+    {
+      "code": 6006,
+      "name": "PositionNotFound",
+      "msg": "Stake position not found"
+    },
+    {
+      "code": 6007,
+      "name": "PositionLocked",
+      "msg": "Stake position is still locked"
+    },
+    {
+      "code": 6008,
+      "name": "ProgramPaused",
+      "msg": "Program is paused"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidParameter",
+      "msg": "Invalid parameter"
+    },
+    {
+      "code": 6010,
+      "name": "InsufficientRewards",
+      "msg": "Insufficient rewards"
+    },
+    {
+      "code": 6011,
+      "name": "MathOverflow",
+      "msg": "Math overflow"
+    }
+  ]
+}

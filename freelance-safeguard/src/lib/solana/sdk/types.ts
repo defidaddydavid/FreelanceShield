@@ -1,0 +1,642 @@
+import { BN } from '@project-serum/anchor';
+import { PublicKey } from '@solana/web3.js';
+
+export type FreelanceInsurance = {
+  "version": "0.1.0",
+  "name": "freelance_insurance",
+  "instructions": [
+    {
+      "name": "initializeProgram",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "riskPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "createPolicy",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "policy",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "premiumSource",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "premiumDestination",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "riskPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "coverageAmount",
+          "type": "u64"
+        },
+        {
+          "name": "premiumAmount",
+          "type": "u64"
+        },
+        {
+          "name": "periodDays",
+          "type": "u16"
+        },
+        {
+          "name": "jobType",
+          "type": "string"
+        },
+        {
+          "name": "industry",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "submitClaim",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "policy",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "claim",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "evidenceType",
+          "type": "string"
+        },
+        {
+          "name": "evidenceDescription",
+          "type": "string"
+        },
+        {
+          "name": "evidenceAttachments",
+          "type": {
+            "vec": "string"
+          }
+        }
+      ]
+    },
+    {
+      "name": "processClaim",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "riskPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "claim",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "claimSource",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "claimDestination",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "approved",
+          "type": "bool"
+        },
+        {
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "verifyPayment",
+      "accounts": [
+        {
+          "name": "freelancer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "client",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "paymentVerification",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "expectedAmount",
+          "type": "u64"
+        },
+        {
+          "name": "deadline",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "confirmPayment",
+      "accounts": [
+        {
+          "name": "freelancer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "paymentVerification",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "triggerMissedPaymentClaim",
+      "accounts": [
+        {
+          "name": "freelancer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "paymentVerification",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "policy",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "claim",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "riskPool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "totalStaked",
+            "type": "u64"
+          },
+          {
+            "name": "totalCoverage",
+            "type": "u64"
+          },
+          {
+            "name": "activePolicies",
+            "type": "u32"
+          },
+          {
+            "name": "claimsPaid",
+            "type": "u64"
+          },
+          {
+            "name": "reserveRatio",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "policy",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "coverageAmount",
+            "type": "u64"
+          },
+          {
+            "name": "premiumAmount",
+            "type": "u64"
+          },
+          {
+            "name": "startDate",
+            "type": "i64"
+          },
+          {
+            "name": "endDate",
+            "type": "i64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": "PolicyStatus"
+            }
+          },
+          {
+            "name": "jobType",
+            "type": "string"
+          },
+          {
+            "name": "industry",
+            "type": "string"
+          },
+          {
+            "name": "claimsCount",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "claim",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "policy",
+            "type": "publicKey"
+          },
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": "ClaimStatus"
+            }
+          },
+          {
+            "name": "evidenceType",
+            "type": "string"
+          },
+          {
+            "name": "evidenceDescription",
+            "type": "string"
+          },
+          {
+            "name": "evidenceAttachments",
+            "type": {
+              "vec": "string"
+            }
+          },
+          {
+            "name": "submissionDate",
+            "type": "i64"
+          },
+          {
+            "name": "verdict",
+            "type": {
+              "option": {
+                "defined": "ClaimVerdict"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "paymentVerification",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "freelancer",
+            "type": "publicKey"
+          },
+          {
+            "name": "client",
+            "type": "publicKey"
+          },
+          {
+            "name": "expectedAmount",
+            "type": "u64"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": "PaymentStatus"
+            }
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "paidAt",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "ClaimVerdict",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "approved",
+            "type": "bool"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "processedAt",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PolicyStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Expired"
+          },
+          {
+            "name": "Terminated"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ClaimStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Approved"
+          },
+          {
+            "name": "Rejected"
+          },
+          {
+            "name": "Arbitration"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Paid"
+          },
+          {
+            "name": "Claimed"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "PolicyNotActive",
+      "msg": "Policy is not active"
+    },
+    {
+      "code": 6001,
+      "name": "ClaimExceedsCoverage",
+      "msg": "Claim amount exceeds policy coverage"
+    },
+    {
+      "code": 6002,
+      "name": "PolicyExpired",
+      "msg": "Policy has expired"
+    },
+    {
+      "code": 6003,
+      "name": "ClaimNotPending",
+      "msg": "Claim is not in pending status"
+    },
+    {
+      "code": 6004,
+      "name": "Unauthorized",
+      "msg": "Unauthorized operation"
+    },
+    {
+      "code": 6005,
+      "name": "PaymentAlreadyProcessed",
+      "msg": "Payment has already been processed"
+    },
+    {
+      "code": 6006,
+      "name": "DeadlineNotPassed",
+      "msg": "Payment deadline has not passed yet"
+    }
+  ]
+};
+
+export interface RiskPool {
+  authority: PublicKey;
+  totalStaked: BN;
+  totalCoverage: BN;
+  activePolicies: number;
+  claimsPaid: BN;
+  reserveRatio: number;
+  bump: number;
+}
+
+export interface Policy {
+  owner: PublicKey;
+  coverageAmount: BN;
+  premiumAmount: BN;
+  startDate: BN;
+  endDate: BN;
+  status: PolicyStatus;
+  jobType: string;
+  industry: string;
+  claimsCount: number;
+  bump: number;
+}
+
+export interface Claim {
+  policy: PublicKey;
+  owner: PublicKey;
+  amount: BN;
+  status: ClaimStatus;
+  evidenceType: string;
+  evidenceDescription: string;
+  evidenceAttachments: string[];
+  submissionDate: BN;
+  verdict: ClaimVerdict | null;
+  bump: number;
+}
+
+export interface PaymentVerification {
+  freelancer: PublicKey;
+  client: PublicKey;
+  expectedAmount: BN;
+  deadline: BN;
+  status: PaymentStatus;
+  createdAt: BN;
+  paidAt: BN | null;
+  bump: number;
+}
+
+export interface ClaimVerdict {
+  approved: boolean;
+  reason: string;
+  processedAt: BN;
+}
+
+export enum PolicyStatus {
+  Active = 'active',
+  Expired = 'expired',
+  Terminated = 'terminated',
+}
+
+export enum ClaimStatus {
+  Pending = 'pending',
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Arbitration = 'arbitration',
+}
+
+export enum PaymentStatus {
+  Pending = 'pending',
+  Paid = 'paid',
+  Claimed = 'claimed',
+}
