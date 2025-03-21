@@ -1,0 +1,17 @@
+{
+  "functions": [],
+  "events": [],
+  "stateVariables": [],
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": true,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": false,
+    "usesERC20": false,
+    "usesOracles": false,
+    "usesMath": false
+  }
+}

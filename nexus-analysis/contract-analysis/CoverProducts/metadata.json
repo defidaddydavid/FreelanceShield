@@ -1,0 +1,9 @@
+{
+  "name": "CoverProducts",
+  "address": "0xcafea02300a2fa591f0b741e4643982883dfeee3",
+  "category": "Insurance",
+  "description": "Insurance product types",
+  "compiler": "Unknown",
+  "optimizationEnabled": false,
+  "patterns": {}
+}

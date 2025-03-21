@@ -1,0 +1,122 @@
+{
+  "functions": [
+    {
+      "name": "ETH",
+      "signature": "ETH()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "buyCover",
+      "signature": "buyCover(tuple params, tuple[] poolAllocationRequests)",
+      "visibility": "payable",
+      "returns": "uint256 coverId",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "cover",
+      "signature": "cover()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "master",
+      "signature": "master()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "maxApproveCoverContract",
+      "signature": "maxApproveCoverContract(address erc20)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "memberRoles",
+      "signature": "memberRoles()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "nxmToken",
+      "signature": "nxmToken()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "owner",
+      "signature": "owner()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "renounceOwnership",
+      "signature": "renounceOwnership()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "rescueFunds",
+      "signature": "rescueFunds(address assetAddress)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "switchMembership",
+      "signature": "switchMembership(address newAddress)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "transferOwnership",
+      "signature": "transferOwnership(address newOwner)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "OwnershipTransferred",
+      "signature": "OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [
+    "address private _owner;"
+  ],
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": true,
+    "usesSafeERC20": true,
+    "usesAccessControl": true,
+    "usesReentrancyGuard": true,
+    "usesPausable": false,
+    "usesERC721": true,
+    "usesERC20": true,
+    "usesOracles": true,
+    "usesMath": false
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "functions": [
+    {
+      "name": "approve",
+      "signature": "approve(address spender, uint256 id)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "balanceOf",
+      "signature": "balanceOf(address owner)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeNFTDescriptor",
+      "signature": "changeNFTDescriptor(address _newNFTDescriptor)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeOperator",
+      "signature": "changeOperator(address _newOperator)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getApproved",
+      "signature": "getApproved(uint256 )",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "isApprovedForAll",
+      "signature": "isApprovedForAll(address , address )",
+      "visibility": "view",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "isApprovedOrOwner",
+      "signature": "isApprovedOrOwner(address spender, uint256 tokenId)",
+      "visibility": "view",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "mint",
+      "signature": "mint(address to)",
+      "visibility": "nonpayable",
+      "returns": "uint256 id",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "name",
+      "signature": "name()",
+      "visibility": "view",
+      "returns": "string ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "nftDescriptor",
+      "signature": "nftDescriptor()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "operator",
+      "signature": "operator()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "ownerOf",
+      "signature": "ownerOf(uint256 id)",
+      "visibility": "view",
+      "returns": "address owner",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "safeTransferFrom",
+      "signature": "safeTransferFrom(address from, address to, uint256 id)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "safeTransferFrom",
+      "signature": "safeTransferFrom(address from, address to, uint256 id, bytes data)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "setApprovalForAll",
+      "signature": "setApprovalForAll(address spender, bool approved)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "supportsInterface",
+      "signature": "supportsInterface(bytes4 interfaceId)",
+      "visibility": "pure",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "symbol",
+      "signature": "symbol()",
+      "visibility": "view",
+      "returns": "string ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "tokenURI",
+      "signature": "tokenURI(uint256 id)",
+      "visibility": "view",
+      "returns": "string uri",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "totalSupply",
+      "signature": "totalSupply()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "transferFrom",
+      "signature": "transferFrom(address from, address to, uint256 id)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "Approval",
+      "signature": "Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)",
+      "anonymous": false
+    },
+    {
+      "name": "ApprovalForAll",
+      "signature": "ApprovalForAll(address indexed owner, address indexed operator, bool  approved)",
+      "anonymous": false
+    },
+    {
+      "name": "Transfer",
+      "signature": "Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [
+    "string public name;",
+    "string public symbol;",
+    "uint96 internal _totalSupply;",
+    "address public operator;",
+    "address public nftDescriptor;"
+  ],
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": false,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": true,
+    "usesERC20": false,
+    "usesOracles": false,
+    "usesMath": false
+  }
+}

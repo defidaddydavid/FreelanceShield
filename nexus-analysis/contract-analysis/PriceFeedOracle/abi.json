@@ -1,0 +1,312 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "_assetAddresses",
+        "type": "address[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_assetAggregators",
+        "type": "address[]"
+      },
+      {
+        "internalType": "enum IPriceFeedOracle.AggregatorType[]",
+        "name": "_aggregatorTypes",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "_assetDecimals",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_safeTracker",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "assetAddressesLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "aggregatorsLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "typesLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "decimalsLength",
+        "type": "uint256"
+      }
+    ],
+    "name": "ArgumentLengthMismatch",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EmptyAssetAddresses",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EthUsdAggregatorNotSet",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "aggregator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "aggregatorDecimals",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "expectedDecimals",
+        "type": "uint8"
+      }
+    ],
+    "name": "IncompatibleAggregatorDecimals",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum IPriceFeedOracle.AggregatorType",
+        "name": "actual",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum IPriceFeedOracle.AggregatorType",
+        "name": "expected",
+        "type": "uint8"
+      }
+    ],
+    "name": "InvalidEthAggregatorType",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "aggregator",
+        "type": "address"
+      },
+      {
+        "internalType": "int256",
+        "name": "rate",
+        "type": "int256"
+      }
+    ],
+    "name": "NonPositiveRate",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "aggregatorType",
+        "type": "uint8"
+      }
+    ],
+    "name": "UnknownAggregatorType",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      }
+    ],
+    "name": "UnknownAsset",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "parameter",
+        "type": "string"
+      }
+    ],
+    "name": "ZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      }
+    ],
+    "name": "ZeroDecimals",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ETH",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "assetAddress",
+        "type": "address"
+      }
+    ],
+    "name": "assets",
+    "outputs": [
+      {
+        "internalType": "contract Aggregator",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "assetsMap",
+    "outputs": [
+      {
+        "internalType": "contract Aggregator",
+        "name": "aggregator",
+        "type": "address"
+      },
+      {
+        "internalType": "enum IPriceFeedOracle.AggregatorType",
+        "name": "aggregatorType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "decimals",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "assetAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ethIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAssetForEth",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "assetAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getAssetToEthRate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "assetAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getEthForAsset",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "safeTracker",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

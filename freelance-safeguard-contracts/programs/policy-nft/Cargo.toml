@@ -1,0 +1,22 @@
+[package]
+name = "policy-nft"
+version = "0.1.0"
+description = "NFT-based policy tokenization for FreelanceShield"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "policy_nft"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.31.0"
+anchor-spl = "0.31.0"
+solana-program = "1.17.0"
+mpl-token-metadata = { version = "1.13.1", features = ["no-entrypoint"] }

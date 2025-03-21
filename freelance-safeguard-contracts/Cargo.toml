@@ -1,0 +1,33 @@
+[workspace]
+members = [
+    "programs/claims-processor",
+    "programs/dao-governance",
+    "programs/escrow-program",
+    "programs/insurance-program",
+    "programs/reputation-program",
+    "programs/risk-pool-program",
+    "programs/staking-program"
+]
+resolver = "2"
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+split-debuginfo = "unpacked"
+opt-level = 0
+
+[profile.test]
+opt-level = 3
+
+# Shared dependencies can be specified here and will be inherited by the workspace members
+[workspace.dependencies]
+anchor-lang = "0.28.0"
+anchor-spl = "0.28.0"
+solana-program = "1.16.0"
+spl-token = "4.0.0"
+spl-associated-token-account = "2.0.0"
+thiserror = "1.0.50"

@@ -1,0 +1,20 @@
+{
+  "name": "Pool",
+  "address": "0xcafeaf6eA90CB931ae43a8Cf4B25a73a24cF6158",
+  "category": "Risk",
+  "description": "Main risk pool contract",
+  "compiler": "v0.8.18+commit.87f61d96",
+  "optimizationEnabled": true,
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": true,
+    "usesSafeERC20": true,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": true,
+    "usesPausable": false,
+    "usesERC721": false,
+    "usesERC20": true,
+    "usesOracles": true,
+    "usesMath": true
+  }
+}

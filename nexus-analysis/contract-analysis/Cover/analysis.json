@@ -1,0 +1,285 @@
+{
+  "functions": [
+    {
+      "name": "DEFAULT_MIN_PRICE_RATIO",
+      "signature": "DEFAULT_MIN_PRICE_RATIO()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "MAX_COMMISSION_RATIO",
+      "signature": "MAX_COMMISSION_RATIO()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "NXM_PER_ALLOCATION_UNIT",
+      "signature": "NXM_PER_ALLOCATION_UNIT()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "activeCover",
+      "signature": "activeCover(uint256 )",
+      "visibility": "view",
+      "returns": "uint192 totalActiveCoverInAsset, uint64 lastBucketUpdateId",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "burnStake",
+      "signature": "burnStake(uint256 coverId, uint256 segmentId, uint256 payoutAmountInAsset)",
+      "visibility": "nonpayable",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "buyCover",
+      "signature": "buyCover(tuple params, tuple[] poolAllocationRequests)",
+      "visibility": "payable",
+      "returns": "uint256 coverId",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeCoverNFTDescriptor",
+      "signature": "changeCoverNFTDescriptor(address _coverNFTDescriptor)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeDependentContractAddress",
+      "signature": "changeDependentContractAddress()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeMasterAddress",
+      "signature": "changeMasterAddress(address masterAddress)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeStakingNFTDescriptor",
+      "signature": "changeStakingNFTDescriptor(address _stakingNFTDescriptor)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "coverData",
+      "signature": "coverData(uint256 coverId)",
+      "visibility": "view",
+      "returns": "tuple ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "coverDataCount",
+      "signature": "coverDataCount()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "coverNFT",
+      "signature": "coverNFT()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "coverSegmentAllocations",
+      "signature": "coverSegmentAllocations(uint256 , uint256 , uint256 )",
+      "visibility": "view",
+      "returns": "uint40 poolId, uint96 coverAmountInNXM, uint96 premiumInNXM, uint24 allocationId",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "coverSegmentWithRemainingAmount",
+      "signature": "coverSegmentWithRemainingAmount(uint256 coverId, uint256 segmentId)",
+      "visibility": "view",
+      "returns": "tuple ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "coverSegments",
+      "signature": "coverSegments(uint256 coverId)",
+      "visibility": "view",
+      "returns": "tuple[] ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "coverSegmentsCount",
+      "signature": "coverSegmentsCount(uint256 coverId)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "expireCover",
+      "signature": "expireCover(uint256 coverId)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getDefaultMinPriceRatio",
+      "signature": "getDefaultMinPriceRatio()",
+      "visibility": "pure",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getGlobalCapacityAndPriceRatios",
+      "signature": "getGlobalCapacityAndPriceRatios()",
+      "visibility": "pure",
+      "returns": "uint256 _globalCapacityRatio, uint256 _defaultMinPriceRatio",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getGlobalCapacityRatio",
+      "signature": "getGlobalCapacityRatio()",
+      "visibility": "pure",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getGlobalRewardsRatio",
+      "signature": "getGlobalRewardsRatio()",
+      "visibility": "pure",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "internalContracts",
+      "signature": "internalContracts(uint256 )",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "master",
+      "signature": "master()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "multicall",
+      "signature": "multicall(bytes[] data)",
+      "visibility": "nonpayable",
+      "returns": "bytes[] results",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "recalculateActiveCoverInAsset",
+      "signature": "recalculateActiveCoverInAsset(uint256 coverAsset)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "stakingNFT",
+      "signature": "stakingNFT()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "stakingPool",
+      "signature": "stakingPool(uint256 poolId)",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "stakingPoolFactory",
+      "signature": "stakingPoolFactory()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "stakingPoolImplementation",
+      "signature": "stakingPoolImplementation()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "totalActiveCoverInAsset",
+      "signature": "totalActiveCoverInAsset(uint256 assetId)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "updateTotalActiveCoverAmount",
+      "signature": "updateTotalActiveCoverAmount(uint256 coverAsset)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "CoverEdited",
+      "signature": "CoverEdited(uint256 indexed coverId, uint256 indexed productId, uint256 indexed segmentId, address  buyer, string  ipfsMetadata)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [
+    "uint256 private _status;",
+    "INXMMaster public master;",
+    "Product[] private _unused_products;",
+    "ProductType[] private _unused_productTypes;"
+  ],
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": true,
+    "usesSafeERC20": true,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": true,
+    "usesPausable": false,
+    "usesERC721": true,
+    "usesERC20": true,
+    "usesOracles": true,
+    "usesMath": true
+  }
+}

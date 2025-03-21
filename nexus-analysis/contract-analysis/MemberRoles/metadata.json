@@ -1,0 +1,20 @@
+{
+  "name": "MemberRoles",
+  "address": "0x055CC48f7968FD8640EF140610dd4038e1b03926",
+  "category": "Governance",
+  "description": "Membership status management",
+  "compiler": "v0.5.7+commit.6da8b019",
+  "optimizationEnabled": true,
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": true,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": false,
+    "usesERC20": false,
+    "usesOracles": false,
+    "usesMath": false
+  }
+}

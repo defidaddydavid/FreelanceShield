@@ -1,0 +1,20 @@
+{
+  "name": "CoverNFT",
+  "address": "0xcafeaCa76be547F14D0220482667B42D8E7Bc3eb",
+  "category": "Insurance",
+  "description": "NFT-based insurance tokenization",
+  "compiler": "v0.8.18+commit.87f61d96",
+  "optimizationEnabled": true,
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": false,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": true,
+    "usesERC20": false,
+    "usesOracles": false,
+    "usesMath": false
+  }
+}

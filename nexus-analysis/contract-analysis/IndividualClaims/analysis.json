@@ -1,0 +1,164 @@
+{
+  "functions": [
+    {
+      "name": "changeDependentContractAddress",
+      "signature": "changeDependentContractAddress()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeMasterAddress",
+      "signature": "changeMasterAddress(address masterAddress)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "claims",
+      "signature": "claims(uint256 )",
+      "visibility": "view",
+      "returns": "uint80 assessmentId, uint32 coverId, uint16 segmentId, uint96 amount, uint8 coverAsset, bool payoutRedeemed",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "config",
+      "signature": "config()",
+      "visibility": "view",
+      "returns": "uint8 payoutRedemptionPeriodInDays, uint16 minAssessmentDepositRatio, uint16 maxRewardInNXMWad, uint16 rewardRatio",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "coverNFT",
+      "signature": "coverNFT()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getAssessmentDepositAndReward",
+      "signature": "getAssessmentDepositAndReward(uint256 requestedAmount, uint256 segmentPeriod, uint256 coverAsset)",
+      "visibility": "view",
+      "returns": "uint256 , uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getClaimsCount",
+      "signature": "getClaimsCount()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getClaimsToDisplay",
+      "signature": "getClaimsToDisplay(uint256[] ids)",
+      "visibility": "view",
+      "returns": "tuple[] ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "internalContracts",
+      "signature": "internalContracts(uint256 )",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "lastClaimSubmissionOnCover",
+      "signature": "lastClaimSubmissionOnCover(uint256 )",
+      "visibility": "view",
+      "returns": "uint80 claimId, bool exists",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "master",
+      "signature": "master()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "nxm",
+      "signature": "nxm()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "redeemClaimPayout",
+      "signature": "redeemClaimPayout(uint104 claimId)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "submitClaim",
+      "signature": "submitClaim(uint32 coverId, uint16 segmentId, uint96 requestedAmount, string ipfsMetadata)",
+      "visibility": "payable",
+      "returns": "tuple claim",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "submitClaimFor",
+      "signature": "submitClaimFor(uint32 coverId, uint16 segmentId, uint96 requestedAmount, string ipfsMetadata, address owner)",
+      "visibility": "payable",
+      "returns": "tuple claim",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "updateUintParameters",
+      "signature": "updateUintParameters(uint8[] paramNames, uint256[] values)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "ClaimPayoutRedeemed",
+      "signature": "ClaimPayoutRedeemed(address indexed user, uint256  amount, uint256  claimId, uint256  coverId)",
+      "anonymous": false
+    },
+    {
+      "name": "ClaimSubmitted",
+      "signature": "ClaimSubmitted(address indexed user, uint256  claimId, uint256 indexed coverId, uint256  productId)",
+      "anonymous": false
+    },
+    {
+      "name": "MetadataSubmitted",
+      "signature": "MetadataSubmitted(uint256 indexed claimId, string  ipfsMetadata)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [
+    "INXMMaster public master;"
+  ],
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": false,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": true,
+    "usesERC20": true,
+    "usesOracles": true,
+    "usesMath": true
+  }
+}

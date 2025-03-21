@@ -1,0 +1,266 @@
+{
+  "functions": [
+    {
+      "name": "changeDependentContractAddress",
+      "signature": "changeDependentContractAddress()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeMasterAddress",
+      "signature": "changeMasterAddress(address masterAddress)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getAllowedPools",
+      "signature": "getAllowedPools(uint256 productId)",
+      "visibility": "view",
+      "returns": "uint256[] _allowedPools",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getAllowedPoolsCount",
+      "signature": "getAllowedPoolsCount(uint256 productId)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getCapacityReductionRatios",
+      "signature": "getCapacityReductionRatios(uint256[] productIds)",
+      "visibility": "view",
+      "returns": "uint256[] capacityReductionRatios",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getInitialPrices",
+      "signature": "getInitialPrices(uint256[] productIds)",
+      "visibility": "view",
+      "returns": "uint256[] initialPrices",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getLatestProductMetadata",
+      "signature": "getLatestProductMetadata(uint256 productId)",
+      "visibility": "view",
+      "returns": "tuple ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getLatestProductTypeMetadata",
+      "signature": "getLatestProductTypeMetadata(uint256 productTypeId)",
+      "visibility": "view",
+      "returns": "tuple ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getMinPrices",
+      "signature": "getMinPrices(uint256[] productIds)",
+      "visibility": "view",
+      "returns": "uint256[] minPrices",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProduct",
+      "signature": "getProduct(uint256 productId)",
+      "visibility": "view",
+      "returns": "tuple ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProductCount",
+      "signature": "getProductCount()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProductMetadata",
+      "signature": "getProductMetadata(uint256 productId)",
+      "visibility": "view",
+      "returns": "tuple[] ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProductName",
+      "signature": "getProductName(uint256 productId)",
+      "visibility": "view",
+      "returns": "string ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProductType",
+      "signature": "getProductType(uint256 productTypeId)",
+      "visibility": "view",
+      "returns": "tuple ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProductTypeCount",
+      "signature": "getProductTypeCount()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProductTypeMetadata",
+      "signature": "getProductTypeMetadata(uint256 productTypeId)",
+      "visibility": "view",
+      "returns": "tuple[] ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProductTypeName",
+      "signature": "getProductTypeName(uint256 productTypeId)",
+      "visibility": "view",
+      "returns": "string ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProductTypes",
+      "signature": "getProductTypes()",
+      "visibility": "view",
+      "returns": "tuple[] ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProductWithType",
+      "signature": "getProductWithType(uint256 productId)",
+      "visibility": "view",
+      "returns": "tuple product, tuple productType",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getProducts",
+      "signature": "getProducts()",
+      "visibility": "view",
+      "returns": "tuple[] ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "internalContracts",
+      "signature": "internalContracts(uint256 )",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "isPoolAllowed",
+      "signature": "isPoolAllowed(uint256 productId, uint256 poolId)",
+      "visibility": "view",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "master",
+      "signature": "master()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "migrateCoverProducts",
+      "signature": "migrateCoverProducts()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "multicall",
+      "signature": "multicall(bytes[] data)",
+      "visibility": "nonpayable",
+      "returns": "bytes[] results",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "prepareStakingProductsParams",
+      "signature": "prepareStakingProductsParams(tuple[] params)",
+      "visibility": "view",
+      "returns": "tuple[] validatedParams",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "requirePoolIsAllowed",
+      "signature": "requirePoolIsAllowed(uint256[] productIds, uint256 poolId)",
+      "visibility": "view",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "setProductTypes",
+      "signature": "setProductTypes(tuple[] productTypeParams)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "setProductTypesMetadata",
+      "signature": "setProductTypesMetadata(uint256[] productTypeIds, string[] ipfsMetadata)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "setProducts",
+      "signature": "setProducts(tuple[] productParams)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "setProductsMetadata",
+      "signature": "setProductsMetadata(uint256[] productIds, string[] ipfsMetadata)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "ProductSet",
+      "signature": "ProductSet(uint256  id)",
+      "anonymous": false
+    },
+    {
+      "name": "ProductTypeSet",
+      "signature": "ProductTypeSet(uint256  id)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [],
+  "patterns": {}
+}

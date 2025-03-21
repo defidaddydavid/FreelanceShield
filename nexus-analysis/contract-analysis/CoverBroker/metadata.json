@@ -1,0 +1,20 @@
+{
+  "name": "CoverBroker",
+  "address": "0x0000cbD7a26f72Ff222bf5f136901D224b08BE4E",
+  "category": "Insurance",
+  "description": "Third-party sales middleware",
+  "compiler": "v0.8.18+commit.87f61d96",
+  "optimizationEnabled": true,
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": true,
+    "usesSafeERC20": true,
+    "usesAccessControl": true,
+    "usesReentrancyGuard": true,
+    "usesPausable": false,
+    "usesERC721": true,
+    "usesERC20": true,
+    "usesOracles": true,
+    "usesMath": false
+  }
+}

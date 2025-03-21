@@ -1,0 +1,9 @@
+{
+  "name": "StakingPoolFactory",
+  "address": "0xcafeafb97BF8831D95C0FC659b8eB3946B101CB3",
+  "category": "Staking",
+  "description": "Staking pool creation",
+  "compiler": "Unknown",
+  "optimizationEnabled": false,
+  "patterns": {}
+}

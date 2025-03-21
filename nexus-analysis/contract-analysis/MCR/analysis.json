@@ -1,0 +1,181 @@
+{
+  "functions": [
+    {
+      "name": "BASIS_PRECISION",
+      "signature": "BASIS_PRECISION()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "MAX_MCR_ADJUSTMENT",
+      "signature": "MAX_MCR_ADJUSTMENT()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "MCR_UPDATE_DEADLINE",
+      "signature": "MCR_UPDATE_DEADLINE()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeDependentContractAddress",
+      "signature": "changeDependentContractAddress()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeMasterAddress",
+      "signature": "changeMasterAddress(address masterAddress)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "desiredMCR",
+      "signature": "desiredMCR()",
+      "visibility": "view",
+      "returns": "uint80 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "gearingFactor",
+      "signature": "gearingFactor()",
+      "visibility": "view",
+      "returns": "uint24 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getGearedMCR",
+      "signature": "getGearedMCR()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getMCR",
+      "signature": "getMCR()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getTotalActiveCoverAmount",
+      "signature": "getTotalActiveCoverAmount()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "internalContracts",
+      "signature": "internalContracts(uint256 )",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "lastUpdateTime",
+      "signature": "lastUpdateTime()",
+      "visibility": "view",
+      "returns": "uint32 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "master",
+      "signature": "master()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "maxMCRIncrement",
+      "signature": "maxMCRIncrement()",
+      "visibility": "view",
+      "returns": "uint16 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "mcr",
+      "signature": "mcr()",
+      "visibility": "view",
+      "returns": "uint80 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "minUpdateTime",
+      "signature": "minUpdateTime()",
+      "visibility": "view",
+      "returns": "uint16 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "previousMCR",
+      "signature": "previousMCR()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "teleportMCR",
+      "signature": "teleportMCR()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "updateMCR",
+      "signature": "updateMCR()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "updateMCRInternal",
+      "signature": "updateMCRInternal(bool forceUpdate)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "updateUintParameters",
+      "signature": "updateUintParameters(bytes8 code, uint256 value)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "MCRUpdated",
+      "signature": "MCRUpdated(uint256  mcr, uint256  desiredMCR, uint256  mcrFloor, uint256  mcrETHWithGear, uint256  totalSumAssured)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [],
+  "patterns": {}
+}

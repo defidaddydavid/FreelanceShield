@@ -1,0 +1,21 @@
+[package]
+name = "enhanced-risk-pool"
+version = "0.1.0"
+description = "Enhanced Risk Pool for FreelanceShield based on Nexus Mutual patterns"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "enhanced_risk_pool"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.31.0"
+anchor-spl = "0.31.0"
+solana-program = "1.17.0"

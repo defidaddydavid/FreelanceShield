@@ -1,0 +1,317 @@
+{
+  "functions": [
+    {
+      "name": "ETH",
+      "signature": "ETH()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "MCR_RATIO_DECIMALS",
+      "signature": "MCR_RATIO_DECIMALS()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "addAsset",
+      "signature": "addAsset(address assetAddress, bool isCoverAsset, uint256 _min, uint256 _max, uint256 _maxSlippageRatio)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "assetInSwapOperator",
+      "signature": "assetInSwapOperator()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "assets",
+      "signature": "assets(uint256 )",
+      "visibility": "view",
+      "returns": "address assetAddress, bool isCoverAsset, bool isAbandoned",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "assetsInSwapOperatorBitmap",
+      "signature": "assetsInSwapOperatorBitmap()",
+      "visibility": "view",
+      "returns": "uint32 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "calculateMCRRatio",
+      "signature": "calculateMCRRatio(uint256 totalAssetValue, uint256 mcrEth)",
+      "visibility": "pure",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeDependentContractAddress",
+      "signature": "changeDependentContractAddress()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeMasterAddress",
+      "signature": "changeMasterAddress(address masterAddress)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getAsset",
+      "signature": "getAsset(uint256 assetId)",
+      "visibility": "view",
+      "returns": "tuple ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getAssetId",
+      "signature": "getAssetId(address assetAddress)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getAssetSwapDetails",
+      "signature": "getAssetSwapDetails(address assetAddress)",
+      "visibility": "view",
+      "returns": "tuple ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getAssets",
+      "signature": "getAssets()",
+      "visibility": "view",
+      "returns": "tuple[] ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getInternalTokenPriceInAsset",
+      "signature": "getInternalTokenPriceInAsset(uint256 assetId)",
+      "visibility": "view",
+      "returns": "uint256 tokenPrice",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getInternalTokenPriceInAssetAndUpdateTwap",
+      "signature": "getInternalTokenPriceInAssetAndUpdateTwap(uint256 assetId)",
+      "visibility": "nonpayable",
+      "returns": "uint256 tokenPrice",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getMCRRatio",
+      "signature": "getMCRRatio()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getPoolValueInEth",
+      "signature": "getPoolValueInEth()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getTokenPrice",
+      "signature": "getTokenPrice()",
+      "visibility": "view",
+      "returns": "uint256 tokenPrice",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "internalContracts",
+      "signature": "internalContracts(uint256 )",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "master",
+      "signature": "master()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "nxmToken",
+      "signature": "nxmToken()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "priceFeedOracle",
+      "signature": "priceFeedOracle()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "sendEth",
+      "signature": "sendEth(address member, uint256 amount)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "sendPayout",
+      "signature": "sendPayout(uint256 assetId, address payoutAddress, uint256 amount, uint256 ethDepositAmount)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "setAssetDetails",
+      "signature": "setAssetDetails(uint256 assetId, bool isCoverAsset, bool isAbandoned)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "setSwapAssetAmount",
+      "signature": "setSwapAssetAmount(address assetAddress, uint256 value)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "setSwapDetails",
+      "signature": "setSwapDetails(address assetAddress, uint256 _min, uint256 _max, uint256 _maxSlippageRatio)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "setSwapDetailsLastSwapTime",
+      "signature": "setSwapDetailsLastSwapTime(address assetAddress, uint32 lastSwapTime)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "swapDetails",
+      "signature": "swapDetails(address )",
+      "visibility": "view",
+      "returns": "uint104 minAmount, uint104 maxAmount, uint32 lastSwapTime, uint16 maxSlippageRatio",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "swapOperator",
+      "signature": "swapOperator()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "transferAsset",
+      "signature": "transferAsset(address assetAddress, address destination, uint256 amount)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "transferAssetToSwapOperator",
+      "signature": "transferAssetToSwapOperator(address assetAddress, uint256 amount)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "updateAddressParameters",
+      "signature": "updateAddressParameters(bytes8 code, address value)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "updateUintParameters",
+      "signature": "updateUintParameters(bytes8 , uint256 )",
+      "visibility": "view",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "upgradeCapitalPool",
+      "signature": "upgradeCapitalPool(address newPoolAddress)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "DepositReturned",
+      "signature": "DepositReturned(address indexed to, uint256  amount)",
+      "anonymous": false
+    },
+    {
+      "name": "Payout",
+      "signature": "Payout(address indexed to, address indexed assetAddress, uint256  amount)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [
+    "uint256 private _status;",
+    "INXMMaster public master;",
+    "Asset[] public assets;",
+    "address public swapOperator;",
+    "uint32 public assetsInSwapOperatorBitmap;",
+    "uint public assetInSwapOperator;",
+    "constant public ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;"
+  ],
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": true,
+    "usesSafeERC20": true,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": true,
+    "usesPausable": false,
+    "usesERC721": false,
+    "usesERC20": true,
+    "usesOracles": true,
+    "usesMath": true
+  }
+}

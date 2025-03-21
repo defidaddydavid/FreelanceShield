@@ -1,0 +1,9 @@
+{
+  "name": "MCR",
+  "address": "0xcafea92739e411a4D95bbc2275CA61dE6993C9a7",
+  "category": "Risk",
+  "description": "Minimum Capital Requirements",
+  "compiler": "Unknown",
+  "optimizationEnabled": false,
+  "patterns": {}
+}

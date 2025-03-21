@@ -1,0 +1,574 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nxmAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "coverNFTAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "claimId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "coverId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ClaimPayoutRedeemed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "claimId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "coverId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ClaimSubmitted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "claimId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "ipfsMetadata",
+        "type": "string"
+      }
+    ],
+    "name": "MetadataSubmitted",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "changeDependentContractAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "masterAddress",
+        "type": "address"
+      }
+    ],
+    "name": "changeMasterAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "claims",
+    "outputs": [
+      {
+        "internalType": "uint80",
+        "name": "assessmentId",
+        "type": "uint80"
+      },
+      {
+        "internalType": "uint32",
+        "name": "coverId",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint16",
+        "name": "segmentId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint96",
+        "name": "amount",
+        "type": "uint96"
+      },
+      {
+        "internalType": "uint8",
+        "name": "coverAsset",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bool",
+        "name": "payoutRedeemed",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "config",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "payoutRedemptionPeriodInDays",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint16",
+        "name": "minAssessmentDepositRatio",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "maxRewardInNXMWad",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "rewardRatio",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "coverNFT",
+    "outputs": [
+      {
+        "internalType": "contract ICoverNFT",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "requestedAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "segmentPeriod",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "coverAsset",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAssessmentDepositAndReward",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getClaimsCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "ids",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getClaimsToDisplay",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "productId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "coverId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "assessmentId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "assetSymbol",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "assetIndex",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "coverStart",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "coverEnd",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pollStart",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pollEnd",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "claimStatus",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "payoutStatus",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IIndividualClaims.ClaimDisplay[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "internalContracts",
+    "outputs": [
+      {
+        "internalType": "address payable",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "lastClaimSubmissionOnCover",
+    "outputs": [
+      {
+        "internalType": "uint80",
+        "name": "claimId",
+        "type": "uint80"
+      },
+      {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "master",
+    "outputs": [
+      {
+        "internalType": "contract INXMMaster",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nxm",
+    "outputs": [
+      {
+        "internalType": "contract INXMToken",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint104",
+        "name": "claimId",
+        "type": "uint104"
+      }
+    ],
+    "name": "redeemClaimPayout",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "coverId",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint16",
+        "name": "segmentId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint96",
+        "name": "requestedAmount",
+        "type": "uint96"
+      },
+      {
+        "internalType": "string",
+        "name": "ipfsMetadata",
+        "type": "string"
+      }
+    ],
+    "name": "submitClaim",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint80",
+            "name": "assessmentId",
+            "type": "uint80"
+          },
+          {
+            "internalType": "uint32",
+            "name": "coverId",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "segmentId",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint96",
+            "name": "amount",
+            "type": "uint96"
+          },
+          {
+            "internalType": "uint8",
+            "name": "coverAsset",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bool",
+            "name": "payoutRedeemed",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IIndividualClaims.Claim",
+        "name": "claim",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "coverId",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint16",
+        "name": "segmentId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint96",
+        "name": "requestedAmount",
+        "type": "uint96"
+      },
+      {
+        "internalType": "string",
+        "name": "ipfsMetadata",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "submitClaimFor",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint80",
+            "name": "assessmentId",
+            "type": "uint80"
+          },
+          {
+            "internalType": "uint32",
+            "name": "coverId",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "segmentId",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint96",
+            "name": "amount",
+            "type": "uint96"
+          },
+          {
+            "internalType": "uint8",
+            "name": "coverAsset",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bool",
+            "name": "payoutRedeemed",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IIndividualClaims.Claim",
+        "name": "claim",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum IIndividualClaims.UintParams[]",
+        "name": "paramNames",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "values",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "updateUintParameters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

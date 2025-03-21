@@ -1,0 +1,9 @@
+{
+  "name": "Governance",
+  "address": "0xcafeafa258be9acb7c0de989be21a8e9583fba65",
+  "category": "Governance",
+  "description": "DAO voting",
+  "compiler": "Unknown",
+  "optimizationEnabled": false,
+  "patterns": {}
+}

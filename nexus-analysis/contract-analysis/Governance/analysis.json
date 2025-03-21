@@ -1,0 +1,367 @@
+{
+  "functions": [
+    {
+      "name": "allDelegation",
+      "signature": "allDelegation(uint256 )",
+      "visibility": "view",
+      "returns": "address follower, address leader, uint256 lastUpd",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "allowedToCatgorize",
+      "signature": "allowedToCatgorize()",
+      "visibility": "view",
+      "returns": "uint256 roleId",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "allowedToCreateProposal",
+      "signature": "allowedToCreateProposal(uint256 category)",
+      "visibility": "view",
+      "returns": "bool check",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "canCloseProposal",
+      "signature": "canCloseProposal(uint256 _proposalId)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "categorizeProposal",
+      "signature": "categorizeProposal(uint256 _proposalId, uint256 _categoryId, uint256 _incentive)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeDependentContractAddress",
+      "signature": "changeDependentContractAddress()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeMasterAddress",
+      "signature": "changeMasterAddress(address _masterAddress)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "claimReward",
+      "signature": "claimReward(address _memberAddress, uint256 _maxRecords)",
+      "visibility": "nonpayable",
+      "returns": "uint256 pendingDAppReward",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "closeProposal",
+      "signature": "closeProposal(uint256 _proposalId)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "createProposal",
+      "signature": "createProposal(string _proposalTitle, string _proposalSD, string _proposalDescHash, uint256 _categoryId)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "createProposalwithSolution",
+      "signature": "createProposalwithSolution(string _proposalTitle, string _proposalSD, string _proposalDescHash, uint256 _categoryId, string _solutionHash, bytes _action)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "followerDelegation",
+      "signature": "followerDelegation(address )",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "getFollowers",
+      "signature": "getFollowers(address _add)",
+      "visibility": "view",
+      "returns": "uint256[] ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "getPendingReward",
+      "signature": "getPendingReward(address _memberAddress)",
+      "visibility": "view",
+      "returns": "uint256 pendingDAppReward",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "getProposalLength",
+      "signature": "getProposalLength()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "getSolutionAction",
+      "signature": "getSolutionAction(uint256 _proposalId, uint256 _solution)",
+      "visibility": "view",
+      "returns": "uint256 , bytes ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "getUintParameters",
+      "signature": "getUintParameters(bytes8 code)",
+      "visibility": "view",
+      "returns": "bytes8 codeVal, uint256 val",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "isOpenForDelegation",
+      "signature": "isOpenForDelegation(address )",
+      "visibility": "view",
+      "returns": "bool ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "lastRewardClaimed",
+      "signature": "lastRewardClaimed(address )",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "memberProposalVote",
+      "signature": "memberProposalVote(address , uint256 )",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "ms",
+      "signature": "ms()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "nxMasterAddress",
+      "signature": "nxMasterAddress()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "proposal",
+      "signature": "proposal(uint256 _proposalId)",
+      "visibility": "view",
+      "returns": "uint256 proposalId, uint256 category, uint256 status, uint256 finalVerdict, uint256 totalReward",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "proposalActionStatus",
+      "signature": "proposalActionStatus(uint256 )",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "proposalDetails",
+      "signature": "proposalDetails(uint256 _proposalId)",
+      "visibility": "view",
+      "returns": "uint256 , uint256 , uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "proposalRejectedByAB",
+      "signature": "proposalRejectedByAB(uint256 , address )",
+      "visibility": "view",
+      "returns": "bool ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "proposalVoteTally",
+      "signature": "proposalVoteTally(uint256 )",
+      "visibility": "view",
+      "returns": "uint256 voters",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "rejectAction",
+      "signature": "rejectAction(uint256 _proposalId)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "rewardClaimed",
+      "signature": "rewardClaimed(uint256 , address )",
+      "visibility": "view",
+      "returns": "bool ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "submitProposalWithSolution",
+      "signature": "submitProposalWithSolution(uint256 _proposalId, string _solutionHash, bytes _action)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "submitVote",
+      "signature": "submitVote(uint256 _proposalId, uint256 _solutionChosen)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "submitVoteWithoutDelegations",
+      "signature": "submitVoteWithoutDelegations(uint256 _proposalId, uint256 _solutionChosen)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "tokenHoldingTime",
+      "signature": "tokenHoldingTime()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "triggerAction",
+      "signature": "triggerAction(uint256 _proposalId)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "unDelegate",
+      "signature": "unDelegate()",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "updateProposal",
+      "signature": "updateProposal(uint256 _proposalId, string _proposalTitle, string _proposalSD, string _proposalDescHash)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "updateUintParameters",
+      "signature": "updateUintParameters(bytes8 code, uint256 val)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "voteTallyData",
+      "signature": "voteTallyData(uint256 _proposalId, uint256 _solution)",
+      "visibility": "view",
+      "returns": "uint256 , uint256 , uint256 ",
+      "constant": true,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "ActionFailed",
+      "signature": "ActionFailed(uint256  proposalId)",
+      "anonymous": false
+    },
+    {
+      "name": "ActionRejected",
+      "signature": "ActionRejected(uint256 indexed proposalId, address  rejectedBy)",
+      "anonymous": false
+    },
+    {
+      "name": "ActionSuccess",
+      "signature": "ActionSuccess(uint256  proposalId)",
+      "anonymous": false
+    },
+    {
+      "name": "CloseProposalOnTime",
+      "signature": "CloseProposalOnTime(uint256 indexed proposalId, uint256  time)",
+      "anonymous": false
+    },
+    {
+      "name": "Proposal",
+      "signature": "Proposal(address indexed proposalOwner, uint256 indexed proposalId, uint256  dateAdd, string  proposalTitle, string  proposalSD, string  proposalDescHash)",
+      "anonymous": false
+    },
+    {
+      "name": "ProposalAccepted",
+      "signature": "ProposalAccepted(uint256  proposalId)",
+      "anonymous": false
+    },
+    {
+      "name": "ProposalCategorized",
+      "signature": "ProposalCategorized(uint256 indexed proposalId, address indexed categorizedBy, uint256  categoryId)",
+      "anonymous": false
+    },
+    {
+      "name": "RewardClaimed",
+      "signature": "RewardClaimed(address indexed member, uint256  gbtReward)",
+      "anonymous": false
+    },
+    {
+      "name": "Solution",
+      "signature": "Solution(uint256 indexed proposalId, address indexed solutionOwner, uint256 indexed solutionId, string  solutionDescHash, uint256  dateAdd)",
+      "anonymous": false
+    },
+    {
+      "name": "Vote",
+      "signature": "Vote(address indexed from, uint256 indexed proposalId, uint256 indexed voteId, uint256  dateAdd, uint256  solutionChosen)",
+      "anonymous": false
+    },
+    {
+      "name": "VoteCast",
+      "signature": "VoteCast(uint256  proposalId)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [],
+  "patterns": {}
+}

@@ -1,0 +1,20 @@
+{
+  "name": "PriceFeedOracle",
+  "address": "0xcafea905B417AC7778843aaE1A0b3848CA97a592",
+  "category": "Tokenomics",
+  "description": "Insurance pricing data",
+  "compiler": "v0.8.18+commit.87f61d96",
+  "optimizationEnabled": true,
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": false,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": false,
+    "usesERC20": false,
+    "usesOracles": true,
+    "usesMath": false
+  }
+}

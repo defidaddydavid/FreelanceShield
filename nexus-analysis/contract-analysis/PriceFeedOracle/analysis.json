@@ -1,0 +1,74 @@
+{
+  "functions": [
+    {
+      "name": "ETH",
+      "signature": "ETH()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "assets",
+      "signature": "assets(address assetAddress)",
+      "visibility": "view",
+      "returns": "address , uint8 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "assetsMap",
+      "signature": "assetsMap(address )",
+      "visibility": "view",
+      "returns": "address aggregator, uint8 aggregatorType, uint8 decimals",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getAssetForEth",
+      "signature": "getAssetForEth(address assetAddress, uint256 ethIn)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getAssetToEthRate",
+      "signature": "getAssetToEthRate(address assetAddress)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "getEthForAsset",
+      "signature": "getEthForAsset(address assetAddress, uint256 amount)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "safeTracker",
+      "signature": "safeTracker()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": false,
+      "payable": false
+    }
+  ],
+  "events": [],
+  "stateVariables": [],
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": false,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": false,
+    "usesERC20": false,
+    "usesOracles": true,
+    "usesMath": false
+  }
+}

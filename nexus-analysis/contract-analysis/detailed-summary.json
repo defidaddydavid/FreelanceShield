@@ -1,0 +1,229 @@
+{
+  "totalContracts": 13,
+  "categoryCounts": {
+    "Insurance": 4,
+    "Claims": 1,
+    "Risk": 2,
+    "Staking": 2,
+    "Governance": 2,
+    "Tokenomics": 2
+  },
+  "contractDetails": [
+    {
+      "name": "Cover",
+      "address": "0xcafea570e7857383e0b88f43c0dcaa3640c29781",
+      "category": "Insurance",
+      "functionCount": 32,
+      "eventCount": 1,
+      "stateVariableCount": 4,
+      "patterns": {
+        "usesOpenZeppelin": false,
+        "usesProxy": true,
+        "usesSafeERC20": true,
+        "usesAccessControl": false,
+        "usesReentrancyGuard": true,
+        "usesPausable": false,
+        "usesERC721": true,
+        "usesERC20": true,
+        "usesOracles": true,
+        "usesMath": true
+      }
+    },
+    {
+      "name": "CoverBroker",
+      "address": "0x0000cbD7a26f72Ff222bf5f136901D224b08BE4E",
+      "category": "Insurance",
+      "functionCount": 12,
+      "eventCount": 1,
+      "stateVariableCount": 1,
+      "patterns": {
+        "usesOpenZeppelin": false,
+        "usesProxy": true,
+        "usesSafeERC20": true,
+        "usesAccessControl": true,
+        "usesReentrancyGuard": true,
+        "usesPausable": false,
+        "usesERC721": true,
+        "usesERC20": true,
+        "usesOracles": true,
+        "usesMath": false
+      }
+    },
+    {
+      "name": "CoverProducts",
+      "address": "0xcafea02300a2fa591f0b741e4643982883dfeee3",
+      "category": "Insurance",
+      "functionCount": 31,
+      "eventCount": 2,
+      "stateVariableCount": 0,
+      "patterns": {}
+    },
+    {
+      "name": "CoverNFT",
+      "address": "0xcafeaCa76be547F14D0220482667B42D8E7Bc3eb",
+      "category": "Insurance",
+      "functionCount": 20,
+      "eventCount": 3,
+      "stateVariableCount": 5,
+      "patterns": {
+        "usesOpenZeppelin": false,
+        "usesProxy": false,
+        "usesSafeERC20": false,
+        "usesAccessControl": false,
+        "usesReentrancyGuard": false,
+        "usesPausable": false,
+        "usesERC721": true,
+        "usesERC20": false,
+        "usesOracles": false,
+        "usesMath": false
+      }
+    },
+    {
+      "name": "IndividualClaims",
+      "address": "0xcafea1079707cdabdb1f31e28692545b44fb23db",
+      "category": "Claims",
+      "functionCount": 16,
+      "eventCount": 3,
+      "stateVariableCount": 1,
+      "patterns": {
+        "usesOpenZeppelin": false,
+        "usesProxy": false,
+        "usesSafeERC20": false,
+        "usesAccessControl": false,
+        "usesReentrancyGuard": false,
+        "usesPausable": false,
+        "usesERC721": true,
+        "usesERC20": true,
+        "usesOracles": true,
+        "usesMath": true
+      }
+    },
+    {
+      "name": "MCR",
+      "address": "0xcafea92739e411a4D95bbc2275CA61dE6993C9a7",
+      "category": "Risk",
+      "functionCount": 21,
+      "eventCount": 1,
+      "stateVariableCount": 0,
+      "patterns": {}
+    },
+    {
+      "name": "StakingPoolFactory",
+      "address": "0xcafeafb97BF8831D95C0FC659b8eB3946B101CB3",
+      "category": "Staking",
+      "functionCount": 0,
+      "eventCount": 0,
+      "stateVariableCount": 0,
+      "patterns": {}
+    },
+    {
+      "name": "StakingProducts",
+      "address": "0xcafea573fBd815B5f59e8049E71E554bde3477E4",
+      "category": "Staking",
+      "functionCount": 4,
+      "eventCount": 2,
+      "stateVariableCount": 0,
+      "patterns": {
+        "usesOpenZeppelin": false,
+        "usesProxy": true,
+        "usesSafeERC20": false,
+        "usesAccessControl": false,
+        "usesReentrancyGuard": false,
+        "usesPausable": false,
+        "usesERC721": false,
+        "usesERC20": false,
+        "usesOracles": false,
+        "usesMath": false
+      }
+    },
+    {
+      "name": "Pool",
+      "address": "0xcafeaf6eA90CB931ae43a8Cf4B25a73a24cF6158",
+      "category": "Risk",
+      "functionCount": 35,
+      "eventCount": 2,
+      "stateVariableCount": 7,
+      "patterns": {
+        "usesOpenZeppelin": false,
+        "usesProxy": true,
+        "usesSafeERC20": true,
+        "usesAccessControl": false,
+        "usesReentrancyGuard": true,
+        "usesPausable": false,
+        "usesERC721": false,
+        "usesERC20": true,
+        "usesOracles": true,
+        "usesMath": true
+      }
+    },
+    {
+      "name": "Governance",
+      "address": "0xcafeafa258be9acb7c0de989be21a8e9583fba65",
+      "category": "Governance",
+      "functionCount": 38,
+      "eventCount": 11,
+      "stateVariableCount": 0,
+      "patterns": {}
+    },
+    {
+      "name": "MemberRoles",
+      "address": "0x055CC48f7968FD8640EF140610dd4038e1b03926",
+      "category": "Governance",
+      "functionCount": 0,
+      "eventCount": 0,
+      "stateVariableCount": 0,
+      "patterns": {
+        "usesOpenZeppelin": false,
+        "usesProxy": true,
+        "usesSafeERC20": false,
+        "usesAccessControl": false,
+        "usesReentrancyGuard": false,
+        "usesPausable": false,
+        "usesERC721": false,
+        "usesERC20": false,
+        "usesOracles": false,
+        "usesMath": false
+      }
+    },
+    {
+      "name": "NXMToken",
+      "address": "0xd7c49CEE7E9188cCa6AD8FF264C1DA2e69D4Cf3B",
+      "category": "Tokenomics",
+      "functionCount": 22,
+      "eventCount": 4,
+      "stateVariableCount": 5,
+      "patterns": {
+        "usesOpenZeppelin": false,
+        "usesProxy": false,
+        "usesSafeERC20": false,
+        "usesAccessControl": false,
+        "usesReentrancyGuard": false,
+        "usesPausable": false,
+        "usesERC721": false,
+        "usesERC20": true,
+        "usesOracles": false,
+        "usesMath": true
+      }
+    },
+    {
+      "name": "PriceFeedOracle",
+      "address": "0xcafea905B417AC7778843aaE1A0b3848CA97a592",
+      "category": "Tokenomics",
+      "functionCount": 7,
+      "eventCount": 0,
+      "stateVariableCount": 0,
+      "patterns": {
+        "usesOpenZeppelin": false,
+        "usesProxy": false,
+        "usesSafeERC20": false,
+        "usesAccessControl": false,
+        "usesReentrancyGuard": false,
+        "usesPausable": false,
+        "usesERC721": false,
+        "usesERC20": false,
+        "usesOracles": true,
+        "usesMath": false
+      }
+    }
+  ]
+}

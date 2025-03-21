@@ -1,0 +1,221 @@
+{
+  "functions": [
+    {
+      "name": "removeFromWhiteList",
+      "signature": "removeFromWhiteList(address _member)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "changeOperator",
+      "signature": "changeOperator(address _newOperator)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "name",
+      "signature": "name()",
+      "visibility": "view",
+      "returns": "string ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "approve",
+      "signature": "approve(address spender, uint256 value)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "totalSupply",
+      "signature": "totalSupply()",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "transferFrom",
+      "signature": "transferFrom(address from, address to, uint256 value)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "decimals",
+      "signature": "decimals()",
+      "visibility": "view",
+      "returns": "uint8 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "increaseAllowance",
+      "signature": "increaseAllowance(address spender, uint256 addedValue)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "mint",
+      "signature": "mint(address account, uint256 amount)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "burn",
+      "signature": "burn(uint256 amount)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "addToWhiteList",
+      "signature": "addToWhiteList(address _member)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "lockForMemberVote",
+      "signature": "lockForMemberVote(address _of, uint256 _days)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "operator",
+      "signature": "operator()",
+      "visibility": "view",
+      "returns": "address ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "balanceOf",
+      "signature": "balanceOf(address owner)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "burnFrom",
+      "signature": "burnFrom(address from, uint256 value)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "symbol",
+      "signature": "symbol()",
+      "visibility": "view",
+      "returns": "string ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "isLockedForMV",
+      "signature": "isLockedForMV(address )",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "decreaseAllowance",
+      "signature": "decreaseAllowance(address spender, uint256 subtractedValue)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "transfer",
+      "signature": "transfer(address to, uint256 value)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "operatorTransfer",
+      "signature": "operatorTransfer(address from, uint256 value)",
+      "visibility": "nonpayable",
+      "returns": "bool ",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "allowance",
+      "signature": "allowance(address owner, address spender)",
+      "visibility": "view",
+      "returns": "uint256 ",
+      "constant": true,
+      "payable": false
+    },
+    {
+      "name": "whiteListed",
+      "signature": "whiteListed(address )",
+      "visibility": "view",
+      "returns": "bool ",
+      "constant": true,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "WhiteListed",
+      "signature": "WhiteListed(address indexed member)",
+      "anonymous": false
+    },
+    {
+      "name": "BlackListed",
+      "signature": "BlackListed(address indexed member)",
+      "anonymous": false
+    },
+    {
+      "name": "Transfer",
+      "signature": "Transfer(address indexed from, address indexed to, uint256  value)",
+      "anonymous": false
+    },
+    {
+      "name": "Approval",
+      "signature": "Approval(address indexed owner, address indexed spender, uint256  value)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [
+    "uint256 private _totalSupply;",
+    "string public name = \"NXM\";",
+    "string public symbol = \"NXM\";",
+    "uint8 public decimals = 18;",
+    "address public operator;"
+  ],
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": false,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": false,
+    "usesERC20": true,
+    "usesOracles": false,
+    "usesMath": true
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "IndividualClaims",
+  "address": "0xcafea1079707cdabdb1f31e28692545b44fb23db",
+  "category": "Claims",
+  "description": "Claims processing",
+  "compiler": "v0.8.18+commit.87f61d96",
+  "optimizationEnabled": true,
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": false,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": true,
+    "usesERC20": true,
+    "usesOracles": true,
+    "usesMath": true
+  }
+}

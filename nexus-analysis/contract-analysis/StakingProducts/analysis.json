@@ -1,0 +1,61 @@
+{
+  "functions": [
+    {
+      "name": "implementation",
+      "signature": "implementation()",
+      "visibility": "view",
+      "returns": "address impl",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "proxyOwner",
+      "signature": "proxyOwner()",
+      "visibility": "view",
+      "returns": "address owner",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "transferProxyOwnership",
+      "signature": "transferProxyOwnership(address _newOwner)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    },
+    {
+      "name": "upgradeTo",
+      "signature": "upgradeTo(address _implementation)",
+      "visibility": "nonpayable",
+      "returns": "",
+      "constant": false,
+      "payable": false
+    }
+  ],
+  "events": [
+    {
+      "name": "ProxyOwnershipTransferred",
+      "signature": "ProxyOwnershipTransferred(address  previousOwner, address  newOwner)",
+      "anonymous": false
+    },
+    {
+      "name": "Upgraded",
+      "signature": "Upgraded(address indexed implementation)",
+      "anonymous": false
+    }
+  ],
+  "stateVariables": [],
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": true,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": false,
+    "usesERC20": false,
+    "usesOracles": false,
+    "usesMath": false
+  }
+}

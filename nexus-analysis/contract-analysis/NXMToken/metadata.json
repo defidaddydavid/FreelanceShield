@@ -1,0 +1,20 @@
+{
+  "name": "NXMToken",
+  "address": "0xd7c49CEE7E9188cCa6AD8FF264C1DA2e69D4Cf3B",
+  "category": "Tokenomics",
+  "description": "Native token",
+  "compiler": "v0.5.7+commit.6da8b019",
+  "optimizationEnabled": true,
+  "patterns": {
+    "usesOpenZeppelin": false,
+    "usesProxy": false,
+    "usesSafeERC20": false,
+    "usesAccessControl": false,
+    "usesReentrancyGuard": false,
+    "usesPausable": false,
+    "usesERC721": false,
+    "usesERC20": true,
+    "usesOracles": false,
+    "usesMath": true
+  }
+}
