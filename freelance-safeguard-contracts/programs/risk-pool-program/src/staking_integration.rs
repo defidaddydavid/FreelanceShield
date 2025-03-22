@@ -20,20 +20,20 @@ pub fn distribute_staking_rewards(
     staking_program: &Program<StakingProgram>,
     premium_amount: u64,
 ) -> Result<()> {
-    let ix = anchor_lang::solana_program::instruction::Instruction {
+    let ix = anchor_lang::anchor_lang::solana_program::instruction::Instruction {
         program_id: staking_program.key(),
         accounts: vec![
             AccountMeta::new_readonly(*authority.key, true),
             AccountMeta::new(*staking_state.key, false),
-            AccountMeta::new_readonly(anchor_lang::solana_program::system_program::ID, false),
+            AccountMeta::new_readonly(anchor_lang::anchor_lang::solana_program::system_program::ID, false),
         ],
         data: anchor_lang::InstructionData::new(
-            anchor_lang::solana_program::hash::hash("global:distribute_rewards".as_bytes()),
+            anchor_lang::anchor_lang::solana_program::hash::hash("global:distribute_rewards".as_bytes()),
             premium_amount,
         ).data.to_vec(),
     };
 
-    anchor_lang::solana_program::program::invoke(
+    anchor_lang::anchor_lang::solana_program::program::invoke(
         &ix,
         &[
             authority.to_account_info(),

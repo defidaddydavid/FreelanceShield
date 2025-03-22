@@ -2,11 +2,11 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 use std::convert::TryFrom;
 
-declare_id!("CL1mSpRocNM6R9LcvKhm3zRzVpSXyBUfnmKdBVpp8zKL");
+declare_id!("HCj7shHxX7coKVygjhyfT9AuxJrCuNq7bak7Zp44h7bp");
 
 // Define program IDs for cross-program invocation
-pub const ENHANCED_COVER_PROGRAM_ID: Pubkey = solana_program::pubkey!("CvrPgm6dYqzKH5KVvKMiriyts4pVrk6ogLH1KUW3dVnW");
-pub const RISK_POOL_PROGRAM_ID: Pubkey = solana_program::pubkey!("GywN3pRCKVXyAVNxkePotBFEYcFSvULw5qefacsUmsdt");
+pub const ENHANCED_COVER_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("CvrPgm6dYqzKH5KVvKMiriyts4pVrk6ogLH1KUW3dVnW");
+pub const RISK_POOL_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("GywN3pRCKVXyAVNxkePotBFEYcFSvULw5qefacsUmsdt");
 
 // Constants for evidence management
 pub const MAX_EVIDENCE_DESCRIPTION_LENGTH: usize = 512;

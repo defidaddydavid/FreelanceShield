@@ -1,15 +1,15 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 use anchor_spl::associated_token::AssociatedToken;
-use solana_program::program::{invoke, invoke_signed};
-use solana_program::instruction::Instruction;
-use solana_program::system_instruction;
+use anchor_lang::anchor_lang::solana_program::program::{invoke, invoke_signed};
+use anchor_lang::anchor_lang::solana_program::instruction::Instruction;
+use anchor_lang::anchor_lang::solana_program::system_instruction;
 
-declare_id!("5yWSCq9kvXTeB2JAKSZu7mPPoR7Nw5nFQotVU9ApfsCz");
+declare_id!("8HZPdcQXc42SAk94nVksQaBF1ddKtiGr46vwbHmMmwex");
 
 // Define program IDs for cross-program invocation
-pub const INSURANCE_PROGRAM_ID: Pubkey = solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");
-pub const REPUTATION_PROGRAM_ID: Pubkey = solana_program::pubkey!("jq3B5tb6Teg9A1oDqsD2fGnuhb357vceeMrAuYEmz9d");
+pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::anchor_lang::solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");
+pub const REPUTATION_PROGRAM_ID: Pubkey = anchor_lang::anchor_lang::solana_program::pubkey!("jq3B5tb6Teg9A1oDqsD2fGnuhb357vceeMrAuYEmz9d");
 
 #[program]
 pub mod escrow_program {

@@ -6,7 +6,13 @@ members = [
     "programs/insurance-program",
     "programs/reputation-program",
     "programs/risk-pool-program",
-    "programs/staking-program"
+    "programs/staking-program",
+    "programs/freelance-insurance",
+    "programs/core",
+    "programs/enhanced-claims",
+    "programs/enhanced-cover",
+    "programs/enhanced-risk-pool",
+    "programs/policy-nft"
 ]
 resolver = "2"
 
@@ -23,11 +29,35 @@ opt-level = 0
 [profile.test]
 opt-level = 3
 
-# Shared dependencies can be specified here and will be inherited by the workspace members
+# Standardized workspace dependencies using latest stable versions from crates.io
 [workspace.dependencies]
-anchor-lang = "0.28.0"
-anchor-spl = "0.28.0"
-solana-program = "1.16.0"
-spl-token = "4.0.0"
-spl-associated-token-account = "2.0.0"
-thiserror = "1.0.50"
+# Anchor Framework - using exact version that matches CLI
+anchor-lang = "=0.31.0"
+anchor-spl = "=0.31.0"
+
+# Solana/Agave Ecosystem - using the version required by Anchor 0.31.0
+solana-program = "=2.2.1"
+agave-program = "=2.2.1"
+solana-zk-token-sdk = "=2.2.1"
+
+# SPL Libraries - using versions compatible with Anchor 0.31.0
+spl-token = { version = "=4.0.0", features = ["no-entrypoint"] }
+spl-token-2022 = { version = "=4.0.0", features = ["no-entrypoint"] }
+spl-associated-token-account = { version = "=2.0.0", features = ["no-entrypoint"] }
+spl-memo = { version = "=4.0.0", features = ["no-entrypoint"] }
+
+# Metaplex Libraries
+mpl-token-metadata = { version = "=1.13.1", features = ["no-entrypoint"] }
+
+# Utility Libraries
+thiserror = "1.0.51"
+borsh = "0.10.3"
+zeroize = "1.7.0"
+
+[workspace.metadata.solana]
+sdk-version = "2.2.1"
+
+# Add source replacement for agave
+[patch.crates-io]
+solana-program = { git = "https://github.com/anza-xyz/agave", tag = "v2.2.1" }
+solana-zk-token-sdk = { git = "https://github.com/anza-xyz/agave", tag = "v2.2.1" }

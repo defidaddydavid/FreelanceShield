@@ -3,7 +3,7 @@ use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 use anchor_spl::associated_token::AssociatedToken;
 use std::convert::TryFrom;
 
-declare_id!("37dpkWEmajidF7PKS9v43m2QfTxo7kxxYaEQcAh5c9uD");
+declare_id!("HpkxHodkn839YUPUYqpyjjC2mMcPp49SF73XSBJeodKy");
 
 // Constants for premium calculation
 pub const BASE_PREMIUM_RATE: u64 = 100_000; // 0.1 SOL in lamports
@@ -14,7 +14,7 @@ pub const CLAIM_HISTORY_IMPACT_FACTOR: f64 = 1.5;
 pub const MARKET_CONDITION_DEFAULT: f64 = 1.0;
 
 // Risk pool program ID
-pub const RISK_POOL_PROGRAM_ID: Pubkey = solana_program::pubkey!("HC1TQHR6kVqtq48UbTYGwHwHTUYom9W3ovNVgjPgNcFg");
+pub const RISK_POOL_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("HC1TQHR6kVqtq48UbTYGwHwHTUYom9W3ovNVgjPgNcFg");
 
 #[program]
 pub mod insurance_program {

@@ -5,10 +5,10 @@ use anchor_spl::associated_token::AssociatedToken;
 mod staking_integration;
 use staking_integration::{distribute_staking_rewards, transfer_premium_share_to_staking, StakingProgram};
 
-declare_id!("GywN3pRCKVXyAVNxkePotBFEYcFSvULw5qefacsUmsdt");
+declare_id!("U5GxZ56nPBCT2REu4LUfytu51ZVtXAKhaThYFNbK6HJ");
 
 // Define the Staking Program ID
-pub const STAKING_PROGRAM_ID: Pubkey = solana_program::pubkey!("StaKe5tXnKjeJC4vRVsnxBrNwUuUXRES2RdMc4MnrSA");
+pub const STAKING_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("StaKe5tXnKjeJC4vRVsnxBrNwUuUXRES2RdMc4MnrSA");
 
 #[program]
 pub mod risk_pool_program {

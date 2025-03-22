@@ -14,7 +14,7 @@ pub use instructions::*;
 pub use state::*;
 pub use utils::*;
 
-declare_id!("GR8CRDYVkXezJ8vkiY8a3sCXX8bdAJZXpggC2VDkfLjg");
+declare_id!("6yd8AqML1RHnV2M5jkx2kqwRomTwFFzkWUJKiNJCk7A4");
 
 #[program]
 pub mod reputation_program {

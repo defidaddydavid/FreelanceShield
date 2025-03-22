@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
 use anchor_spl::associated_token::AssociatedToken;
 
-declare_id!("GWzvQgHUJyyXdEdoHh6SXZw8btDwxQUwXCuPX9c5xLQX");
+declare_id!("HSfx7TmMotfS8ZSpD3cKYKkdnc739xajMFiQCHSkYGAD");
 
 #[program]
 pub mod staking_program {

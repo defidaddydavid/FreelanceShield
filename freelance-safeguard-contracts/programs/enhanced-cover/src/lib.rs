@@ -3,12 +3,12 @@ use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
 use anchor_spl::associated_token::AssociatedToken;
 use std::convert::TryFrom;
 
-declare_id!("CvrPgm6dYqzKH5KVvKMiriyts4pVrk6ogLH1KUW3dVnW");
+declare_id!("FAHQ8AwmddY7T6Xi13DE6ki8aCRjB5JRpUpMsppzp7FL");
 
 // Define program IDs for cross-program invocation
-pub const RISK_POOL_PROGRAM_ID: Pubkey = solana_program::pubkey!("GywN3pRCKVXyAVNxkePotBFEYcFSvULw5qefacsUmsdt");
-pub const POLICY_NFT_PROGRAM_ID: Pubkey = solana_program::pubkey!("NFTpLcy1UQCJcZBEYzgHNUaehDQoqTuNFWJJdT9eLLRW");
-pub const STAKING_PROGRAM_ID: Pubkey = solana_program::pubkey!("StaKe5tXnKjeJC4vRVsnxBrNwUuUXRES2RdMc4MnrSA");
+pub const RISK_POOL_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("GywN3pRCKVXyAVNxkePotBFEYcFSvULw5qefacsUmsdt");
+pub const POLICY_NFT_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("NFTpLcy1UQCJcZBEYzgHNUaehDQoqTuNFWJJdT9eLLRW");
+pub const STAKING_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("StaKe5tXnKjeJC4vRVsnxBrNwUuUXRES2RdMc4MnrSA");
 
 // Constants for cover product management
 pub const MAX_PRODUCT_NAME_LENGTH: usize = 64;

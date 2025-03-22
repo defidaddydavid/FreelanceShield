@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
 // Define program IDs for cross-program invocation (originally in lib.rs)
-pub const INSURANCE_PROGRAM_ID: Pubkey = solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");
-pub const ESCROW_PROGRAM_ID: Pubkey = solana_program::pubkey!("EcThA7tgAKLgjQnXQBgf7mBFXKRbLbCMPqggTSvVZdHU");
+pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");
+pub const ESCROW_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("EcThA7tgAKLgjQnXQBgf7mBFXKRbLbCMPqggTSvVZdHU");
 
 // Constants for reputation calculations
 pub const MIN_REPUTATION_SCORE: u8 = 0;

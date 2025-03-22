@@ -16,7 +16,6 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = "0.31.0"
-anchor-spl = "0.31.0"
-solana-program = "1.17.0"
-thiserror = "1.0.51"
+anchor-lang = { workspace = true }
+anchor-spl = { workspace = true }
+thiserror = { workspace = true }

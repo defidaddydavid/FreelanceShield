@@ -1,16 +1,18 @@
 [toolchain]
-anchor_version = "0.28.0"
+anchor_version = "0.31.0"
+solana_version = "2.2.1"
 
 [features]
 resolution = true
 skip-lint = false
 
 [programs.devnet]
-claims_processor = "B5zguYu7xMS2DApHWLEe2Er4NA1yTE66buNxvT91wq7B"
-dao_governance = "2JNR5WSbjKoDuKidQyhVJtGzEtNGdYB1a8YnVkDXivWW"
-escrow_program = "5yWSCq9kvXTeB2JAKSZu7mPPoR7Nw5nFQotVU9ApfsCz"
-insurance_program = "37dpkWEmajidF7PKS9v43m2QfTxo7kxxYaEQcAh5c9uD"
-risk_pool_program = "GywN3pRCKVXyAVNxkePotBFEYcFSvULw5qefacsUmsdt"
+claims_processor = "4tiYerbWqYX6tiDscXiMG3kTpXkBgrd2bLor8Ne49uzA"
+dao_governance = "C26MZeStsmBkom4QzegKXXuyhHLto1kajLjmpBZBYru5"
+escrow_program = "8HZPdcQXc42SAk94nVksQaBF1ddKtiGr46vwbHmMmwex"
+freelance_insurance = "81APCGsWxDgfwsvjLgt1CqSqvMXpkTTseuYdeQ2ebWEP"
+insurance_program = "HpkxHodkn839YUPUYqpyjjC2mMcPp49SF73XSBJeodKy"
+risk_pool_program = "U5GxZ56nPBCT2REu4LUfytu51ZVtXAKhaThYFNbK6HJ"
 
 [registry]
 url = "https://api.apr.dev"

@@ -2,11 +2,11 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 use std::convert::TryFrom;
 
-declare_id!("B5zguYu7xMS2DApHWLEe2Er4NA1yTE66buNxvT91wq7B");
+declare_id!("4tiYerbWqYX6tiDscXiMG3kTpXkBgrd2bLor8Ne49uzA");
 
 // Define program IDs for cross-program invocation
-pub const INSURANCE_PROGRAM_ID: Pubkey = solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");
-pub const RISK_POOL_PROGRAM_ID: Pubkey = solana_program::pubkey!("HC1TQHR6kVqtq48UbTYGwHwHTUYom9W3ovNVgjPgNcFg");
+pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");
+pub const RISK_POOL_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("HC1TQHR6kVqtq48UbTYGwHwHTUYom9W3ovNVgjPgNcFg");
 
 #[program]
 pub mod claims_processor {
@@ -500,7 +500,7 @@ fn process_claim_payout(
     let signer_seeds = &[&seeds[..]];
     
     // Execute CPI call
-    solana_program::program::invoke_signed(
+    anchor_lang::anchor_lang::anchor_lang::solana_program::program::invoke_signed(
         &instruction,
         &[
             ctx.accounts.risk_pool.to_account_info(),
@@ -516,7 +516,7 @@ fn process_claim_payout(
     
     // Construct a signature-like string from the claim key and current slot
     let signature_base = format!("{}:{}", ctx.accounts.claim.key(), clock.slot);
-    let signature = solana_program::hash::hash(signature_base.as_bytes()).to_string();
+    let signature = anchor_lang::anchor_lang::anchor_lang::solana_program::hash::hash(signature_base.as_bytes()).to_string();
     
     msg!("Processing payout of {} lamports for claim: {}", amount, ctx.accounts.claim.key());
     msg!("Transaction signature: {}", signature);

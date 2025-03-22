@@ -8,12 +8,12 @@ use anchor_spl::metadata::{
 };
 use anchor_spl::associated_token::AssociatedToken;
 use mpl_token_metadata::state::{Creator, DataV2, Collection};
-use solana_program::program::invoke_signed;
+use anchor_lang::anchor_lang::solana_program::program::invoke_signed;
 
-declare_id!("NFTpLcy1UQCJcZBEYzgHNUaehDQoqTuNFWJJdT9eLLRW");
+declare_id!("BvfpEFhUNrvs8XAKAnytG2hNjEAjviDZEezpTfjLFPxa");
 
 // Define the Insurance Program ID
-pub const INSURANCE_PROGRAM_ID: Pubkey = solana_program::pubkey!("37dpkWEmajidF7PKS9v43m2QfTxo7kxxYaEQcAh5c9uD");
+pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("37dpkWEmajidF7PKS9v43m2QfTxo7kxxYaEQcAh5c9uD");
 
 #[program]
 pub mod policy_nft {

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::system_program;
-use solana_program_test::*;
+use anchor_lang::anchor_lang::solana_program::system_program;
+use anchor_lang::solana_program_test::*;
 use solana_sdk::{account::Account, signature::Keypair, signer::Signer, transaction::Transaction};
 use reputation_program::*;
 

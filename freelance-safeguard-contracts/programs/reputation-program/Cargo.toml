@@ -17,4 +17,6 @@ default = []
 
 [dependencies]
 anchor-lang = { workspace = true }
-solana-program = { workspace = true }
+anchor-spl = { workspace = true }
+solana-zk-token-sdk = { workspace = true }
+spl-token-2022 = { workspace = true }
