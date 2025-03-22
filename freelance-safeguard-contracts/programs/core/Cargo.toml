@@ -19,3 +19,4 @@ default = []
 anchor-lang = { workspace = true }
 anchor-spl = { workspace = true }
 thiserror = { workspace = true }
+solana-program = { workspace = true }

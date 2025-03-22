@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
 
-declare_id!("C26MZeStsmBkom4QzegKXXuyhHLto1kajLjmpBZBYru5");
+declare_id!("6u997rgZTjwj3obHzr2fP9gzNSkrkvMZDYa4VFCDNw5c");
 
 #[program]
 pub mod dao_governance {

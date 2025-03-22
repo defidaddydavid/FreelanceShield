@@ -7,12 +7,12 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-claims_processor = "4tiYerbWqYX6tiDscXiMG3kTpXkBgrd2bLor8Ne49uzA"
-dao_governance = "C26MZeStsmBkom4QzegKXXuyhHLto1kajLjmpBZBYru5"
-escrow_program = "8HZPdcQXc42SAk94nVksQaBF1ddKtiGr46vwbHmMmwex"
-freelance_insurance = "81APCGsWxDgfwsvjLgt1CqSqvMXpkTTseuYdeQ2ebWEP"
-insurance_program = "HpkxHodkn839YUPUYqpyjjC2mMcPp49SF73XSBJeodKy"
-risk_pool_program = "U5GxZ56nPBCT2REu4LUfytu51ZVtXAKhaThYFNbK6HJ"
+claims_processor = "64pxnRW6T4UKRdBtZbRR6DwcWXzS5ahVYHVhcHZk44xo"
+dao_governance = "6u997rgZTjwj3obHzr2fP9gzNSkrkvMZDYa4VFCDNw5c"
+escrow_program = "KpH6xpxhNSh88AxBTgTUQ9KgvM2cKLcVrzA6Ke7QyK5"
+freelance_insurance = "4gjEkiunXY7aLHASi49PGv3VfhKVPKv1fUWEdQTQXUiN"
+insurance_program = "DKmNWT36RZTkN1ggdLUvze1JvB3RFZ4HHYGh6zLK3rbc"
+risk_pool_program = "BXkKs3SXcjQiyfrEWx6QXWpfbkhpa6gwEG2PkekyaAdz"
 
 [registry]
 url = "https://api.apr.dev"

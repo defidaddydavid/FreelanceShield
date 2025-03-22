@@ -3,6 +3,7 @@ rustc = "rustc"
 rustdoc = "rustdoc"
 
 [net]
-# Increase timeout for better dependency downloads
 git-fetch-with-cli = true
-retry = 3
+
+[registries.crates-io]
+protocol = "sparse"

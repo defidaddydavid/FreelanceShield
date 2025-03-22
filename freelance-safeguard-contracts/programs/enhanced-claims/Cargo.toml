@@ -18,4 +18,4 @@ default = []
 [dependencies]
 anchor-lang = { workspace = true }
 anchor-spl = { workspace = true }
-# Removed solana-program as it's included in anchor-lang
+solana-program = { workspace = true }

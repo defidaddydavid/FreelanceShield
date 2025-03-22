@@ -16,8 +16,11 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
+solana-program = { workspace = true }
 anchor-lang = { workspace = true }
 anchor-spl = { workspace = true }
 spl-token = { workspace = true }
+spl-associated-token-account = { workspace = true }
 spl-token-2022 = { workspace = true }
-# Removed solana-program as it's included in anchor-lang
+mpl-token-metadata = { workspace = true }
+thiserror = { workspace = true }

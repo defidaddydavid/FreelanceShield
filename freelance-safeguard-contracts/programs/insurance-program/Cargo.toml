@@ -20,5 +20,5 @@ anchor-lang = { workspace = true }
 anchor-spl = { workspace = true }
 spl-token = { workspace = true }
 spl-associated-token-account = { workspace = true }
-solana-zk-token-sdk = { workspace = true }
 spl-token-2022 = { workspace = true }
+solana-program = { workspace = true }

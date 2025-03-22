@@ -10,7 +10,7 @@ pub use instructions::*;
 pub use state::*;
 
 // Program ID - this will be updated once deployed
-declare_id!("6J5HUYJRtBJL6KXYk7TVoWj8yNE7s4CfZHMrzbcdWwT8");
+declare_id!("pDg6qaeYsDcWnC2x3uSxSDQETy6VLcVoa9NNqueEqy2");
 
 #[program]
 pub mod freelance_shield_core {

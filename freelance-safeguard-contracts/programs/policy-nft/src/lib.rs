@@ -10,7 +10,7 @@ use anchor_spl::associated_token::AssociatedToken;
 use mpl_token_metadata::state::{Creator, DataV2, Collection};
 use anchor_lang::anchor_lang::solana_program::program::invoke_signed;
 
-declare_id!("BvfpEFhUNrvs8XAKAnytG2hNjEAjviDZEezpTfjLFPxa");
+declare_id!("HZEsmPpZuTAGNoQJNCYGqB44mfDz6Rb655N3usmeZ2s3");
 
 // Define the Insurance Program ID
 pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("37dpkWEmajidF7PKS9v43m2QfTxo7kxxYaEQcAh5c9uD");
