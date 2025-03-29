@@ -51,3 +51,4 @@ pub fn handler(ctx: Context<ProcessClaimData>) -> Result<()> {
     
     Ok(())
 }
+

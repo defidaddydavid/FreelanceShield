@@ -96,3 +96,4 @@ pub fn handler(ctx: Context<UpdatePolicy>, params: UpdatePolicyParams) -> Result
     msg!("Policy updated: {}", policy.key());
     Ok(())
 }
+

@@ -129,3 +129,4 @@ pub struct GetReputationHistory<'info> {
     )]
     pub user_profile: Account<'info, UserProfile>,
 }
+

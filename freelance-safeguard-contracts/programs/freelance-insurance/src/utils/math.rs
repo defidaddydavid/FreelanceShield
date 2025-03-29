@@ -358,3 +358,4 @@ pub fn update_bayesian_parameters(
     // Update timestamp
     bayesian_parameters.last_update_timestamp = current_timestamp;
 }
+

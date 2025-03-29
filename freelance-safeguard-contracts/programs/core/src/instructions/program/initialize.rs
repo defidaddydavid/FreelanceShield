@@ -88,3 +88,4 @@ pub fn handler(ctx: Context<Initialize>, params: InitializeParams) -> Result<()>
     msg!("FreelanceShield Core program initialized");
     Ok(())
 }
+

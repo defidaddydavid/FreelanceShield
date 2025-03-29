@@ -7,10 +7,15 @@ use anchor_spl::metadata::{
     MetadataProgram
 };
 use anchor_spl::associated_token::AssociatedToken;
-use mpl_token_metadata::state::{Creator, DataV2, Collection};
-use anchor_lang::anchor_lang::solana_program::program::invoke_signed;
+use mpl_token_metadata::state::{Creator, DataV2, Collection, Uses, UseMethod};
+use anchor_lang::solana_program::program::invoke_signed;
+use borsh::{BorshDeserialize, BorshSerialize};
 
-declare_id!("HZEsmPpZuTAGNoQJNCYGqB44mfDz6Rb655N3usmeZ2s3");
+// Import our custom wrapper for mpl-token-metadata
+mod metadata_wrapper;
+use metadata_wrapper::*;
+
+declare_id!("2pwwsiBvc21ZcBaVmdWcymvz3QiP8DuYkB97S7gNoK6T");
 
 // Define the Insurance Program ID
 pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("37dpkWEmajidF7PKS9v43m2QfTxo7kxxYaEQcAh5c9uD");

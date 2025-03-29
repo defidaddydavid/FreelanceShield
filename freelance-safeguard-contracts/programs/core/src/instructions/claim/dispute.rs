@@ -91,7 +91,7 @@ pub fn handler(ctx: Context<DisputeClaim>, reason: String, new_evidence: Option<
 }
 
 /// Get the claim index from the policy account
-fn get_claim_index(policy_pubkey: &Pubkey, claim_pubkey: Pubkey) -> Result<u8> {
+fn get_claim_index(_policy_pubkey: &Pubkey, _claim_pubkey: Pubkey) -> Result<u8> {
     // In a real implementation, we would query the policy account to get the claim index
     // For simplicity, we're extracting it from the claim's seeds
     

@@ -100,15 +100,9 @@ pub fn handler(ctx: Context<RenewPolicy>, period_days: u16) -> Result<()> {
     let base_premium = calculate_premium(
         policy.coverage_amount,
         period_days,
+        product.risk_factor,
         product.base_premium_rate,
-        product.risk_adjustment_factor,
-        policy.job_type.risk_weight(&program_state.job_type_risk_weights),
-        policy.industry.risk_weight(&program_state.industry_risk_weights),
-        policy.reputation_score,
-        policy.claims_count,
-        program_state.risk_curve_exponent,
-        program_state.reputation_impact_weight,
-        program_state.claims_history_impact_weight
+        product.premium_multiplier
     )?;
     
     // Apply loyalty discount (5% discount for renewal)
@@ -166,3 +160,4 @@ pub fn handler(ctx: Context<RenewPolicy>, period_days: u16) -> Result<()> {
         end_date, premium_amount);
     Ok(())
 }
+

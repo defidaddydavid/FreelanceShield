@@ -67,3 +67,4 @@ pub fn calculate_reputation_factor(reputation_score: u8) -> u8 {
     // Map reputation score (0-100) to reputation factor (70-100)
     MIN_REPUTATION_FACTOR + ((reputation_score as u16 * (MAX_REPUTATION_FACTOR - MIN_REPUTATION_FACTOR) as u16) / MAX_REPUTATION_SCORE as u16) as u8
 }
+

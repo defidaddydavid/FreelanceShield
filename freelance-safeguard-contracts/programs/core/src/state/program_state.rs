@@ -238,3 +238,4 @@ pub struct UpdateProgramParamsParams {
     /// Whether the program is paused
     pub is_paused: Option<bool>,
 }
+

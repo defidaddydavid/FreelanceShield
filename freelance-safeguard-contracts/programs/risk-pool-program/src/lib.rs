@@ -5,7 +5,7 @@ use anchor_spl::associated_token::AssociatedToken;
 mod staking_integration;
 use staking_integration::{distribute_staking_rewards, transfer_premium_share_to_staking, StakingProgram};
 
-declare_id!("BXkKs3SXcjQiyfrEWx6QXWpfbkhpa6gwEG2PkekyaAdz");
+declare_id!("FroU966kfvu5RAQxhLfb4mhFdDjY6JewEf41ZfYR3xhm");
 
 // Define the Staking Program ID
 pub const STAKING_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("StaKe5tXnKjeJC4vRVsnxBrNwUuUXRES2RdMc4MnrSA");
@@ -767,3 +767,4 @@ pub enum RiskPoolError {
     #[msg("Invalid account")]
     InvalidAccount,
 }
+

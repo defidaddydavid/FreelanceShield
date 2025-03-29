@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
 use anchor_spl::associated_token::AssociatedToken;
 
-declare_id!("KbB21E5kiT3QYMsyQFyqjS9tqZFV5x2FJ5nBD3QTkCV");
+declare_id!("z1VyDVFdUGUXQzx6Dikrzt7aDR8BLgSARcncUvymcDb");
 
 #[program]
 pub mod staking_program {
@@ -1293,3 +1293,4 @@ pub enum StakingError {
     #[msg("Reward pool depleted")]
     RewardPoolDepleted,
 }
+

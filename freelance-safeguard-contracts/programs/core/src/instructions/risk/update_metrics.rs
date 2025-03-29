@@ -70,3 +70,4 @@ pub fn handler(ctx: Context<UpdateRiskMetrics>) -> Result<()> {
         risk_pool.current_reserve_ratio, risk_pool.premium_to_claims_ratio);
     Ok(())
 }
+

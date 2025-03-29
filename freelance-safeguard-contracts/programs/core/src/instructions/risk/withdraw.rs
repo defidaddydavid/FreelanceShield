@@ -120,3 +120,4 @@ pub fn handler(ctx: Context<WithdrawCapital>, params: WithdrawCapitalParams) -> 
     msg!("Capital withdrawn: Amount: {}", params.amount);
     Ok(())
 }
+

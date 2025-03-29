@@ -126,3 +126,4 @@ fn get_claim_index(policy_pubkey: &Pubkey, claim_pubkey: Pubkey) -> Result<u8> {
     // For now, we'll return 0 as a placeholder
     Ok(0)
 }
+

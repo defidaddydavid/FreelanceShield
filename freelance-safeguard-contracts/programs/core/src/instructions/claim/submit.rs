@@ -152,3 +152,4 @@ pub fn handler(ctx: Context<SubmitClaim>, params: SubmitClaimParams) -> Result<(
     msg!("Claim submitted: Amount: {}, Risk Score: {}", params.amount, risk_score);
     Ok(())
 }
+

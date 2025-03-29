@@ -58,3 +58,4 @@ async fn test_reputation_program_integration() {
     // as well as state verification through account data deserialization
     println!("Integration test setup complete - implement full transaction tests");
 }
+

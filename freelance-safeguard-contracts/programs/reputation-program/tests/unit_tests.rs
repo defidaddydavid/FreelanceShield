@@ -39,3 +39,4 @@ mod tests {
         assert_eq!(factor, 85); // (70 + (50 * 30 / 100)) = 85
     }
 }
+

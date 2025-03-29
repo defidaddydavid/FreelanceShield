@@ -168,3 +168,4 @@ pub fn calculate_risk_score(
     
     Ok(risk_score as u8)
 }
+

@@ -9,3 +9,4 @@ pub enum ReputationError {
     #[msg("Maximum history exceeded")]
     MaxHistoryExceeded,
 }
+

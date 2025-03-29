@@ -92,3 +92,4 @@ fn initialize_bayesian_parameters(bayesian_parameters: &mut BayesianParameters) 
     bayesian_parameters.total_policies_processed = 0;
     bayesian_parameters.total_claims_processed = 0;
 }
+

@@ -90,3 +90,4 @@ pub struct PurchasePolicyParams {
     /// Whether to mint a policy NFT
     pub mint_nft: bool,
 }
+

@@ -134,3 +134,4 @@ pub fn handler(ctx: Context<CancelPolicy>) -> Result<()> {
     msg!("Insurance policy cancelled: Refund amount: {}", refund_amount);
     Ok(())
 }
+

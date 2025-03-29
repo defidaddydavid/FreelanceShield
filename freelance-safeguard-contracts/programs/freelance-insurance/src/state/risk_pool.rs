@@ -10,3 +10,4 @@ pub struct RiskPool {
     pub reserve_ratio: u8,
     pub bump: u8,
 }
+

@@ -4,13 +4,50 @@ use anchor_lang::prelude::*;
 pub mod instructions;
 pub mod state;
 pub mod utils;
+pub mod error_helpers;
 
 // Re-export important structs for easier imports in clients
-pub use instructions::*;
-pub use state::*;
+// Use specific imports instead of glob imports to avoid ambiguity
+pub use instructions::{
+    claim::{
+        arbitrate::ArbitrateClaim,
+        dispute::DisputeClaim,
+        pay::PayClaim,
+        process::ProcessClaim,
+        submit::SubmitClaim,
+        vote::VoteOnClaim,
+    },
+    policy::{
+        cancel::CancelPolicy,
+        purchase::PurchasePolicy,
+    },
+    product::{
+        create::CreateProduct,
+        update::UpdateProduct,
+    },
+    program::{
+        initialize::Initialize,
+        update::UpdateProgramParameters,
+    },
+    risk::{
+        deposit::DepositCapital,
+        initialize::InitializeRiskPool,
+        simulate::SimulateRisk,
+        update::UpdateRiskMetrics,
+        withdraw::WithdrawCapital,
+    },
+};
+
+// Import parameter structs with specific namespaces
+pub use state::params::*;
+pub use state::product::Product;
+pub use state::policy::Policy;
+pub use state::claim::Claim;
+pub use state::risk_pool::RiskPool;
+pub use state::program_state::ProgramState;
 
 // Program ID - this will be updated once deployed
-declare_id!("pDg6qaeYsDcWnC2x3uSxSDQETy6VLcVoa9NNqueEqy2");
+declare_id!("71MWZDSCrSusXnwj42o4j6AfiZqQDPjVBLmQKtSoChZp");
 
 #[program]
 pub mod freelance_shield_core {
@@ -308,10 +345,67 @@ pub enum FreelanceShieldError {
     #[msg("Invalid token account")]
     InvalidTokenAccount,
     
+    // Additional error variants needed for policy renewal and claims
+    #[msg("Product is inactive")]
+    ProductInactive,
+    
+    #[msg("Policy cannot be renewed")]
+    PolicyCannotBeRenewed,
+    
+    #[msg("Invalid period for policy")]
+    InvalidPeriod,
+    
+    #[msg("Claim period has ended")]
+    ClaimPeriodEnded,
+    
+    #[msg("Invalid evidence type")]
+    InvalidEvidenceType,
+    
+    #[msg("Invalid evidence description")]
+    InvalidEvidenceDescription,
+    
+    // Product-specific errors
+    #[msg("Invalid product name")]
+    InvalidProductName,
+    
+    #[msg("Invalid product description")]
+    InvalidProductDescription,
+    
+    #[msg("Product already active")]
+    ProductAlreadyActive,
+    
+    #[msg("Product already inactive")]
+    ProductAlreadyInactive,
+    
+    #[msg("Invalid policy details")]
+    InvalidPolicyDetails,
+    
     // General errors
     #[msg("Arithmetic overflow")]
     ArithmeticOverflow,
     
     #[msg("Insufficient funds")]
     InsufficientFunds,
+    
+    // Additional error variants for risk calculations and cross-program invocations
+    #[msg("Risk pool not initialized")]
+    RiskPoolNotInitialized,
+    
+    #[msg("Risk pool already initialized")]
+    RiskPoolAlreadyInitialized,
+    
+    #[msg("Invalid risk simulation parameters")]
+    InvalidRiskSimulationParameters,
+    
+    #[msg("Risk calculation failed")]
+    RiskCalculationFailed,
+    
+    #[msg("Cross-program invocation failed")]
+    CrossProgramInvocationFailed,
+    
+    #[msg("Serialization error")]
+    SerializationError,
+    
+    #[msg("Deserialization error")]
+    DeserializationError,
 }

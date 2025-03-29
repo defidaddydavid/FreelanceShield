@@ -46,61 +46,43 @@ pub fn handler(ctx: Context<CreateProduct>, params: CreateProductParams) -> Resu
     
     // Validate product parameters
     require!(
-        params.name.len() <= Product::MAX_NAME_LENGTH,
+        params.product_name.len() <= MAX_PRODUCT_NAME_LENGTH,
         FreelanceShieldError::InvalidProductName
     );
     
     require!(
-        params.description.len() <= Product::MAX_DESCRIPTION_LENGTH,
+        params.product_description.len() <= MAX_PRODUCT_DESCRIPTION_LENGTH,
         FreelanceShieldError::InvalidProductDescription
-    );
-    
-    require!(
-        params.min_coverage_amount >= program_state.min_coverage_amount,
-        FreelanceShieldError::InvalidCoverageAmount
-    );
-    
-    require!(
-        params.max_coverage_amount <= program_state.max_coverage_amount,
-        FreelanceShieldError::InvalidCoverageAmount
-    );
-    
-    require!(
-        params.min_period_days >= program_state.min_period_days,
-        FreelanceShieldError::InvalidPeriod
-    );
-    
-    require!(
-        params.max_period_days <= program_state.max_period_days,
-        FreelanceShieldError::InvalidPeriod
     );
     
     // Initialize product
     product.authority = ctx.accounts.authority.key();
-    product.product_id = ctx.accounts.product_id.key();
-    product.name = params.name;
-    product.description = params.description;
+    product.product_name = params.product_name;
+    product.product_description = params.product_description;
     product.product_type = params.product_type;
-    product.min_coverage_amount = params.min_coverage_amount;
-    product.max_coverage_amount = params.max_coverage_amount;
-    product.min_period_days = params.min_period_days;
-    product.max_period_days = params.max_period_days;
-    product.base_premium_rate = params.base_premium_rate;
-    product.risk_adjustment_factor = params.risk_adjustment_factor;
+    product.risk_factor = params.risk_factor;
+    product.premium_multiplier = params.premium_multiplier;
+    product.min_stake_to_capital_ratio = params.min_stake_to_capital_ratio;
+    product.cover_terms = params.cover_terms;
     product.active = true;
-    product.creation_date = clock.unix_timestamp;
-    product.last_update_date = clock.unix_timestamp;
-    product.policies_issued = 0;
+    product.min_period_days = 0; // Set default values
+    product.max_period_days = 0; // Set default values
+    product.base_premium_rate = 0; // Set default values
+    product.risk_adjustment_factor = 0; // Set default values
+    product.active_policies = 0;
     product.total_coverage = 0;
     product.total_premiums = 0;
     product.claims_count = 0;
     product.claims_paid_amount = 0;
     product.loss_ratio = 0;
+    product.created_at = clock.unix_timestamp;
+    product.last_updated = clock.unix_timestamp;
     product.bump = *ctx.bumps.get("product").unwrap();
     
     // Update program state
     program_state.total_products += 1;
     
-    msg!("Insurance product created: {}", product.name);
+    msg!("Insurance product created: {}", product.product_name);
     Ok(())
 }
+

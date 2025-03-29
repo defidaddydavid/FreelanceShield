@@ -13,3 +13,4 @@ pub const MAX_EVIDENCE_TYPE_LENGTH: usize = 32;
 pub const MAX_EVIDENCE_DESC_LENGTH: usize = 512;
 pub const MAX_EVIDENCE_ATTACHMENTS: usize = 5;
 pub const MAX_ATTACHMENT_LENGTH: usize = 256;
+

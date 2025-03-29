@@ -72,7 +72,7 @@ pub fn handler(ctx: Context<SimulateRisk>, params: RiskSimulationParams) -> Resu
     
     // Calculate capital adequacy ratio (capital / required capital) * 100
     let min_required_capital = calculate_min_capital_requirement(
-        params.current_policies,
+        params.current_policies.try_into().unwrap(),
         params.avg_claim_severity,
         params.avg_claim_frequency,
         params.market_volatility,
@@ -106,7 +106,7 @@ pub fn handler(ctx: Context<SimulateRisk>, params: RiskSimulationParams) -> Resu
         params.market_volatility
     )?;
     
-    simulation_result.recommended_premium_adjustment = recommended_premium_adjustment;
+    simulation_result.recommended_premium_adjustment = recommended_premium_adjustment.into();
     
     simulation_result.bump = *ctx.bumps.get("simulation_result").unwrap();
     
@@ -114,3 +114,4 @@ pub fn handler(ctx: Context<SimulateRisk>, params: RiskSimulationParams) -> Resu
         capital_adequacy_ratio, expected_loss_ratio);
     Ok(())
 }
+

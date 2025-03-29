@@ -24,7 +24,7 @@ pub struct ActivateProduct<'info> {
     /// Product account PDA
     #[account(
         mut,
-        seeds = [Product::SEED_PREFIX, &product.product_id.to_bytes()],
+        seeds = [Product::SEED_PREFIX, &product.key().to_bytes()],
         bump = product.bump,
         constraint = !product.active @ FreelanceShieldError::ProductAlreadyActive
     )]
@@ -38,8 +38,9 @@ pub fn handler(ctx: Context<ActivateProduct>) -> Result<()> {
     
     // Activate the product
     product.active = true;
-    product.last_update_date = clock.unix_timestamp;
+    product.last_updated = clock.unix_timestamp;
     
-    msg!("Insurance product activated: {}", product.name);
+    msg!("Insurance product activated: {}", product.product_name);
     Ok(())
 }
+

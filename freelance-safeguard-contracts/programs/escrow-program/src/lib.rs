@@ -1,15 +1,15 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_lang::anchor_lang::solana_program::program::{invoke, invoke_signed};
-use anchor_lang::anchor_lang::solana_program::instruction::Instruction;
-use anchor_lang::anchor_lang::solana_program::system_instruction;
+use anchor_lang::solana_program::program::{invoke, invoke_signed};
+use anchor_lang::solana_program::instruction::Instruction;
+use anchor_lang::solana_program::system_instruction;
 
-declare_id!("KpH6xpxhNSh88AxBTgTUQ9KgvM2cKLcVrzA6Ke7QyK5");
+declare_id!("FUnA7YXC27uJBqrcS2Q5ofGL4ghyxoBZkieCtpxvCVab");
 
 // Define program IDs for cross-program invocation
-pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::anchor_lang::solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");
-pub const REPUTATION_PROGRAM_ID: Pubkey = anchor_lang::anchor_lang::solana_program::pubkey!("jq3B5tb6Teg9A1oDqsD2fGnuhb357vceeMrAuYEmz9d");
+pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");
+pub const REPUTATION_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("jq3B5tb6Teg9A1oDqsD2fGnuhb357vceeMrAuYEmz9d");
 
 #[program]
 pub mod escrow_program {
@@ -103,7 +103,7 @@ pub mod escrow_program {
         escrow.transaction_signatures.push(transaction_record);
         
         // Update escrow state
-        let mut escrow_state_account = ctx.accounts.escrow_state.to_account_info();
+        let escrow_state_account = ctx.accounts.escrow_state.to_account_info();
         let mut escrow_data = escrow_state_account.try_borrow_mut_data()?;
         let mut state = EscrowState::try_deserialize(&mut &escrow_data[..])?;
         
@@ -215,7 +215,7 @@ pub mod escrow_program {
             escrow.completion_date = Some(clock.unix_timestamp);
             
             // Update escrow state
-            let mut escrow_state_account = ctx.accounts.escrow_state.to_account_info();
+            let escrow_state_account = ctx.accounts.escrow_state.to_account_info();
             let mut escrow_data = escrow_state_account.try_borrow_mut_data()?;
             let mut state = EscrowState::try_deserialize(&mut &escrow_data[..])?;
             
@@ -423,7 +423,7 @@ pub mod escrow_program {
         escrow.resolved_at = Some(clock.unix_timestamp);
         
         // Update escrow state
-        let mut escrow_state_account = ctx.accounts.escrow_state.to_account_info();
+        let escrow_state_account = ctx.accounts.escrow_state.to_account_info();
         let mut escrow_data = escrow_state_account.try_borrow_mut_data()?;
         let mut state = EscrowState::try_deserialize(&mut &escrow_data[..])?;
         
@@ -475,7 +475,7 @@ pub mod escrow_program {
 
     pub fn complete_escrow(
         ctx: Context<CompleteEscrow>,
-        feedback: String,
+        _feedback: String,
         rating: u8,
     ) -> Result<()> {
         let escrow = &mut ctx.accounts.escrow;
@@ -508,7 +508,7 @@ pub mod escrow_program {
         let completion_time = clock.unix_timestamp - escrow.created_at;
         
         // Update escrow state
-        let mut escrow_state_account = ctx.accounts.escrow_state.to_account_info();
+        let escrow_state_account = ctx.accounts.escrow_state.to_account_info();
         let mut escrow_data = escrow_state_account.try_borrow_mut_data()?;
         let mut state = EscrowState::try_deserialize(&mut &escrow_data[..])?;
         
@@ -555,7 +555,7 @@ pub mod escrow_program {
 
     pub fn confirm_completion(
         ctx: Context<ConfirmCompletion>,
-        feedback: String,
+        _feedback: String,
         rating: u8,
     ) -> Result<()> {
         let escrow = &mut ctx.accounts.escrow;
@@ -586,7 +586,7 @@ pub mod escrow_program {
             escrow.completion_date = Some(clock.unix_timestamp);
             
             // Update escrow state
-            let mut escrow_state_account = ctx.accounts.escrow_state.to_account_info();
+            let escrow_state_account = ctx.accounts.escrow_state.to_account_info();
             let mut escrow_data = escrow_state_account.try_borrow_mut_data()?;
             let mut state = EscrowState::try_deserialize(&mut &escrow_data[..])?;
             
@@ -790,7 +790,7 @@ pub mod escrow_program {
         
         // 5. Dispute Risk - Based on client and freelancer history from reputation program
         // Note: In a real implementation, this would fetch data from the reputation program
-        let dispute_risk = if ctx.accounts.reputation_stats.has_account_info() {
+        let dispute_risk = if !ctx.accounts.reputation_stats.to_account_info().data_is_empty() {
             // Here we would make a cross-program call to get reputation data
             // For now we'll use a placeholder value based on dispute flag
             if escrow.disputed {

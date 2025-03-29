@@ -132,3 +132,4 @@ pub fn handler(ctx: Context<UpdateProgramParameters>, params: UpdateProgramParam
     msg!("FreelanceShield Core program parameters updated");
     Ok(())
 }
+

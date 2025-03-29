@@ -29,3 +29,4 @@ pub struct ClaimVerdict {
     pub reason: String,
     pub processed_at: i64,
 }
+

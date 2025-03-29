@@ -66,3 +66,4 @@ pub fn handler(
     msg!("Risk pool initialized");
     Ok(())
 }
+

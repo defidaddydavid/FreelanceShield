@@ -1,9 +1,10 @@
 [build]
-rustc = "rustc"
-rustdoc = "rustdoc"
+rustflags = ["-C", "target-cpu=native"]
 
 [net]
 git-fetch-with-cli = true
 
-[registries.crates-io]
-protocol = "sparse"
+[target.'cfg(windows)'.dependencies]
+# This is needed to fix Windows-specific compilation errors with ntapi
+# The dependencies key is not used by Cargo but helps document the purpose
+ntapi-rs = "0.4.1"

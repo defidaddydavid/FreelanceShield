@@ -29,3 +29,4 @@ impl CapitalProvider {
         8 +  // last_rewards_timestamp
         1;   // bump
 }
+

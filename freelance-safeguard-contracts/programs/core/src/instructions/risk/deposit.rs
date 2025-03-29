@@ -110,3 +110,4 @@ pub fn handler(ctx: Context<DepositCapital>, params: DepositCapitalParams) -> Re
     msg!("Capital deposited: Amount: {}", params.amount);
     Ok(())
 }
+

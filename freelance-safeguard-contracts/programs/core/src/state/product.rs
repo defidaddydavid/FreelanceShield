@@ -35,7 +35,25 @@ pub struct Product {
     /// Total premiums collected for this product
     pub total_premiums: u64,
     /// Whether the product is active
-    pub is_active: bool,
+    pub active: bool,
+    /// Minimum period in days for policies
+    pub min_period_days: u16,
+    /// Maximum period in days for policies
+    pub max_period_days: u16,
+    /// Base premium rate (per 1000 units of coverage)
+    pub base_premium_rate: u16,
+    /// Risk adjustment factor for premium calculation
+    pub risk_adjustment_factor: u16,
+    /// Claims count for this product
+    pub claims_count: u64,
+    /// Total amount paid for claims
+    pub claims_paid_amount: u64,
+    /// Loss ratio (claims paid / premiums collected) * 100
+    pub loss_ratio: u16,
+    /// Minimum coverage amount allowed for this product
+    pub min_coverage_amount: u64,
+    /// Maximum coverage amount allowed for this product
+    pub max_coverage_amount: u64,
     /// Creation timestamp
     pub created_at: i64,
     /// Last updated timestamp
@@ -46,6 +64,8 @@ pub struct Product {
 
 impl Product {
     pub const SEED_PREFIX: &'static [u8] = b"product";
+    pub const MAX_NAME_LENGTH: usize = MAX_PRODUCT_NAME_LENGTH;
+    pub const MAX_DESCRIPTION_LENGTH: usize = MAX_PRODUCT_DESCRIPTION_LENGTH;
     
     pub const SIZE: usize = 8 + // discriminator
         32 + // authority
@@ -59,7 +79,16 @@ impl Product {
         8 + // active_policies
         8 + // total_coverage
         8 + // total_premiums
-        1 + // is_active
+        1 + // active
+        2 + // min_period_days
+        2 + // max_period_days
+        2 + // base_premium_rate
+        2 + // risk_adjustment_factor
+        8 + // claims_count
+        8 + // claims_paid_amount
+        2 + // loss_ratio
+        8 + // min_coverage_amount
+        8 + // max_coverage_amount
         8 + // created_at
         8 + // last_updated
         1;  // bump
@@ -87,6 +116,8 @@ pub struct CreateProductParams {
 /// Parameters for updating an insurance product
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
 pub struct UpdateProductParams {
+    /// Optional updated product name
+    pub product_name: Option<String>,
     /// Optional updated product description
     pub product_description: Option<String>,
     /// Optional updated risk factor
@@ -97,6 +128,14 @@ pub struct UpdateProductParams {
     pub min_stake_to_capital_ratio: Option<u8>,
     /// Optional updated cover terms
     pub cover_terms: Option<String>,
+    /// Optional updated min coverage amount
+    pub min_coverage_amount: Option<u64>,
+    /// Optional updated max coverage amount
+    pub max_coverage_amount: Option<u64>,
+    /// Optional updated min period days
+    pub min_period_days: Option<u16>,
+    /// Optional updated max period days
+    pub max_period_days: Option<u16>,
     /// Optional updated active status
-    pub is_active: Option<bool>,
+    pub active: Option<bool>,
 }

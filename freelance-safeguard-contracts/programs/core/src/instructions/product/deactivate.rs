@@ -24,7 +24,7 @@ pub struct DeactivateProduct<'info> {
     /// Product account PDA
     #[account(
         mut,
-        seeds = [Product::SEED_PREFIX, &product.product_id.to_bytes()],
+        seeds = [Product::SEED_PREFIX, &product.key().to_bytes()],
         bump = product.bump,
         constraint = product.active @ FreelanceShieldError::ProductAlreadyInactive
     )]
@@ -38,8 +38,9 @@ pub fn handler(ctx: Context<DeactivateProduct>) -> Result<()> {
     
     // Deactivate the product
     product.active = false;
-    product.last_update_date = clock.unix_timestamp;
+    product.last_updated = clock.unix_timestamp;
     
-    msg!("Insurance product deactivated: {}", product.name);
+    msg!("Insurance product deactivated: {}", product.product_name);
     Ok(())
 }
+

@@ -16,7 +16,14 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = { workspace = true }
-anchor-spl = { workspace = true }
-mpl-token-metadata = { workspace = true }
-solana-program = { workspace = true }
+# Use explicit versions for all core functionality
+anchor-lang = "0.31.0"
+anchor-spl = { version = "0.31.0", default-features = false }
+spl-token = "4.0.0"
+spl-associated-token-account = "1.1.3"
+thiserror = "1.0.40"
+zeroize = "1.3.0"
+borsh = "0.10.3"
+borsh-derive = "0.10.3"
+# Specify a direct version for mpl-token-metadata to avoid dependency conflicts
+mpl-token-metadata = { version = "1.4.3", features = ["no-entrypoint"] }

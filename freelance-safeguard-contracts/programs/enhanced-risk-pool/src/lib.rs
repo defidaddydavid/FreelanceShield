@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("EvhaNKpRfmgpFr4xqHdggh3LSedDQCmTp3w8cUsXQHTA");
+declare_id!("tYdPgFrzz258F6q4Hx54e8Sr55puNCWou5Dj1oTf8VZ");
 
 #[program]
 pub mod enhanced_risk_pool {
@@ -13,3 +13,4 @@ pub mod enhanced_risk_pool {
 
 #[derive(Accounts)]
 pub struct Initialize {}
+

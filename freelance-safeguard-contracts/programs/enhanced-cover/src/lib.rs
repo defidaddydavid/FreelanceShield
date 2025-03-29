@@ -3,11 +3,12 @@ use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
 use anchor_spl::associated_token::AssociatedToken;
 use std::convert::TryFrom;
 
-declare_id!("HMFGfLpNc6bJyUnTUr53AW2Mw5vuEvwKbXpgvSgWUEqr");
+declare_id!("8wb2a2qR2rEpqALC8a1TdnGgsbVJLFUeRJQ5y7EfvQRT");
 
 // Define program IDs for cross-program invocation
 pub const RISK_POOL_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("GywN3pRCKVXyAVNxkePotBFEYcFSvULw5qefacsUmsdt");
-pub const POLICY_NFT_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("NFTpLcy1UQCJcZBEYzgHNUaehDQoqTuNFWJJdT9eLLRW");
+// Fix the pubkey length issue by providing a valid 32-byte pubkey
+pub const POLICY_NFT_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("NFTpLcy1UQCJcZBEYzgHNUaehDQoqTuNFWJJdT9eLLR");
 pub const STAKING_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("StaKe5tXnKjeJC4vRVsnxBrNwUuUXRES2RdMc4MnrSA");
 
 // Constants for cover product management

@@ -50,3 +50,4 @@ pub fn handler(ctx: Context<CollectPolicyData>) -> Result<()> {
     
     Ok(())
 }
+

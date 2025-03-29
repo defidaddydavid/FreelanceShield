@@ -14,7 +14,7 @@ pub use instructions::*;
 pub use state::*;
 pub use utils::*;
 
-declare_id!("9tNbzKvvT2pWnQR21Bvf1PgPYA8k1XRJ8FcVbzpnohaJ");
+declare_id!("9KbeVQ7mhcYSDUnQ9jcVpEeQx7uu1xJfqvKrQsfpaqEq");
 
 #[program]
 pub mod reputation_program {
@@ -143,6 +143,7 @@ pub mod reputation_program {
         }
         
         // Add to recent activities
+        let previous_score = user_profile.reputation_score;
         user_profile.recent_activities.push(Activity {
             timestamp: clock.unix_timestamp,
             activity_type: ActivityType::ContractCompletion,
@@ -150,7 +151,7 @@ pub mod reputation_program {
                 "Contract {} completed. Success: {}, Disputed: {}", 
                 contract_id, successful, disputed
             ),
-            related_id: Some(contract_id),
+            related_id: Some(contract_id.clone()),
             score_change: user_profile.reputation_score as i8 - previous_score as i8,
         });
         
@@ -244,25 +245,24 @@ pub mod reputation_program {
         }
         
         // Add to recent activities
-        let activity_type = if claim_submitted {
-            ActivityType::ClaimSubmission
-        } else if claim_approved {
-            ActivityType::ClaimApproval
-        } else if claim_rejected {
-            ActivityType::ClaimRejection
-        } else {
-            ActivityType::Other
-        };
-        
+        let stored_previous_score = previous_score;
         user_profile.recent_activities.push(Activity {
             timestamp: clock.unix_timestamp,
-            activity_type,
+            activity_type: if claim_submitted {
+                ActivityType::ClaimSubmission
+            } else if claim_approved {
+                ActivityType::ClaimActivity
+            } else if claim_rejected {
+                ActivityType::ClaimRejection
+            } else {
+                ActivityType::Other
+            },
             details: format!(
                 "Claim {}. Submitted: {}, Approved: {}, Rejected: {}", 
                 claim_id, claim_submitted, claim_approved, claim_rejected
             ),
-            related_id: Some(claim_id),
-            score_change: user_profile.reputation_score as i8 - previous_score as i8,
+            related_id: Some(claim_id.clone()),
+            score_change: user_profile.reputation_score as i8 - stored_previous_score as i8,
         });
         
         // Keep activities limited to last 5 entries
@@ -661,7 +661,9 @@ impl Activity {
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum ActivityType {
     ContractCompletion,
-    ClaimActivity,
+    ClaimSubmission,
+    ClaimApproval,
+    ClaimRejection,
     Other,
 }
 

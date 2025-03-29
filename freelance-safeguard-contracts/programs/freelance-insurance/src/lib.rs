@@ -10,7 +10,7 @@ pub use instructions::*;
 pub use state::*;
 
 // Use the same program ID as the original
-declare_id!("4gjEkiunXY7aLHASi49PGv3VfhKVPKv1fUWEdQTQXUiN");
+declare_id!("5PE9juxGEzx4gMhYBrpeypj8jYdiqNHvnK7PNZ3GAUvW");
 
 #[program]
 pub mod freelance_insurance {
@@ -219,3 +219,4 @@ pub enum InsuranceError {
     #[msg("Invalid policy status")]
     InvalidPolicyStatus,
 }
+

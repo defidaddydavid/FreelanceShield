@@ -30,3 +30,4 @@ pub const DEFAULT_TREASURY_ALLOCATION_PERCENTAGE: u8 = 30; // 30% to treasury
 // Risk constants
 pub const DEFAULT_MAX_AUTO_APPROVE_AMOUNT: u64 = 1_000_000; // 1M auto-approve threshold
 pub const DEFAULT_CANCELLATION_FEE_PERCENTAGE: u8 = 10; // 10% cancellation fee
+

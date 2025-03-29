@@ -163,3 +163,4 @@ pub fn handler(ctx: Context<TokenizePolicy>) -> Result<()> {
     msg!("Policy tokenized as NFT: {}", ctx.accounts.nft_mint.key());
     Ok(())
 }
+

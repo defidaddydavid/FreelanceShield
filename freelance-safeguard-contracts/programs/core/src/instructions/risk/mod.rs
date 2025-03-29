@@ -84,3 +84,4 @@ impl SimulationResult {
         1 + // recommended_premium_adjustment
         1;  // bump
 }
+

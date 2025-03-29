@@ -39,3 +39,4 @@ pub fn validate_risk_pool_funds(risk_pool: &Account<RiskPool>, claim_amount: u64
     
     Ok(())
 }
+

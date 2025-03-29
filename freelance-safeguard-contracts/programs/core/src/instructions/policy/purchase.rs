@@ -190,3 +190,4 @@ pub fn handler(ctx: Context<PurchasePolicy>, params: PurchasePolicyParams) -> Re
         params.coverage_amount, premium_amount);
     Ok(())
 }
+

@@ -1,8 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
-use std::convert::TryFrom;
 
-declare_id!("64pxnRW6T4UKRdBtZbRR6DwcWXzS5ahVYHVhcHZk44xo");
+declare_id!("5pQBQ2oz7RWJVrcjVzCocbzZsqcAPokwn4Fs3UtPEtda");
 
 // Define program IDs for cross-program invocation
 pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");
@@ -244,7 +243,6 @@ pub mod claims_processor {
         Ok(())
     }
 
-    // New function to get detailed claim information
     pub fn get_claim_details(ctx: Context<GetClaimDetails>) -> Result<()> {
         let claim = &ctx.accounts.claim;
         
@@ -403,8 +401,8 @@ fn calculate_initial_risk_score(
     coverage_amount: u64,
     previous_claims: u8,
     policy_age_seconds: i64,
-    time_factor: u8,
-    amount_risk: u8,
+    _time_factor: u8,
+    _amount_risk: u8,
     category: ClaimCategory,
 ) -> u8 {
     // Base risk is the ratio of claim to coverage (0-100)
@@ -605,7 +603,7 @@ pub struct ProcessClaim<'info> {
     
     #[account(
         mut,
-        seeds = [b"claim", claim.policy.as_ref(), &claim_index.to_le_bytes()],
+        seeds = [b"claim", claim.policy.as_ref(), claim_index.key().as_ref()],
         bump = claim.bump
     )]
     pub claim: Account<'info, Claim>,
@@ -636,8 +634,8 @@ pub struct ProcessClaim<'info> {
     pub risk_pool_program: Program<'info, System>,
     pub system_program: Program<'info, System>,
     
-    /// The claim index used to derive the claim PDA
-    pub claim_index: u64,
+    /// CHECK: The claim index is just used for PDA derivation
+    pub claim_index: AccountInfo<'info>,
 }
 
 #[derive(Accounts)]
@@ -703,7 +701,7 @@ pub struct ArbitrateClaim<'info> {
     
     #[account(
         mut,
-        seeds = [b"claim", claim.policy.as_ref(), &claim_index.to_le_bytes()],
+        seeds = [b"claim", claim.policy.as_ref(), claim_index.key().as_ref()],
         bump = claim.bump
     )]
     pub claim: Account<'info, Claim>,
@@ -734,8 +732,8 @@ pub struct ArbitrateClaim<'info> {
     pub risk_pool_program: Program<'info, System>,
     pub system_program: Program<'info, System>,
     
-    /// The claim index used to derive the claim PDA
-    pub claim_index: u64,
+    /// CHECK: The claim index is just used for PDA derivation
+    pub claim_index: AccountInfo<'info>,
 }
 
 #[derive(Accounts)]
@@ -757,13 +755,13 @@ pub struct GetClaimDetails<'info> {
     
     #[account(
         mut,
-        seeds = [b"claim", claim.policy.as_ref(), &claim_index.to_le_bytes()],
+        seeds = [b"claim", claim.policy.as_ref(), claim_index.key().as_ref()],
         bump = claim.bump
     )]
     pub claim: Account<'info, Claim>,
     
-    /// The claim index used to derive the claim PDA
-    pub claim_index: u64,
+    /// CHECK: The claim index is just used for PDA derivation
+    pub claim_index: AccountInfo<'info>,
 }
 
 #[account]
@@ -846,6 +844,10 @@ pub enum ClaimStatus {
     UnderReview,
     Approved,
     Rejected,
+    Disputed,
+    Paid,
+    InArbitration,
+    Expired,
 }
 
 impl Default for ClaimStatus {
@@ -877,6 +879,12 @@ pub enum ClaimCategory {
     Other,
 }
 
+impl Default for ClaimCategory {
+    fn default() -> Self {
+        ClaimCategory::Other
+    }
+}
+
 #[account]
 #[derive(Default)]
 pub struct ArbitratorAccount {
@@ -893,6 +901,7 @@ impl ArbitratorAccount {
                             1;   // bump
 }
 
+#[account]
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug)]
 pub struct Policy {
     pub owner: Pubkey,

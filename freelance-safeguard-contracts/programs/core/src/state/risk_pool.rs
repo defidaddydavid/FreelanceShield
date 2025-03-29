@@ -128,3 +128,4 @@ pub struct WithdrawCapitalParams {
     /// Amount to withdraw
     pub amount: u64,
 }
+
