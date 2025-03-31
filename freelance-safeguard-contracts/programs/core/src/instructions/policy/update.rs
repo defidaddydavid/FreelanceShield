@@ -36,7 +36,7 @@ pub struct UpdatePolicy<'info> {
     #[account(
         seeds = [Product::SEED_PREFIX, &policy.product_id.to_bytes()],
         bump,
-        constraint = product.status == ProductStatus::Active @ FreelanceShieldError::ProductNotActive
+        constraint = product.active @ FreelanceShieldError::ProductNotActive
     )]
     pub product: Account<'info, Product>,
 }
@@ -59,8 +59,8 @@ pub fn handler(ctx: Context<UpdatePolicy>, params: UpdatePolicyParams) -> Result
     
     if let Some(coverage_period_days) = params.coverage_period_days {
         require!(
-            coverage_period_days >= ctx.accounts.product.min_coverage_period_days &&
-            coverage_period_days <= ctx.accounts.product.max_coverage_period_days,
+            coverage_period_days >= ctx.accounts.product.min_period_days &&
+            coverage_period_days <= ctx.accounts.product.max_period_days,
             FreelanceShieldError::InvalidCoveragePeriod
         );
         
@@ -96,4 +96,3 @@ pub fn handler(ctx: Context<UpdatePolicy>, params: UpdatePolicyParams) -> Result
     msg!("Policy updated: {}", policy.key());
     Ok(())
 }
-

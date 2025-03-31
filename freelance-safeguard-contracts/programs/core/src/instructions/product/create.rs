@@ -25,14 +25,10 @@ pub struct CreateProduct<'info> {
         init,
         payer = authority,
         space = Product::SIZE,
-        seeds = [Product::SEED_PREFIX, &product_id.key().to_bytes()],
+        seeds = [Product::SEED_PREFIX],
         bump
     )]
     pub product: Account<'info, Product>,
-    
-    /// Product ID (unique identifier)
-    /// This can be a PDA or a regular keypair
-    pub product_id: AccountInfo<'info>,
     
     /// System program
     pub system_program: Program<'info, System>,
@@ -65,16 +61,18 @@ pub fn handler(ctx: Context<CreateProduct>, params: CreateProductParams) -> Resu
     product.min_stake_to_capital_ratio = params.min_stake_to_capital_ratio;
     product.cover_terms = params.cover_terms;
     product.active = true;
-    product.min_period_days = 0; // Set default values
-    product.max_period_days = 0; // Set default values
-    product.base_premium_rate = 0; // Set default values
-    product.risk_adjustment_factor = 0; // Set default values
+    product.min_period_days = 30; // Set reasonable default values
+    product.max_period_days = 365; // Set reasonable default values
+    product.base_premium_rate = 100; // Set reasonable default values
+    product.risk_adjustment_factor = 100; // Set reasonable default values
     product.active_policies = 0;
     product.total_coverage = 0;
     product.total_premiums = 0;
     product.claims_count = 0;
     product.claims_paid_amount = 0;
     product.loss_ratio = 0;
+    product.min_coverage_amount = 100; // Set reasonable default minimum
+    product.max_coverage_amount = 10000000; // Set reasonable default maximum
     product.created_at = clock.unix_timestamp;
     product.last_updated = clock.unix_timestamp;
     product.bump = *ctx.bumps.get("product").unwrap();
@@ -85,4 +83,3 @@ pub fn handler(ctx: Context<CreateProduct>, params: CreateProductParams) -> Resu
     msg!("Insurance product created: {}", product.product_name);
     Ok(())
 }
-

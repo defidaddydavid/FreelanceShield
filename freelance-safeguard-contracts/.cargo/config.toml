@@ -4,7 +4,4 @@ rustflags = ["-C", "target-cpu=native"]
 [net]
 git-fetch-with-cli = true
 
-[target.'cfg(windows)'.dependencies]
-# This is needed to fix Windows-specific compilation errors with ntapi
-# The dependencies key is not used by Cargo but helps document the purpose
-ntapi-rs = "0.4.1"
+# Removed the problematic target configuration that was causing patching issues

@@ -24,7 +24,7 @@ pub struct UpdateProduct<'info> {
     /// Product account PDA
     #[account(
         mut,
-        seeds = [Product::SEED_PREFIX, &product.product_id.to_bytes()],
+        seeds = [Product::SEED_PREFIX],
         bump = product.bump
     )]
     pub product: Account<'info, Product>,
@@ -110,4 +110,3 @@ pub fn handler(ctx: Context<UpdateProduct>, params: UpdateProductParams) -> Resu
     msg!("Insurance product updated: {}", product.product_name);
     Ok(())
 }
-
