@@ -1,15 +1,20 @@
 import { PublicKey, clusterApiUrl, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 // Program IDs - Devnet program IDs
-export const INSURANCE_PROGRAM_ID = new PublicKey('2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm');
-export const RISK_POOL_PROGRAM_ID = new PublicKey('HC1TQHR6kVqtq48UbTYGwHwHTUYom9W3ovNVgjPgNcFg');
-export const CLAIMS_PROCESSOR_PROGRAM_ID = new PublicKey('G68SRT1pHmagT9xiM6oFe4pqZE2SmKuLGVY8WZX29NW4');
-export const ESCROW_PROGRAM_ID = new PublicKey('DxrfCm3YYBdAkeUBz64yvYKGANZhvhRqpxCa8ghpHe3z');
-export const DAO_GOVERNANCE_PROGRAM_ID = new PublicKey('EGfjaXd2EtVwUk92tFRGhZJammxM7sJ3vyrmZ4eafHFY');
-export const REPUTATION_PROGRAM_ID = new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS');
-export const STAKING_PROGRAM_ID = new PublicKey('BPFLoader2111111111111111111111111111111111');
+// Updated with the actual deployed program IDs from the Anchor.toml
+export const CLAIMS_PROCESSOR_PROGRAM_ID = new PublicKey('5pQBQ2oz7RWJVrcjVzCocbzZsqcAPokwn4Fs3UtPEtda');
+export const DAO_GOVERNANCE_PROGRAM_ID = new PublicKey('FDJJ1NSYbLe3v1wCVGXcrA1hqKvf2BbpbNXE3G6TSuf7');
+export const ENHANCED_CLAIMS_PROGRAM_ID = new PublicKey('BYE7dnHiF7ptZY1oAxcRBA13NVKsCiFQ2QBQQEAnSf8H');
+export const ENHANCED_COVER_PROGRAM_ID = new PublicKey('8wb2a2qR2rEpqALC8a1TdnGgsbVJLFUeRJQ5y7EfvQRT');
+export const ESCROW_PROGRAM_ID = new PublicKey('FUnA7YXC27uJBqrcS2Q5ofGL4ghyxoBZkieCtpxvCVab');
+export const FREELANCE_INSURANCE_PROGRAM_ID = new PublicKey('5PE9juxGEzx4gMhYBrpeypj8jYdiqNHvnK7PNZ3GAUvW');
+export const INSURANCE_PROGRAM_ID = new PublicKey('Ge2xB8Hk3GY1p3YNJWbaxqNNRB6f18VxMsrjfSJ1DPVg');
+export const POLICY_NFT_PROGRAM_ID = new PublicKey('2pwwsiBvc21ZcBaVmdWcymvz3QiP8DuYkB97S7gNoK6T');
+export const REPUTATION_PROGRAM_ID = new PublicKey('9KbeVQ7mhcYSDUnQ9jcVpEeQx7uu1xJfqvKrQsfpaqEq');
+export const RISK_POOL_PROGRAM_ID = new PublicKey('FroU966kfvu5RAQxhLfb4mhFdDjY6JewEf41ZfYR3xhm');
+export const STAKING_PROGRAM_ID = new PublicKey('z1VyDVFdUGUXQzx6Dikrzt7aDR8BLgSARcncUvymcDb');
 
-// USDC Token Mint Address (mainnet)
+// USDC Token Mint Address (devnet)
 export const USDC_MINT = new PublicKey('4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU');
 
 // USDC decimals (6 for USDC on Solana)
@@ -22,10 +27,14 @@ export const NETWORK_CONFIG = {
   name: 'solana',
   // Use devnet for development and testing
   endpoint: clusterApiUrl('devnet'),
-  // Business logic constants
+  // Connection config for Anchor
+  connectionConfig: {
+    commitment: 'confirmed',
+    preflightCommitment: 'confirmed',
+  },
+  // Business logic constants (in USDC)
   baseReserveRatio: 0.2, // 20% base reserve ratio
   recommendedBuffer: 0.5, // 50% recommended buffer
-  // All values in USDC
   minCoverageAmount: 25, // 25 USDC
   maxCoverageAmount: 25000, // 25,000 USDC
   minPeriodDays: 7,
@@ -35,115 +44,113 @@ export const NETWORK_CONFIG = {
   autoProcessThreshold: 50, // Risk score threshold for auto-processing
   lamportsPerSol: LAMPORTS_PER_SOL, // Still needed for SOL gas fees
   lamportsPerUSDC: USDC_MULTIPLIER, // Conversion factor for USDC to lamports
-  // Risk pool program ID - directly exposed for RiskPoolDashboard
-  riskPoolProgramId: RISK_POOL_PROGRAM_ID.toString(),
-  insuranceProgramId: INSURANCE_PROGRAM_ID.toString(),
-  // Program IDs
+  // Program IDs for easier reference
   programIds: {
-    insuranceProgram: INSURANCE_PROGRAM_ID.toString(),
-    riskPoolProgram: RISK_POOL_PROGRAM_ID.toString(),
-    claimsProcessor: CLAIMS_PROCESSOR_PROGRAM_ID.toString(),
-    escrowProgram: ESCROW_PROGRAM_ID.toString(),
-    daoGovernance: DAO_GOVERNANCE_PROGRAM_ID.toString(),
-    reputationProgram: REPUTATION_PROGRAM_ID.toString(),
-    stakingProgram: STAKING_PROGRAM_ID.toString(),
-    riskPoolAddress: RISK_POOL_PROGRAM_ID.toString(),
-    yieldPoolAddress: CLAIMS_PROCESSOR_PROGRAM_ID.toString()
+    claimsProcessor: '5pQBQ2oz7RWJVrcjVzCocbzZsqcAPokwn4Fs3UtPEtda',
+    daoGovernance: 'FDJJ1NSYbLe3v1wCVGXcrA1hqKvf2BbpbNXE3G6TSuf7',
+    enhancedClaims: 'BYE7dnHiF7ptZY1oAxcRBA13NVKsCiFQ2QBQQEAnSf8H',
+    enhancedCover: '8wb2a2qR2rEpqALC8a1TdnGgsbVJLFUeRJQ5y7EfvQRT',
+    escrowProgram: 'FUnA7YXC27uJBqrcS2Q5ofGL4ghyxoBZkieCtpxvCVab',
+    freelanceInsurance: '5PE9juxGEzx4gMhYBrpeypj8jYdiqNHvnK7PNZ3GAUvW',
+    insuranceProgram: 'Ge2xB8Hk3GY1p3YNJWbaxqNNRB6f18VxMsrjfSJ1DPVg',
+    policyNft: '2pwwsiBvc21ZcBaVmdWcymvz3QiP8DuYkB97S7gNoK6T',
+    reputationProgram: '9KbeVQ7mhcYSDUnQ9jcVpEeQx7uu1xJfqvKrQsfpaqEq',
+    riskPoolProgram: 'FroU966kfvu5RAQxhLfb4mhFdDjY6JewEf41ZfYR3xhm',
+    stakingProgram: 'z1VyDVFdUGUXQzx6Dikrzt7aDR8BLgSARcncUvymcDb',
   },
-  connectionConfig: {
-    commitment: 'confirmed',
-    confirmTransactionInitialTimeout: 60000
-  }
 };
 
-// Risk Weights
-export const RISK_WEIGHTS = {
-  jobTypes: {
-    "web_development": 0.9,
-    "mobile_development": 0.95,
-    "design": 0.9,
-    "content_writing": 0.85,
-    "marketing": 1.0,
-    "consulting": 1.1,
-    "data_analysis": 0.95,
-    "blockchain_development": 1.2,
-    "ai_development": 1.15,
-    "video_production": 1.05,
-    "translation": 0.85,
-    "other": 1.0
-  },
-  industries: {
-    "technology": 0.9,
-    "finance": 1.2,
-    "healthcare": 1.1,
-    "education": 0.9,
-    "entertainment": 1.0,
-    "retail": 0.95,
-    "manufacturing": 1.1,
-    "real_estate": 1.05,
-    "legal": 1.3,
-    "nonprofit": 0.9,
-    "government": 1.0,
-    "other": 1.0
-  }
-};
-
-// Claim risk assessment constants
-export const CLAIM_RISK_CONSTANTS = {
-  HIGH_AMOUNT_PER_DAY: 50, // USDC per day threshold
-  HIGH_AMOUNT_SCORE: 15,
-  HIGH_COVERAGE_RATIO: 0.7, // 70% of coverage amount
-  HIGH_COVERAGE_SCORE: 20,
-  PREVIOUS_CLAIM_SCORE: 10,
-  EARLY_CLAIM_DAYS: 7, // Days since policy start
-  EARLY_CLAIM_SCORE: 25
+// Transaction Options
+export const TX_OPTIONS = {
+  maxRetries: 3,
+  retryDelay: 2000, // 2 seconds
+  commitment: 'confirmed' as const,
 };
 
 // Helper function to convert USDC amount to decimal representation
-export const formatUSDC = (amount: number): number => {
+export function formatUSDC(amount: number): number {
   return amount / USDC_MULTIPLIER;
-};
+}
 
 // Helper function to convert decimal USDC to integer units
-export const parseUSDC = (amount: number): number => {
+export function parseUSDC(amount: number): number {
   return Math.floor(amount * USDC_MULTIPLIER);
+}
+
+// Rate limiting for RPC calls
+export const RATE_LIMITS = {
+  maxRequestsPerSecond: 10,
+  maxRequestsPerMinute: 100,
 };
 
-// Default premium rates (base rates in USDC)
+// UI constants for displaying risk categories
+export const RISK_CATEGORIES = {
+  low: {
+    threshold: 30,
+    color: '#4ade80', // Green
+    label: 'Low Risk',
+  },
+  medium: {
+    threshold: 60,
+    color: '#facc15', // Yellow
+    label: 'Medium Risk',
+  },
+  high: {
+    threshold: 100,
+    color: '#f87171', // Red
+    label: 'High Risk',
+  },
+};
+
+// UI constants for premium calculation display
+export const PREMIUM_CALCULATION = {
+  baseFee: 5, // USDC
+  coveragePercentage: 0.05, // 5% of coverage amount
+  riskMultiplier: 1.2, // Multiplier for high-risk jobs
+  reputationDiscount: 0.1, // 10% discount for high reputation
+};
+
+// Premium rates for insurance policies
 export const PREMIUM_RATES = {
-  baseRate: 5, // 5 USDC base premium
-  coverageRatioMultiplier: 1.5, // Non-linear scaling for higher coverage amounts
-  periodMultiplier: 0.8, // Longer periods get discount
-  riskScoreImpact: 0.02, // 2% change per risk score point
-  minPremium: 2, // Minimum premium in USDC
-  minCoveragePeriodDays: 7, // Minimum coverage period (1 week)
-  maxCoveragePeriodDays: 365, // Maximum coverage period (1 year)
-  maxCoverageRatio: 5.0, // Maximum coverage ratio multiplier
+  baseRate: 0.02, // 2% base rate
+  coverageRatioMultiplier: 0.75, // Non-linear scaling for coverage amount
+  periodMultiplier: 0.15, // Exponent for period calculation
+  minPremium: 1, // Minimum premium in USDC
+  maxDiscount: 0.4, // Maximum 40% discount
 };
 
-// Premium calculation constants
-export const PREMIUM_CONSTANTS = {
-  BASE_RATE_SOL: 0.1, // Base premium rate in SOL
-  COVERAGE_SCALING_FACTOR: 1.2, // Non-linear scaling for coverage ratio
-  PERIOD_SCALING_FACTOR: 0.8, // Non-linear scaling for period
-  REPUTATION_MIN: 0.7, // Minimum reputation factor
-  REPUTATION_MAX: 1.0, // Maximum reputation factor
-  CLAIMS_IMPACT_MULTIPLIER: 0.25, // Impact of previous claims
-  MARKET_CONDITION_MULTIPLIER: 1.0 // Current market conditions
+// Risk weights for different job types and industries
+export const RISK_WEIGHTS = {
+  jobTypes: {
+    development: 0.85,
+    design: 0.9,
+    writing: 0.8,
+    marketing: 1.1,
+    consulting: 1.2,
+    other: 1.0
+  },
+  industries: {
+    defi: 1.3,
+    nft: 1.2,
+    gaming: 0.9,
+    dao: 1.1,
+    infrastructure: 0.8,
+    other: 1.0
+  }
 };
 
-// Claim assessment constants
-export const CLAIM_CONSTANTS = {
-  proofRequirementThreshold: 500, // USDC threshold requiring additional proof
-  expeditedProcessingThreshold: 100, // USDC threshold for expedited processing
-  fraudDetectionThreshold: 0.8, // Probability threshold for fraud detection
-  maxAutomaticPayoutAmount: 250, // Maximum USDC for automatic payout
+// Constants for claim risk evaluation
+export const CLAIM_RISK_CONSTANTS = {
+  quickClaimThreshold: 7, // Days after policy starts
+  suspiciousRatio: 0.9, // Claim amount to coverage ratio
+  highRiskScore: 75, // Score that triggers manual review
+  maxPreviousClaims: 3, // Number of claims before automatic review
 };
 
-// Time constants (in seconds)
-export const TIME_CONSTANTS = {
-  claimProcessingTime: 24 * 60 * 60, // 24 hours for normal claims 
-  expeditedProcessingTime: 2 * 60 * 60, // 2 hours for expedited claims
-  gracePeriod: 3 * 24 * 60 * 60, // 3 days grace period after policy expiration
-  cooldownPeriod: 7 * 24 * 60 * 60, // 7 days cooldown for new policies after claim
-};
+// Real blockchain explorer URL
+export const EXPLORER_URL = 'https://explorer.solana.com';
+export const EXPLORER_TX_URL = `${EXPLORER_URL}/tx`;
+export const EXPLORER_ADDRESS_URL = `${EXPLORER_URL}/address`;
+
+// Set this to true to enable devnet features
+export const DEVNET_ENABLED = true;
