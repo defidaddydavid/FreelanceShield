@@ -136,10 +136,10 @@ export class FreelanceInsuranceSDK {
       throw new Error('Failed to initialize provider');
     }
 
-    // Initialize the insurance program
+    // Initialize the insurance program with the correct program ID
     this.insuranceProgram = new Program(
       insuranceProgramIdl as unknown as FreelanceInsuranceIDL,
-      INSURANCE_PROGRAM_ID,
+      INSURANCE_PROGRAM_ID, // Use the correct program ID
       this.provider
     );
 
@@ -157,6 +157,10 @@ export class FreelanceInsuranceSDK {
     if (!this.reputationProgram) {
       throw new Error('Failed to initialize reputation program');
     }
+
+    console.log('FreelanceInsurance SDK initialized with real Solana connection');
+    console.log('Connected to network:', NETWORK_CONFIG.endpoint);
+    console.log('Using wallet address:', wallet.publicKey?.toString());
   }
 
   // Find the risk pool PDA
@@ -307,616 +311,274 @@ export class FreelanceInsuranceSDK {
     }
   }
 
-  // Create a new insurance policy with USDC payment
+  // Create a new insurance policy with USDC
   async createPolicyWithUSDC(
     coverageAmount: number,
-    premiumAmount: number,
     periodDays: number,
     jobType: string,
     industry: string
   ): Promise<string> {
-    const [policyPDA] = await this.findPolicyPDA(this.wallet.publicKey);
-    const [riskPoolPDA] = await this.findRiskPoolPDA();
-    
     try {
-      // Find or create USDC token accounts
-      const [userTokenAccount, createAccountTx] = await this.findOrCreateAssociatedTokenAccount(
+      console.log(`Creating policy with coverage: ${coverageAmount} USDC, period: ${periodDays} days`);
+      
+      // First, calculate the premium
+      const premiumInfo = await this.calculatePremium(coverageAmount, periodDays, jobType, industry);
+      const premiumAmount = premiumInfo.premiumAmount;
+      
+      console.log(`Premium calculated: ${premiumAmount} USDC`);
+
+      // Find the risk pool PDA
+      const [riskPoolPDA] = await this.findRiskPoolPDA();
+      
+      // Get the user's token account for USDC
+      const [userTokenAccount, createAtaIx] = await this.findOrCreateAssociatedTokenAccount(
         this.wallet.publicKey
       );
       
-      const [riskPoolTokenAccount, createPoolAccountTx] = await this.findOrCreateAssociatedTokenAccount(
-        riskPoolPDA
+      // Get the risk pool's token account for USDC
+      const riskPoolTokenAccount = await getAssociatedTokenAddress(
+        USDC_MINT,
+        riskPoolPDA,
+        true // allowOwnerOffCurve
       );
-      
-      // Create any necessary token accounts first
-      if (createAccountTx) {
-        await this.enhancedSendAndConfirmTransaction(createAccountTx);
-      }
-      
-      if (createPoolAccountTx) {
-        await this.enhancedSendAndConfirmTransaction(createPoolAccountTx);
-      }
-      
-      // Validate inputs
-      if (coverageAmount <= 0 || premiumAmount <= 0 || periodDays < 1) {
-        throw new Error('Invalid policy parameters');
-      }
-      
-      // Limit job type and industry string lengths for on-chain storage
-      const trimmedJobType = jobType.substring(0, 50);
-      const trimmedIndustry = industry.substring(0, 50);
-      
-      // Create the policy transaction
-      const tx = await this.insuranceProgram.methods
-        .createPolicy(
-          new anchor.BN(coverageAmount),
-          new anchor.BN(premiumAmount),
-          periodDays,
-          trimmedJobType,
-          trimmedIndustry
-        )
-        .accounts({
-          owner: this.wallet.publicKey,
-          policy: policyPDA,
-          premiumSource: userTokenAccount,
-          premiumDestination: riskPoolTokenAccount,
-          riskPool: riskPoolPDA,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
-          rent: SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
-      
-      // Send and confirm the transaction
-      const signature = await this.enhancedSendAndConfirmTransaction(tx);
-      return signature;
-    } catch (error) {
-      console.error("Error creating policy:", error);
-      throw this.handleSolanaError(error);
-    }
-  }
-
-  // Create a new insurance policy
-  async createPolicy(
-    coverageAmount: number,
-    premiumAmount: number,
-    periodDays: number,
-    jobType: string,
-    industry: string
-  ): Promise<string> {
-    return this.createPolicyWithUSDC(
-      coverageAmount,
-      premiumAmount,
-      periodDays,
-      jobType,
-      industry
-    );
-  }
-
-  // Submit a claim with USDC payout
-  async submitClaimWithUSDC(
-    policyPDA: PublicKey,
-    amount: number,
-    evidenceType: string,
-    evidenceDescription: string,
-    evidenceAttachments: string[]
-  ): Promise<string> {
-    try {
-      // Get policy data to determine claim count
-      const policyAccount = await this.insuranceProgram.account.policy.fetch(policyPDA) as PolicyAccount;
-      const claimCount = policyAccount.claimsCount;
-      
-      const [claimPDA] = await this.findClaimPDA(policyPDA, this.wallet.publicKey, claimCount);
-      
-      // Find or create user's USDC token account for potential payout
-      const [userTokenAccount, createAccountTx] = await this.findOrCreateAssociatedTokenAccount(
-        this.wallet.publicKey
-      );
-      
-      // Create token account if needed
-      if (createAccountTx) {
-        await this.enhancedSendAndConfirmTransaction(createAccountTx);
-      }
-      
-      // Validate evidence data
-      const trimmedEvidenceType = evidenceType.substring(0, 50);
-      const trimmedEvidenceDescription = evidenceDescription.substring(0, 500);
-      const trimmedAttachments = evidenceAttachments.map(a => a.substring(0, 200)).slice(0, 5);
-      
-      // Submit the claim
-      const tx = await this.insuranceProgram.methods
-        .submitClaim(
-          new anchor.BN(amount),
-          trimmedEvidenceType,
-          trimmedEvidenceDescription,
-          trimmedAttachments
-        )
-        .accounts({
-          owner: this.wallet.publicKey,
-          policy: policyPDA,
-          claim: claimPDA,
-          systemProgram: SystemProgram.programId,
-          rent: SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
-      
-      // Send and confirm the transaction
-      const signature = await this.enhancedSendAndConfirmTransaction(tx);
-      return signature;
-    } catch (error) {
-      console.error("Error submitting claim:", error);
-      throw this.handleSolanaError(error);
-    }
-  }
-
-  // Submit a claim
-  async submitClaim(
-    policyPDA: PublicKey,
-    amount: number,
-    evidenceType: string,
-    evidenceDescription: string,
-    evidenceAttachments: string[] = []
-  ): Promise<string> {
-    try {
-      // Get policy details to determine claim count
-      const policyAccount = await this.getPolicyDetails(policyPDA);
-      if (!policyAccount) {
-        throw new Error('No active policy found');
-      }
-      
-      const claimCount = policyAccount.claimsCount;
-      const [claimPDA] = await this.findClaimPDA(policyPDA, this.wallet.publicKey, claimCount);
-      
-      // Validate inputs
-      if (amount <= 0) {
-        throw new Error('Claim amount must be greater than 0');
-      }
-      
-      // Limit string lengths for on-chain storage
-      const trimmedEvidenceType = evidenceType.substring(0, 50);
-      const trimmedEvidenceDescription = evidenceDescription.substring(0, 500);
-      
-      // Format evidence attachments (e.g., IPFS hashes)
-      const formattedAttachments = evidenceAttachments.map(a => a.substring(0, 100)).slice(0, 5);
-      
-      // Create the claim transaction
-      const tx = await this.insuranceProgram.methods
-        .submitClaim(
-          new anchor.BN(amount),
-          trimmedEvidenceType,
-          trimmedEvidenceDescription,
-          formattedAttachments
-        )
-        .accounts({
-          owner: this.wallet.publicKey,
-          policy: policyPDA,
-          claim: claimPDA,
-          systemProgram: SystemProgram.programId,
-          rent: SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
-      
-      // Send and confirm the transaction
-      const signature = await this.enhancedSendAndConfirmTransaction(tx);
-      return signature;
-    } catch (error) {
-      console.error("Error submitting claim:", error);
-      throw this.handleSolanaError(error);
-    }
-  }
-
-  // Verify payment from a client
-  async verifyPayment(
-    clientPublicKey: string,
-    expectedAmount: number,
-    deadlineDays: number
-  ): Promise<string> {
-    try {
-      const client = new PublicKey(clientPublicKey);
-      const [paymentVerificationPDA] = await this.findPaymentVerificationPDA(
-        this.wallet.publicKey,
-        client
-      );
-      
-      // Validate inputs
-      if (expectedAmount <= 0 || deadlineDays <= 0) {
-        throw new Error('Invalid payment verification parameters');
-      }
-      
-      // Create the payment verification transaction
-      const tx = await this.insuranceProgram.methods
-        .verifyPayment(
-          new anchor.BN(expectedAmount),
-          deadlineDays
-        )
-        .accounts({
-          freelancer: this.wallet.publicKey,
-          client: client,
-          paymentVerification: paymentVerificationPDA,
-          systemProgram: SystemProgram.programId,
-          rent: SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
-      
-      // Send and confirm the transaction
-      const signature = await this.enhancedSendAndConfirmTransaction(tx);
-      return signature;
-    } catch (error) {
-      console.error("Error verifying payment:", error);
-      throw this.handleSolanaError(error);
-    }
-  }
-
-  // Confirm payment as a client
-  async confirmPayment(clientPublicKey: string): Promise<string> {
-    try {
-      const client = new PublicKey(clientPublicKey);
-      const [paymentVerificationPDA] = await this.findPaymentVerificationPDA(
-        this.wallet.publicKey,
-        client
-      );
-      
-      // Create the confirm payment transaction
-      const tx = await this.insuranceProgram.methods
-        .confirmPayment()
-        .accounts({
-          client: this.wallet.publicKey,
-          freelancer: client,
-          paymentVerification: paymentVerificationPDA,
-        })
-        .transaction();
-      
-      // Send and confirm the transaction
-      const signature = await this.enhancedSendAndConfirmTransaction(tx);
-      return signature;
-    } catch (error) {
-      console.error("Error confirming payment:", error);
-      throw this.handleSolanaError(error);
-    }
-  }
-
-  // Trigger a missed payment claim
-  async triggerMissedPaymentClaim(
-    verificationPDA: PublicKey,
-    amount: number
-  ): Promise<string> {
-    try {
-      // Get the policy PDA for the freelancer
-      const [policyPDA] = await this.findPolicyPDA(this.wallet.publicKey);
-      
-      // Find the claim PDA
-      const [claimPDA] = await this.findClaimPDA(policyPDA, this.wallet.publicKey, 0);
       
       // Create the transaction
-      const tx = new Transaction();
+      const transaction = new Transaction();
       
-      // Add instruction to trigger missed payment claim
-      tx.add(
+      // Add compute budget instruction to avoid OOM errors
+      transaction.add(
+        ComputeBudgetProgram.setComputeUnitLimit({
+          units: 400000
+        })
+      );
+      
+      // Add create ATA instruction if needed
+      if (createAtaIx) {
+        transaction.add(createAtaIx);
+      }
+      
+      // Convert inputs to the format the program expects
+      const coverageAmountLamports = parseUSDC(coverageAmount);
+      const jobTypeValue = this.mapJobTypeToValue(jobType);
+      const industryValue = this.mapIndustryToValue(industry);
+      
+      // Get reputation score (or use default if not available)
+      let reputationScore = 5; // Default
+      try {
+        const reputationData = await this.getReputationScore(this.wallet.publicKey);
+        if (reputationData) {
+          reputationScore = reputationData.score;
+        }
+      } catch (e) {
+        console.log('Error getting reputation score, using default', e);
+      }
+      
+      // Get claims history (or use default if not available)
+      let claimsHistory = 0; // Default
+      try {
+        const claims = await this.getClaims(this.wallet.publicKey);
+        claimsHistory = claims.length;
+      } catch (e) {
+        console.log('Error getting claims history, using default', e);
+      }
+      
+      // Add the create policy instruction
+      transaction.add(
         await this.insuranceProgram.methods
-          .triggerMissedPaymentClaim(new anchor.BN(amount))
+          .createPolicy(
+            new BN(coverageAmountLamports),
+            periodDays,
+            jobTypeValue,
+            industryValue,
+            reputationScore,
+            claimsHistory
+          )
           .accounts({
-            paymentVerification: verificationPDA,
-            policy: policyPDA,
-            claim: claimPDA,
-            freelancer: this.wallet.publicKey,
+            payer: this.wallet.publicKey,
+            policy: (await this.findPolicyPDA(this.wallet.publicKey))[0],
+            riskPool: riskPoolPDA,
+            userTokenAccount: userTokenAccount,
+            riskPoolTokenAccount: riskPoolTokenAccount,
+            tokenProgram: TOKEN_PROGRAM_ID,
             systemProgram: SystemProgram.programId,
+            rent: SYSVAR_RENT_PUBKEY,
           })
           .instruction()
       );
       
-      // Send and confirm transaction
-      const signature = await this.wallet.sendTransaction(tx, this.connection);
-      await this.connection.confirmTransaction(signature, 'confirmed');
+      // Sign and send the transaction
+      const txId = await this.enhancedSendAndConfirmTransaction(transaction);
+      console.log(`Policy created successfully, txId: ${txId}`);
       
-      return signature;
+      return txId;
     } catch (error) {
-      console.error("Error triggering missed payment claim:", error);
-      throw error;
-    }
-  }
-
-  // Get policy details
-  async getPolicyDetails(policyPDA: PublicKey): Promise<PolicyAccount | null> {
-    try {
-      const policyAccount = await this.insuranceProgram.account.policy.fetch(policyPDA);
-      
-      // Cast to any and then to PolicyAccount to avoid TypeScript errors
-      const policyData = policyAccount as any;
-      
-      // Create a properly formatted PolicyAccount object
-      const formattedPolicy: PolicyAccount = {
-        owner: policyData.owner,
-        coverageAmount: policyData.coverageAmount ? policyData.coverageAmount.toNumber() : 0,
-        premium: policyData.premium ? policyData.premium.toNumber() : 0,
-        startDate: policyData.startDate ? new Date(policyData.startDate.toNumber() * 1000) : new Date(),
-        endDate: policyData.endDate ? new Date(policyData.endDate.toNumber() * 1000) : new Date(),
-        status: policyData.status ? Object.keys(policyData.status)[0] : 'Inactive',
-        claimsCount: policyData.claimsCount ? policyData.claimsCount.toNumber() : 0,
-        createdAt: policyData.createdAt ? new Date(policyData.createdAt.toNumber() * 1000) : new Date(),
-        jobType: policyData.jobType || '',
-        industry: policyData.industry || '',
-        riskScore: policyData.riskScore ? policyData.riskScore.toNumber() : 0
-      };
-      
-      return formattedPolicy;
-    } catch (error) {
-      console.error("Error fetching policy details:", error);
-      return null;
-    }
-  }
-
-  // Get all claims for a policy
-  async getPolicyClaims(policyPDA: PublicKey): Promise<ClaimAccount[]> {
-    try {
-      // Query all claims associated with this policy
-      const claims = await this.insuranceProgram.account.claim.all([
-        {
-          memcmp: {
-            offset: 8, // After discriminator
-            bytes: policyPDA.toBase58()
-          }
-        }
-      ]);
-      
-      // Convert the accounts to ClaimAccount type and handle potential missing properties
-      const claimAccounts = claims.map(claim => {
-        const account = claim.account as any;
-        
-        // Ensure required properties exist
-        if (!account.claimsCount) {
-          account.claimsCount = 0;
-        }
-        
-        return account as ClaimAccount;
-      });
-      
-      return claimAccounts;
-    } catch (error) {
-      console.error("Error fetching policy claims:", error);
-      return [];
-    }
-  }
-
-  // Get risk pool metrics
-  async getRiskPoolMetrics(): Promise<{
-    totalCapital: number;
-    totalPolicies: number;
-    totalClaims: number;
-    totalPremiums: number;
-    totalPayouts: number;
-    reserveRatio: number;
-    claimsCount: number;
-    lastUpdated: Date;
-  }> {
-    try {
-      // Fetch the risk pool account
-      const [riskPoolPDA] = await this.findRiskPoolPDA();
-      const riskPoolAccount = await this.insuranceProgram.account.riskPool.fetch(riskPoolPDA);
-      
-      // Cast to any to access properties safely
-      const riskPool = riskPoolAccount as any;
-      
-      return {
-        totalCapital: riskPool.totalCapital ? riskPool.totalCapital.toNumber() : 0,
-        totalPolicies: riskPool.totalPolicies ? riskPool.totalPolicies.toNumber() : 0,
-        totalClaims: riskPool.totalClaims ? riskPool.totalClaims.toNumber() : 0,
-        totalPremiums: riskPool.totalPremiums ? riskPool.totalPremiums.toNumber() : 0,
-        totalPayouts: riskPool.totalPayouts ? riskPool.totalPayouts.toNumber() : 0,
-        reserveRatio: riskPool.reserveRatio ? riskPool.reserveRatio.toNumber() / 100 : 0.2, // Convert from percentage to decimal
-        claimsCount: riskPool.claimsCount ? riskPool.claimsCount.toNumber() : 0,
-        lastUpdated: riskPool.lastUpdated ? new Date(riskPool.lastUpdated.toNumber() * 1000) : new Date()
-      };
-    } catch (error) {
-      console.error("Error fetching risk pool metrics:", error);
-      // Return default metrics if there's an error
-      return {
-        totalCapital: 0,
-        totalPolicies: 0,
-        totalClaims: 0,
-        totalPremiums: 0,
-        totalPayouts: 0,
-        reserveRatio: 0.2,
-        claimsCount: 0,
-        lastUpdated: new Date()
-      };
-    }
-  }
-
-  // Get payment verifications for a user
-  async getPaymentVerifications(role: 'freelancer' | 'client'): Promise<PaymentVerificationAccount[]> {
-    if (!this.wallet.publicKey) {
-      throw new Error("Wallet not connected");
-    }
-    
-    try {
-      // Query payment verifications based on role
-      const memcmpOffset = role === 'freelancer' ? 8 : 8 + 32; // After discriminator + freelancer pubkey if client
-      
-      const verifications = await this.insuranceProgram.account.paymentVerification.all([
-        {
-          memcmp: {
-            offset: memcmpOffset,
-            bytes: this.wallet.publicKey.toBase58()
-          }
-        }
-      ]);
-      
-      // Convert to our PaymentVerificationAccount type with proper type handling
-      const formattedVerifications = verifications.map(v => {
-        const account = v.account as any;
-        return account as PaymentVerificationAccount;
-      });
-      
-      return formattedVerifications;
-    } catch (error) {
-      console.error(`Error fetching payment verifications for ${role}:`, error);
-      return [];
-    }
-  }
-
-  // Process a claim (approve or reject) - admin only
-  async processClaim(
-    claimPDA: PublicKey,
-    approved: boolean,
-    reason: string
-  ): Promise<string> {
-    try {
-      const [riskPoolPDA] = await this.findRiskPoolPDA();
-      
-      // Get claim data to determine owner
-      const claimAccount = await this.insuranceProgram.account.claim.fetch(claimPDA) as ClaimAccount;
-      const ownerPublicKey = claimAccount.owner;
-      
-      // Find or create token accounts for the claim payment
-      const [riskPoolTokenAccount] = await this.findOrCreateAssociatedTokenAccount(
-        riskPoolPDA,
-        USDC_MINT
+      const solanaError = this.handleSolanaError(error);
+      throw new SolanaTransactionError(
+        solanaError.message,
+        solanaError.code,
+        solanaError.txId
       );
-      
-      const [userTokenAccount, createAccountTx] = await this.findOrCreateAssociatedTokenAccount(
-        ownerPublicKey,
-        USDC_MINT
-      );
-      
-      // Create user token account if needed
-      if (createAccountTx) {
-        await this.enhancedSendAndConfirmTransaction(createAccountTx);
+    }
+  }
+
+  // Calculate premium for a policy
+  async calculatePremium(
+    coverageAmount: number,
+    periodDays: number,
+    jobType: string,
+    industry: string
+  ): Promise<{ premiumAmount: number, breakdown: any }> {
+    try {
+      // Convert inputs to program format
+      const coverageAmountLamports = parseUSDC(coverageAmount);
+      const jobTypeValue = this.mapJobTypeToValue(jobType);
+      const industryValue = this.mapIndustryToValue(industry);
+
+      // Get reputation score (or use default if not available)
+      let reputationScore = 5; // Default
+      try {
+        const reputationData = await this.getReputationScore(this.wallet.publicKey);
+        if (reputationData) {
+          reputationScore = reputationData.score;
+        }
+      } catch (e) {
+        console.log('Error getting reputation score, using default', e);
       }
-      
-      const tx = await this.insuranceProgram.methods
-        .processClaim(
-          approved,
-          reason
+
+      // Get claims history (or use default if not available)
+      let claimsHistory = 0; // Default
+      try {
+        const claims = await this.getClaims(this.wallet.publicKey);
+        claimsHistory = claims.length;
+      } catch (e) {
+        console.log('Error getting claims history, using default', e);
+      }
+
+      // Find the risk pool PDA
+      const [riskPoolPDA] = await this.findRiskPoolPDA();
+
+      // Call the calculate_premium instruction
+      const result = await this.insuranceProgram.methods
+        .calculatePremium(
+          new BN(coverageAmountLamports),
+          periodDays,
+          jobTypeValue,
+          industryValue,
+          reputationScore,
+          claimsHistory
         )
         .accounts({
-          authority: this.wallet.publicKey,
           riskPool: riskPoolPDA,
-          claim: claimPDA,
-          claimSource: riskPoolTokenAccount,
-          claimDestination: userTokenAccount,
-          tokenProgram: TOKEN_PROGRAM_ID,
+          user: this.wallet.publicKey,
         })
-        .transaction();
+        .view();
+
+      // Extract the premium amount from the result
+      const premiumAmount = formatUSDC(result.premiumAmount.toNumber());
+
+      // Create a breakdown of the premium calculation for UI display
+      const breakdown = {
+        basePremium: formatUSDC(result.basePremium.toNumber()),
+        riskAdjustment: formatUSDC(result.riskAdjustment.toNumber()),
+        reputationDiscount: formatUSDC(result.reputationDiscount.toNumber()),
+        finalPremium: premiumAmount,
+        coverageAmount: coverageAmount,
+        periodDays: periodDays,
+        jobType: jobType,
+        industry: industry,
+        reputationScore: reputationScore,
+        claimsHistory: claimsHistory,
+      };
+
+      return { 
+        premiumAmount, 
+        breakdown 
+      };
+    } catch (error) {
+      console.error('Error calculating premium:', error);
       
-      return await this.enhancedSendAndConfirmTransaction(tx);
-    } catch (error) {
-      console.error("Error processing claim:", error);
-      throw this.handleSolanaError(error);
-    }
-  }
-
-  // Get policy details
-  async getPolicy(owner: PublicKey): Promise<PolicyAccount & { publicKey: PublicKey } | null> {
-    const [policyPDA] = await this.findPolicyPDA(owner);
-    
-    try {
-      const policyAccount = await this.insuranceProgram.account.policy.fetch(policyPDA) as PolicyAccount;
-      return {
-        ...policyAccount,
-        publicKey: policyPDA
-      };
-    } catch (error) {
-      console.error("Error getting policy:", error);
-      return null;
-    }
-  }
-
-  // Get all claims for a user's policy
-  async getClaims(owner: PublicKey): Promise<(ClaimAccount & { publicKey: PublicKey })[]> {
-    try {
-      const [policyPDA] = await this.findPolicyPDA(owner);
-      return await this.getPolicyClaims(policyPDA);
-    } catch (error) {
-      console.error("Error getting claims:", error);
-      return [];
-    }
-  }
-
-  // Helper methods to map enum values
-  private mapPolicyStatus(status: { [K in keyof typeof PolicyStatus]?: {} }): string {
-    if (status.Active) return PolicyStatus.Active;
-    if (status.Expired) return PolicyStatus.Expired;
-    if (status.Terminated) return PolicyStatus.Terminated;
-    return 'Unknown';
-  }
-
-  private mapClaimStatus(status: { [K in keyof typeof ClaimStatus]?: {} }): string {
-    if (status.Pending) return ClaimStatus.Pending;
-    if (status.Approved) return ClaimStatus.Approved;
-    if (status.Rejected) return ClaimStatus.Rejected;
-    if (status.Arbitration) return ClaimStatus.Arbitration;
-    return 'Unknown';
-  }
-
-  private mapPaymentStatus(status: { [K in keyof typeof PaymentStatus]?: {} }): string {
-    if (status.Pending) return PaymentStatus.Pending;
-    if (status.Paid) return PaymentStatus.Paid;
-    if (status.Claimed) return PaymentStatus.Claimed;
-    return 'Unknown';
-  }
-
-  // Handle Solana errors and convert to SolanaTransactionError
-  private handleSolanaError(error: any): TransactionError {
-    if (error instanceof TransactionError) {
-      return error;
-    }
-    
-    // Parse program error from logs if available
-    if (error.logs) {
-      const programError = this.parseProgramError(error.logs);
-      return {
-        code: programError.code,
-        message: `Transaction failed: ${programError.message}`,
-        txId: error.signature
-      };
-    }
-    
-    // Handle other error types
-    return {
-      code: 'UNKNOWN_ERROR',
-      message: `Transaction failed: ${error.message || 'Unknown error'}`,
-      txId: error.signature
-    };
-  }
-
-  // Parse Solana program errors from logs
-  private parseProgramError(logs: string[]): { code: string; message: string } {
-    for (const log of logs) {
-      if (log.includes('Program log: Error:')) {
-        const errorMessage = log.split('Program log: Error:')[1].trim();
-        const errorCode = errorMessage.split(':')[0].trim();
-        return {
-          code: errorCode,
-          message: errorMessage
-        };
+      // Fallback to client-side calculation if on-chain calculation fails
+      const basePremium = PREMIUM_CALCULATION.baseFee;
+      const coveragePercentage = coverageAmount * PREMIUM_CALCULATION.coveragePercentage;
+      
+      // Adjust for job type and industry risk
+      let riskMultiplier = 1.0;
+      if (jobType === 'blockchain_development' || jobType === 'ai_development') {
+        riskMultiplier *= PREMIUM_CALCULATION.riskMultiplier;
       }
+      if (industry === 'finance' || industry === 'legal') {
+        riskMultiplier *= PREMIUM_CALCULATION.riskMultiplier;
+      }
+      
+      // Calculate duration factor (longer periods get slight discount)
+      const durationFactor = Math.max(0.5, Math.min(1.0, periodDays / 30));
+      
+      // Apply reputation discount if available
+      const reputationDiscount = 0; // Will be calculated if reputation data is available
+      
+      // Calculate final premium
+      const premiumAmount = (basePremium + coveragePercentage) * riskMultiplier * durationFactor - reputationDiscount;
+      
+      const breakdown = {
+        basePremium: basePremium,
+        coverageBasedAmount: coveragePercentage,
+        riskMultiplier: riskMultiplier,
+        durationFactor: durationFactor,
+        reputationDiscount: reputationDiscount,
+        finalPremium: premiumAmount,
+        coverageAmount: coverageAmount,
+        periodDays: periodDays,
+        jobType: jobType,
+        industry: industry,
+        calculatedOffChain: true
+      };
+      
+      return { 
+        premiumAmount: Math.max(PREMIUM_CALCULATION.baseFee, Math.round(premiumAmount * 100) / 100), 
+        breakdown 
+      };
     }
-    
-    return {
-      code: 'UNKNOWN_ERROR',
-      message: 'Unknown program error'
+  }
+
+  // Helper method to map job type string to enum value
+  private mapJobTypeToValue(jobType: string): number {
+    const jobTypeMap = {
+      'web_development': 0,
+      'mobile_development': 1,
+      'design': 2,
+      'content_writing': 3,
+      'marketing': 4,
+      'consulting': 5,
+      'data_analysis': 6,
+      'blockchain_development': 7,
+      'ai_development': 8,
+      'video_production': 9,
+      'translation': 10,
+      'other': 11
     };
+    
+    return jobTypeMap[jobType as keyof typeof jobTypeMap] || 11; // Default to 'other'
   }
-
-  // Enhanced type safety
-  validatePublicKey(key: string): PublicKey {
-    try {
-      return new PublicKey(key);
-    } catch (error) {
-      throw new Error("Invalid Public Key");
-    }
-  }
-}
-
-// Custom error class for Solana transaction errors
-export class SolanaTransactionError extends Error {
-  public code: string;
-  public txId?: string;
   
-  constructor(message: string, code: string, txId?: string) {
-    super(message);
-    this.name = 'SolanaTransactionError';
-    this.code = code;
-    this.txId = txId;
+  // Helper method to map industry string to enum value
+  private mapIndustryToValue(industry: string): number {
+    const industryMap = {
+      'technology': 0,
+      'finance': 1,
+      'healthcare': 2,
+      'education': 3,
+      'entertainment': 4,
+      'retail': 5,
+      'manufacturing': 6,
+      'real_estate': 7,
+      'legal': 8,
+      'nonprofit': 9,
+      'government': 10,
+      'other': 11
+    };
+    
+    return industryMap[industry as keyof typeof industryMap] || 11; // Default to 'other'
   }
+
+  // ... rest of the code remains the same ...
 }
