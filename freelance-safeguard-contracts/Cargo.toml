@@ -34,28 +34,29 @@ opt-level = 0
 opt-level = 3
 
 [workspace.metadata.solana]
-sdk-version = "2.1.0"
+sdk-version = "1.16.13"
 
-# Using Anchor 0.31.0 - matching the installed version
-# This ensures all programs use identical dependency versions
 [workspace.dependencies]
-anchor-lang = { version = "0.31.0", features = ["init-if-needed"] }
-anchor-spl = { version = "0.31.0", default-features = false }
-solana-program = "2.1.0" 
-borsh = "0.10.3"
-borsh-derive = "0.10.3"
-spl-token = "4.0.0"
-spl-associated-token-account = "1.1.3"
-mpl-token-metadata = { version = "1.11.1", features = ["no-entrypoint"] }  
-thiserror = "1.0.40"
-zeroize = "1.3.0"
+anchor-lang = "=0.28.0"
+anchor-spl = { version = "=0.28.0", features = ["token"], default-features = false }
+solana-program = "=1.16.13"
+borsh = "=0.10.3"
+borsh-derive = "=0.10.3"
+spl-token = { version = "=4.0.0", features = ["no-entrypoint"] }
+spl-associated-token-account = { version = "=1.1.3", features = ["no-entrypoint"] }
+mpl-token-metadata = { version = "=1.11.1", features = ["no-entrypoint"] }
+thiserror = "=1.0.40"
+zeroize = "=1.3.0"
+proc-macro2 = "=1.0.63"
+quote = "=1.0.28"
+syn = { version = "=1.0.109", features = ["full", "extra-traits"] }
+unicode-ident = "=1.0.8"
+rustc_version = "=0.4.0"
 
-# Add patches to resolve dependency conflicts
+# Override package versions with specific versions to resolve conflicts
 [patch.crates-io]
 # Fix borsh serialization issues for mpl-token-metadata
-borsh = "0.10.3"
-borsh-derive = "0.10.3"
-# Force solana-zk-sdk to use solana-program 2.1.0
-solana-zk-sdk = { git = "https://github.com/solana-labs/solana", tag = "v2.1.0" }
-# Ensure consistent solana-program version
-solana-program = { git = "https://github.com/solana-labs/solana", tag = "v2.1.0" }
+borsh = { git = "https://github.com/near/borsh-rs" }
+borsh-derive = { git = "https://github.com/near/borsh-rs" }
+# Override syn version to ensure compatibility
+syn = { git = "https://github.com/dtolnay/syn.git", tag = "1.0.109" }

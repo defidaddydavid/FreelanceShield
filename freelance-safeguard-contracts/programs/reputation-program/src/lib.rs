@@ -6,6 +6,7 @@ mod errors;
 mod instructions;
 mod state;
 mod utils;
+mod bayesian_scoring;
 
 // Re-export public items
 pub use constants::*;
@@ -13,6 +14,7 @@ pub use errors::*;
 pub use instructions::*;
 pub use state::*;
 pub use utils::*;
+pub use bayesian_scoring::{BayesianParameters, BayesianEvidence, calculate_bayesian_reputation, calculate_premium_discount};
 
 declare_id!("9KbeVQ7mhcYSDUnQ9jcVpEeQx7uu1xJfqvKrQsfpaqEq");
 
@@ -393,6 +395,130 @@ pub mod reputation_program {
         
         Ok(())
     }
+
+    /// Initialize the Bayesian reputation parameters
+    pub fn initialize_bayesian_params(
+        ctx: Context<InitializeBayesianParams>,
+        prior_mean: Option<u16>,
+        prior_strength: Option<u16>,
+        contract_completion_weight: Option<u16>,
+        contract_dispute_weight: Option<u16>,
+        claim_approval_weight: Option<u16>,
+        claim_rejection_weight: Option<u16>,
+        time_decay_factor: Option<u16>,
+        min_discount: Option<u16>,
+        max_discount: Option<u16>,
+        discount_curve_factor: Option<u16>,
+    ) -> Result<()> {
+        let params = &mut ctx.accounts.bayesian_params;
+        params.authority = ctx.accounts.authority.key();
+        
+        // Start with default parameters
+        let mut default_params = bayesian_scoring::initialize_default_parameters();
+        
+        // Override with any provided parameters
+        if let Some(value) = prior_mean {
+            require!(value <= 10000, ReputationError::InvalidParameter);
+            default_params.prior_mean = value;
+        }
+        
+        if let Some(value) = prior_strength {
+            default_params.prior_strength = value;
+        }
+        
+        if let Some(value) = contract_completion_weight {
+            default_params.contract_completion_weight = value;
+        }
+        
+        if let Some(value) = contract_dispute_weight {
+            default_params.contract_dispute_weight = value;
+        }
+        
+        if let Some(value) = claim_approval_weight {
+            default_params.claim_approval_weight = value;
+        }
+        
+        if let Some(value) = claim_rejection_weight {
+            default_params.claim_rejection_weight = value;
+        }
+        
+        if let Some(value) = time_decay_factor {
+            default_params.time_decay_factor = value;
+        }
+        
+        if let Some(value) = min_discount {
+            require!(value <= 10000, ReputationError::InvalidParameter);
+            default_params.min_discount = value;
+        }
+        
+        if let Some(value) = max_discount {
+            require!(value <= 10000, ReputationError::InvalidParameter);
+            default_params.max_discount = value;
+        }
+        
+        if let Some(value) = discount_curve_factor {
+            default_params.discount_curve_factor = value;
+        }
+        
+        // Copy values to account
+        params.prior_mean = default_params.prior_mean;
+        params.prior_strength = default_params.prior_strength;
+        params.contract_completion_weight = default_params.contract_completion_weight;
+        params.contract_dispute_weight = default_params.contract_dispute_weight;
+        params.claim_approval_weight = default_params.claim_approval_weight;
+        params.claim_rejection_weight = default_params.claim_rejection_weight;
+        params.time_decay_factor = default_params.time_decay_factor;
+        params.min_discount = default_params.min_discount;
+        params.max_discount = default_params.max_discount;
+        params.discount_curve_factor = default_params.discount_curve_factor;
+        params.bump = *ctx.bumps.get("bayesian_params").unwrap();
+        
+        msg!("Bayesian reputation parameters initialized");
+        Ok(())
+    }
+    
+    /// Calculate premium discount based on Bayesian reputation score
+    pub fn calculate_premium_discount(
+        ctx: Context<CalculatePremiumDiscount>,
+    ) -> Result<u16> {
+        let user_profile = &ctx.accounts.user_profile;
+        let bayesian_params = &ctx.accounts.bayesian_params;
+        
+        // Convert standard reputation data to Bayesian evidence
+        let evidence = BayesianEvidence {
+            completed_contracts: user_profile.completed_contracts,
+            successful_contracts: user_profile.successful_contracts,
+            disputed_contracts: user_profile.disputed_contracts,
+            claims_submitted: user_profile.claims_submitted,
+            claims_approved: user_profile.claims_approved,
+            claims_rejected: user_profile.claims_rejected,
+            days_since_first_activity: ((Clock::get()?.unix_timestamp - user_profile.last_update_timestamp) / 86400) as u32,
+            contract_completion_ratio: if user_profile.completed_contracts > 0 {
+                ((user_profile.successful_contracts as u64 * 10000) / user_profile.completed_contracts as u64) as u16
+            } else {
+                5000 // Neutral if no contracts
+            },
+            claim_approval_ratio: if user_profile.claims_submitted > 0 {
+                ((user_profile.claims_approved as u64 * 10000) / user_profile.claims_submitted as u64) as u16
+            } else {
+                5000 // Neutral if no claims
+            },
+        };
+        
+        // Calculate Bayesian reputation score
+        let reputation_score = calculate_bayesian_reputation(bayesian_params, &evidence);
+        
+        // Calculate discount based on reputation score
+        let discount = bayesian_scoring::calculate_premium_discount(bayesian_params, reputation_score);
+        
+        // Log for transparency
+        msg!("User: {}", user_profile.user);
+        msg!("Bayesian reputation score: {}", reputation_score);
+        msg!("Premium discount: {}%", discount as f32 / 100.0);
+        
+        // Return discount (scaled by 100)
+        Ok(discount)
+    }
 }
 
 // Helper function to calculate reputation score (0-100)
@@ -566,6 +692,41 @@ pub struct GetReputationHistory<'info> {
     pub user_profile: Account<'info, UserProfile>,
 }
 
+#[derive(Accounts)]
+pub struct InitializeBayesianParams<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    
+    #[account(
+        init,
+        payer = authority,
+        space = BayesianParams::SIZE,
+        seeds = [b"bayesian_params"],
+        bump
+    )]
+    pub bayesian_params: Account<'info, BayesianParams>,
+    
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct CalculatePremiumDiscount<'info> {
+    #[account(mut)]
+    pub caller: Signer<'info>,
+    
+    #[account(
+        seeds = [b"user_profile", user_profile.user.as_ref()],
+        bump = user_profile.bump
+    )]
+    pub user_profile: Account<'info, UserProfile>,
+    
+    #[account(
+        seeds = [b"bayesian_params"],
+        bump = bayesian_params.bump
+    )]
+    pub bayesian_params: Account<'info, BayesianParams>,
+}
+
 #[account]
 #[derive(Default)]
 pub struct ReputationState {
@@ -681,10 +842,43 @@ pub struct ReputationAnalytics {
     pub last_update_timestamp: i64,
 }
 
+#[account]
+#[derive(Default)]
+pub struct BayesianParams {
+    pub authority: Pubkey,
+    pub prior_mean: u16,
+    pub prior_strength: u16,
+    pub contract_completion_weight: u16,
+    pub contract_dispute_weight: u16,
+    pub claim_approval_weight: u16,
+    pub claim_rejection_weight: u16,
+    pub time_decay_factor: u16,
+    pub min_discount: u16,
+    pub max_discount: u16,
+    pub discount_curve_factor: u16,
+    pub bump: u8,
+}
+
+impl BayesianParams {
+    pub const SIZE: usize = 8 +  // discriminator
+                           32 + // authority
+                           2 +  // prior_mean
+                           2 +  // prior_strength
+                           2 +  // contract_completion_weight
+                           2 +  // contract_dispute_weight
+                           2 +  // claim_approval_weight
+                           2 +  // claim_rejection_weight
+                           2 +  // time_decay_factor
+                           2 +  // min_discount
+                           2 +  // max_discount
+                           2 +  // discount_curve_factor
+                           1;   // bump
+}
+
 #[error_code]
 pub enum ReputationError {
     #[msg("Caller is not authorized to perform this action")]
     Unauthorized,
     #[msg("Invalid input parameters")]
-    InvalidParameters,
+    InvalidParameter,
 }

@@ -1,41 +1,28 @@
-// src/polyfills.ts
+/**
+ * Polyfills for FreelanceShield
+ * 
+ * This file provides necessary polyfills for browser compatibility
+ * without interfering with existing browser extensions.
+ */
+
 import { Buffer } from 'buffer';
 
-// Add type declarations for global objects
-declare global {
-  interface Window {
-    _ethereumRef?: any;
-    ethereum?: any;
-    process?: any;
-    Buffer: typeof Buffer;
+// Safely setup global Buffer without touching window.ethereum
+if (typeof window !== 'undefined') {
+  // Add Buffer to window
+  window.Buffer = window.Buffer || Buffer;
+  
+  // Set global for node polyfills
+  window.global = window;
+  
+  // Safe process polyfill that doesn't interfere with extensions
+  // Use 'as any' to bypass TypeScript type checking for the simplified process object
+  if (!window.process) {
+    window.process = { env: {} } as any;
   }
 }
 
-// Polyfill Buffer
-window.Buffer = Buffer;
+console.info('FreelanceShield: Polyfills initialized successfully');
 
-// Polyfill process with minimal required properties
-window.process = {
-  env: {},
-  version: '',
-  nextTick: (fn: Function) => setTimeout(fn, 0),
-  // Add other essential properties as needed
-};
-
-// Handle ethereum object more safely
-// Instead of trying to redefine the ethereum property, we'll just store a reference
-// without modifying the window object
-if (window.ethereum) {
-  try {
-    // Store a reference without modifying the property
-    const ethereumRef = window.ethereum;
-    
-    // Create a safer way to access ethereum if needed
-    window._ethereumRef = ethereumRef;
-    
-    // Don't delete or redefine window.ethereum as it causes conflicts
-    // with other wallet providers
-  } catch (error) {
-    console.warn('Failed to handle ethereum object:', error);
-  }
-}
+// Export nothing - this file is imported for its side effects only
+export {};

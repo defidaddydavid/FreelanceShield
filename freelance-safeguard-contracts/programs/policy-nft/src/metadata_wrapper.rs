@@ -120,5 +120,48 @@ impl BorshDeserialize for Key {
     }
 }
 
+// Add missing implementations for Collection enum
+impl BorshSerialize for Collection {
+    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        BorshSerialize::serialize(&self.key, writer)?;
+        BorshSerialize::serialize(&self.verified, writer)
+    }
+}
+
+impl BorshDeserialize for Collection {
+    fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
+        let key = BorshDeserialize::deserialize(buf)?;
+        let verified = BorshDeserialize::deserialize(buf)?;
+        
+        Ok(Collection {
+            key,
+            verified,
+        })
+    }
+}
+
+// Add missing implementation for Uses
+impl BorshSerialize for Uses {
+    fn serialize<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        BorshSerialize::serialize(&self.use_method, writer)?;
+        BorshSerialize::serialize(&self.remaining, writer)?;
+        BorshSerialize::serialize(&self.total, writer)
+    }
+}
+
+impl BorshDeserialize for Uses {
+    fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
+        let use_method = BorshDeserialize::deserialize(buf)?;
+        let remaining = BorshDeserialize::deserialize(buf)?;
+        let total = BorshDeserialize::deserialize(buf)?;
+        
+        Ok(Uses {
+            use_method,
+            remaining,
+            total,
+        })
+    }
+}
+
 // Export the wrapper implementations
 pub use mpl_token_metadata::instruction::*;

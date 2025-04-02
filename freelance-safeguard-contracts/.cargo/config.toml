@@ -5,3 +5,10 @@ rustflags = ["-C", "target-cpu=native"]
 git-fetch-with-cli = true
 
 # Removed the problematic target configuration that was causing patching issues
+
+# Add specific Solana BPF settings
+[unstable]
+build-std = ["std", "panic_abort"]
+
+[alias]
+sbf-build-deps = "build-bpf --manifest-path=Cargo.toml"

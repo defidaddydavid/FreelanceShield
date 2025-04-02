@@ -36,6 +36,11 @@ pub use instructions::{
         update::UpdateRiskMetrics,
         withdraw::WithdrawCapital,
     },
+    treasury::{
+        initialize::InitializeDomainTreasury,
+        update::UpdateDomainTreasury,
+        send_payment::SendPremiumToRiskPool,
+    },
 };
 
 // Import parameter structs with specific namespaces
@@ -344,6 +349,22 @@ pub enum FreelanceShieldError {
     
     #[msg("Invalid token account")]
     InvalidTokenAccount,
+    
+    // Domain treasury errors
+    #[msg("Treasury address mismatch")]
+    TreasuryAddressMismatch,
+    
+    #[msg("Domain too long")]
+    DomainTooLong,
+    
+    #[msg("Invalid protocol domain")]
+    InvalidProtocolDomain,
+    
+    #[msg("Domain treasury already initialized")]
+    DomainTreasuryAlreadyInitialized,
+    
+    #[msg("Invalid risk pool account")]
+    InvalidRiskPoolAccount,
     
     // Additional error variants needed for policy renewal and claims
     #[msg("Product is inactive")]

@@ -1,27 +1,17 @@
 /**
  * Empty Web3 mock module
  * 
- * This mock prevents errors from Ethereum-related code that might be imported
- * while ensuring we're using real Solana connections exclusively.
+ * This module provides null exports for Web3 functionality
+ * without interfering with browser extensions or wallet providers.
  */
 
-// Return empty/null values for Web3 or Ethereum interfaces if they're accidentally imported
+// Simple null export that can be safely imported
 export default null;
 
-// Prevent window.ethereum injection
-if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'ethereum', {
-    value: null,
-    writable: false,
-    configurable: false
-  });
-}
-
-// Ensure no Web3 functionality is available
+// Safe exports for any imports
 export const Web3 = null;
-export const eth = null;
-export const utils = null;
-export const providers = null;
+export const web3 = null;
+export const ethereum = null;
 
-// Make sure any imported module knows this is just a mock
-console.warn('Web3 mock loaded - FreelanceShield uses Solana exclusively');
+// Log that we're using the Solana-only mode
+console.info('FreelanceShield: Web3 mock active (Solana-only mode)');

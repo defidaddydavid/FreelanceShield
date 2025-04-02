@@ -1,21 +1,35 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+// Import compatibility script first
+import './ethereum-compat.js';
+
+// Import polyfills early
+import './polyfills';
+
+import React, { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 import App from './App';
-import { WalletProvider } from './lib/solana/WalletProvider';
+
+// Import global styles
 import './index.css';
-import { Buffer } from 'buffer';
 
-// Polyfill Buffer and process.env
-window.Buffer = Buffer;
-window.global = window;
+// Create a clean error handler
+window.addEventListener('error', (event) => {
+  // Prevent ethereum property errors from crashing the app
+  if (event.error?.message?.includes('ethereum') || 
+      event.error?.message?.includes('property') ||
+      event.error?.message?.includes('redefine')) {
+    console.warn('Intercepted property error:', event.error.message);
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}, { capture: true });
 
-// No attempt to modify ethereum property - simplify the approach
-console.log('FreelanceShield - Solana Integration Mode');
-
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <WalletProvider>
+// Mount the application
+const container = document.getElementById('root');
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <StrictMode>
       <App />
-    </WalletProvider>
-  </React.StrictMode>
-);
+    </StrictMode>
+  );
+}

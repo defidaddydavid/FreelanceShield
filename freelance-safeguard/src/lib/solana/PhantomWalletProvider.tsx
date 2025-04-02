@@ -56,7 +56,14 @@ export const PhantomWalletProvider: FC<PhantomWalletProviderProps> = ({ children
 
   // Setup connection to Solana network
   const endpoint = NETWORK_CONFIG.endpoint;
-  const connection = useMemo(() => new Connection(endpoint, 'confirmed'), [endpoint]);
+  const connection = useMemo(() => {
+    try {
+      return new Connection(endpoint, 'confirmed');
+    } catch (error) {
+      console.error('Failed to connect to Solana network:', error);
+      return null;
+    }
+  }, [endpoint]);
 
   // Create wallet adapters with error handling
   const wallets = useMemo(() => {
@@ -92,24 +99,37 @@ export const PhantomWalletProvider: FC<PhantomWalletProviderProps> = ({ children
     }
   }, []);
 
-  // Global error handler for wallet-related errors
+  // Enhanced global error handler for wallet-related errors
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      // Prevent wallet adapter initialization errors from crashing the app
-      if (event.error?.message?.includes('Cannot read properties of null') ||
-          event.error?.message?.includes('wallet adapter')) {
-        console.warn('Intercepted wallet adapter error:', event.error.message);
+      // Check if the error is related to wallet adapters or ethereum
+      if (
+        event.error?.message?.includes('Cannot read properties of null') ||
+        event.error?.message?.includes('wallet adapter') ||
+        event.error?.message?.includes('solana') ||
+        event.error?.message?.includes('phantom') ||
+        event.error?.message?.includes('ethereum') ||
+        event.error?.message?.includes('property') ||
+        event.error?.message?.includes('type')
+      ) {
+        console.warn('Intercepted wallet/ethereum error:', event.error.message);
+        // Prevent the error from crashing the app
         event.preventDefault();
         event.stopPropagation();
       }
     };
 
-    window.addEventListener('error', handleError);
+    window.addEventListener('error', handleError, { capture: true });
     
     return () => {
-      window.removeEventListener('error', handleError);
+      window.removeEventListener('error', handleError, { capture: true });
     };
   }, []);
+
+  // If connection is null, render the children with a fallback provider
+  if (!connection) {
+    return <>{children}</>;
+  }
 
   return (
     <ConnectionProvider endpoint={endpoint}>

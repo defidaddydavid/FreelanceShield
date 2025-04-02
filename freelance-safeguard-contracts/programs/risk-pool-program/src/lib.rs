@@ -3,7 +3,11 @@ use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
 use anchor_spl::associated_token::AssociatedToken;
 
 mod staking_integration;
+mod domain_integration;
+mod reputation_integration;
 use staking_integration::{distribute_staking_rewards, transfer_premium_share_to_staking, StakingProgram};
+use domain_integration::{RecordDomainPremium, validate_domain_treasury, RiskPoolError};
+use reputation_integration::*;
 
 declare_id!("FroU966kfvu5RAQxhLfb4mhFdDjY6JewEf41ZfYR3xhm");
 
@@ -418,32 +422,31 @@ pub mod risk_pool_program {
 
     // New function to update premium to claims ratio
     pub fn update_premium_claims_ratio(ctx: Context<UpdateRiskParameters>) -> Result<()> {
-        let risk_pool_state = &mut ctx.accounts.risk_pool_state;
+        let risk_pool = &mut ctx.accounts.risk_pool_state;
         
-        // Only authority can call this
-        require!(
-            ctx.accounts.authority.key() == risk_pool_state.authority,
-            RiskPoolError::Unauthorized
-        );
+        require!(risk_pool.total_claims_paid > 0, RiskPoolError::DivideByZero);
         
-        // Calculate premium to claims ratio (as a percentage)
-        // If no claims paid yet, ratio is 100% (healthy)
-        if risk_pool_state.total_claims_paid == 0 {
-            risk_pool_state.premium_to_claims_ratio = 100;
-        } else {
-            // Calculate ratio: premiums / claims * 100 (capped at 200%)
-            let ratio = (risk_pool_state.total_premiums_collected as u128 * 100) / 
-                        risk_pool_state.total_claims_paid as u128;
+        risk_pool.premium_to_claims_ratio = ((risk_pool.total_premiums_collected as u128)
+            .checked_mul(100)
+            .unwrap_or(0)
+            .checked_div(risk_pool.total_claims_paid as u128)
+            .unwrap_or(0)) as u16;
             
-            // Cap at 200% to avoid overflow issues in UI
-            risk_pool_state.premium_to_claims_ratio = std::cmp::min(ratio as u8, 200);
-        }
-        
-        // Update metrics timestamp
-        risk_pool_state.last_metrics_update = Clock::get()?.unix_timestamp;
-        
-        msg!("Premium to claims ratio updated: {}", risk_pool_state.premium_to_claims_ratio);
+        risk_pool.last_metrics_update = Clock::get()?.unix_timestamp;
         Ok(())
+    }
+    
+    /// Record a premium payment received via the FreelanceShield.xyz domain
+    pub fn process_domain_premium(ctx: Context<RecordDomainPremium>, amount: u64) -> Result<()> {
+        // Validate the domain treasury is authorized to send to this risk pool
+        validate_domain_treasury(
+            &ctx.accounts.domain_treasury.to_account_info(),
+            &ctx.accounts.core_program.key(),
+            &ctx.accounts.risk_pool_state.key()
+        )?;
+        
+        // Record the premium in our risk pool
+        domain_integration::record_domain_premium(ctx, amount)
     }
 }
 
@@ -656,6 +659,15 @@ pub struct GetPublicRiskPoolMetrics<'info> {
     pub system_program: Program<'info, System>,
 }
 
+#[derive(Accounts)]
+pub struct RecordDomainPremium<'info> {
+    #[account(mut)]
+    pub domain_treasury: AccountInfo<'info>,
+    #[account(mut)]
+    pub risk_pool_state: Account<'info, RiskPoolState>,
+    pub core_program: Program<'info, System>,
+}
+
 #[account]
 #[derive(Default)]
 pub struct RiskPoolState {
@@ -766,5 +778,7 @@ pub enum RiskPoolError {
     
     #[msg("Invalid account")]
     InvalidAccount,
+    
+    #[msg("Cannot divide by zero")]
+    DivideByZero,
 }
-
