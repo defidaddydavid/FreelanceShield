@@ -5,7 +5,7 @@ use anchor_lang::solana_program::program::{invoke, invoke_signed};
 use anchor_lang::solana_program::instruction::Instruction;
 use anchor_lang::solana_program::system_instruction;
 
-declare_id!("FUnA7YXC27uJBqrcS2Q5ofGL4ghyxoBZkieCtpxvCVab");
+declare_id!("8icbcJYrXk1yQTbW9C7WKyRGnTFZt3aD8d4kAzDkr5b7");
 
 // Define program IDs for cross-program invocation
 pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("2vFoxWTSRERwtcfwEb6Zgm2iWS3ewU1Y94K224Gw7CJm");

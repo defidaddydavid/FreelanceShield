@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
 
-declare_id!("FDJJ1NSYbLe3v1wCVGXcrA1hqKvf2BbpbNXE3G6TSuf7");
+declare_id!("CNA4hWFgYAwKLgeZRP4EvBc5G2PVQWoDbXtVd5YheBwF");
 
 #[program]
 pub mod dao_governance {
@@ -693,4 +693,3 @@ pub enum DaoError {
     #[msg("Unauthorized access")]
     Unauthorized,
 }
-

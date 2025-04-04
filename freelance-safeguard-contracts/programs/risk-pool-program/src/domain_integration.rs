@@ -76,7 +76,7 @@ pub fn record_domain_premium(ctx: Context<RecordDomainPremium>, amount: u64) -> 
             .checked_mul(100)
             .unwrap_or(0)
             .checked_div(risk_pool.total_claims_paid as u128)
-            .unwrap_or(0)) as u16;
+            .unwrap_or(0)) as u8;
     }
     
     // Update timestamp

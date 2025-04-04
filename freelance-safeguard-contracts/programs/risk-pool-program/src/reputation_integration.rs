@@ -59,7 +59,7 @@ pub fn fetch_reputation_discount(
     };
     
     // Prepare seeds for PDA signing
-    let risk_pool_seeds = &[b"risk-pool-state", &[0]]; // Replace 0 with actual bump
+    let risk_pool_seeds = &[b"risk-pool-state", &[risk_pool_state.key().to_bytes()], &[0]];
     
     // Call the instruction
     let result = invoke_signed(
@@ -116,7 +116,7 @@ pub fn update_reputation_after_premium_payment(
     };
     
     // Prepare seeds for PDA signing
-    let risk_pool_seeds = &[b"risk-pool-state", &[0]]; // Replace 0 with actual bump
+    let risk_pool_seeds = &[b"risk-pool-state", &[risk_pool_state.key().to_bytes()], &[0]];
     
     // Call the instruction
     let result = invoke_signed(
@@ -173,7 +173,7 @@ pub fn update_reputation_after_claim(
     };
     
     // Prepare seeds for PDA signing
-    let risk_pool_seeds = &[b"risk-pool-state", &[0]]; // Replace 0 with actual bump
+    let risk_pool_seeds = &[b"risk-pool-state", &[risk_pool_state.key().to_bytes()], &[0]];
     
     // Call the instruction
     let result = invoke_signed(

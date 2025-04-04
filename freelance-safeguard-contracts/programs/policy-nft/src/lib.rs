@@ -15,7 +15,7 @@ use borsh::{BorshDeserialize, BorshSerialize};
 mod metadata_wrapper;
 use metadata_wrapper::*;
 
-declare_id!("2pwwsiBvc21ZcBaVmdWcymvz3QiP8DuYkB97S7gNoK6T");
+declare_id!("94mWhnLu8RzEbFTE3ftcebd9xQtEG4JPt2y7fwHwcbup");
 
 // Define the Insurance Program ID
 pub const INSURANCE_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("37dpkWEmajidF7PKS9v43m2QfTxo7kxxYaEQcAh5c9uD");

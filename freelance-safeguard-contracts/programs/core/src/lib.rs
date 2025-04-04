@@ -52,7 +52,7 @@ pub use state::risk_pool::RiskPool;
 pub use state::program_state::ProgramState;
 
 // Program ID - this will be updated once deployed
-declare_id!("71MWZDSCrSusXnwj42o4j6AfiZqQDPjVBLmQKtSoChZp");
+declare_id!("7U3mgDsMYS97FjrsDpuzqK7nKNrpHF4Bb1sJd1tFQkZc");
 
 #[program]
 pub mod freelance_shield_core {

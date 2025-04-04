@@ -6,13 +6,13 @@ mod staking_integration;
 mod domain_integration;
 mod reputation_integration;
 use staking_integration::{distribute_staking_rewards, transfer_premium_share_to_staking, StakingProgram};
-use domain_integration::{RecordDomainPremium, validate_domain_treasury, RiskPoolError};
+use domain_integration::{validate_domain_treasury, DomainPremiumRecord as RecordDomainPremium, DomainRiskPoolError as RiskPoolError};
 use reputation_integration::*;
 
-declare_id!("FroU966kfvu5RAQxhLfb4mhFdDjY6JewEf41ZfYR3xhm");
+declare_id!("FCNXdEAFDuGJ1vaJDPNMff19qJmSTZi2cRZZjQVh18kM");
 
 // Define the Staking Program ID
-pub const STAKING_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("StaKe5tXnKjeJC4vRVsnxBrNwUuUXRES2RdMc4MnrSA");
+pub const STAKING_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("JAZVb77udn2QeTq6fKoot1yB23yBsWyvC6a6BK2SAKaG");
 
 #[program]
 pub mod risk_pool_program {
@@ -90,7 +90,8 @@ pub mod risk_pool_program {
         
         // Recalculate reserve ratio
         if state.total_coverage_liability > 0 {
-            state.current_reserve_ratio = ((state.total_capital as u128 * 100) / state.total_coverage_liability as u128) as u8;
+            let reserve_ratio = (((state.total_capital as u128 * 100) / state.total_coverage_liability as u128) as u8);
+            state.current_reserve_ratio = reserve_ratio.saturating_sub(state.target_reserve_ratio);
         }
         
         // Update last metrics update timestamp
@@ -121,7 +122,8 @@ pub mod risk_pool_program {
         // Calculate new reserve ratio after withdrawal
         let new_total_capital = risk_pool_state.total_capital.saturating_sub(amount);
         let new_reserve_ratio = if risk_pool_state.total_coverage_liability > 0 {
-            ((new_total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8
+            let reserve_ratio = (((new_total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8);
+            reserve_ratio.saturating_sub(risk_pool_state.target_reserve_ratio)
         } else {
             100
         };
@@ -164,7 +166,8 @@ pub mod risk_pool_program {
         
         // Recalculate reserve ratio
         if state.total_coverage_liability > 0 {
-            state.current_reserve_ratio = ((state.total_capital as u128 * 100) / state.total_coverage_liability as u128) as u8;
+            let reserve_ratio = (((state.total_capital as u128 * 100) / state.total_coverage_liability as u128) as u8);
+            state.current_reserve_ratio = reserve_ratio.saturating_sub(state.target_reserve_ratio);
         } else {
             state.current_reserve_ratio = 100;
         }
@@ -201,7 +204,8 @@ pub mod risk_pool_program {
         
         // Recalculate reserve ratio
         if risk_pool_state.total_coverage_liability > 0 {
-            risk_pool_state.current_reserve_ratio = ((risk_pool_state.total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8;
+            let reserve_ratio = (((risk_pool_state.total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8);
+            risk_pool_state.current_reserve_ratio = reserve_ratio.saturating_sub(risk_pool_state.target_reserve_ratio);
         } else {
             risk_pool_state.current_reserve_ratio = 100;
         }
@@ -407,8 +411,8 @@ pub mod risk_pool_program {
         
         // Calculate solvency metrics
         let buffer_percentage = if risk_pool_state.total_coverage_liability > 0 {
-            ((risk_pool_state.total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8
-                .saturating_sub(risk_pool_state.target_reserve_ratio)
+            let reserve_ratio = (((risk_pool_state.total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8);
+            reserve_ratio.saturating_sub(risk_pool_state.target_reserve_ratio)
         } else {
             100
         };
@@ -628,7 +632,7 @@ pub struct RunMonteCarloSimulation<'info> {
         init,
         payer = authority,
         space = 8 + SimulationResult::SIZE,
-        seeds = [b"simulation", &Clock::get()?.unix_timestamp.to_le_bytes()],
+        seeds = [b"simulation", &Clock::get()?.unix_timestamp.to_le_bytes()[..], &[0]],
         bump
     )]
     pub simulation_result: Account<'info, SimulationResult>,

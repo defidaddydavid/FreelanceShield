@@ -3,7 +3,7 @@ use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
 use anchor_spl::associated_token::AssociatedToken;
 use std::convert::TryFrom;
 
-declare_id!("8wb2a2qR2rEpqALC8a1TdnGgsbVJLFUeRJQ5y7EfvQRT");
+declare_id!("9TsZshBaMxUnCHeSfvqAZQdKKXWWXQ6sd4Z6S4YvGcxv");
 
 // Define program IDs for cross-program invocation
 pub const RISK_POOL_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("GywN3pRCKVXyAVNxkePotBFEYcFSvULw5qefacsUmsdt");

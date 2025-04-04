@@ -4,11 +4,11 @@ use anchor_lang::solana_program::clock::Clock;
 mod bayesian_verification;
 use bayesian_verification::{BayesianVerificationModel as BayesianModel, ClaimEvidence, ClaimVerificationResult, verify_claim, calculate_claim_legitimacy, initialize_default_model};
 
-declare_id!("5pQBQ2oz7RWJVrcjVzCocbzZsqcAPokwn4Fs3UtPEtda");
+declare_id!("9udpCrckMkfKvSzARMAp8njEsoYbkc6GopwTf3PGtiuv");
 
 // Define program IDs for cross-program invocation
-pub const INSURANCE_PROGRAM_ID: Pubkey = solana_program::pubkey!("8Kw84sBiD3L6mLt6NnvJdPkdD4bsahMYLtbzQm9GXqKB");
-pub const RISK_POOL_PROGRAM_ID: Pubkey = solana_program::pubkey!("HC1TQHR6kVqtq48UbTYGwHwHTUYom9W3ovNVgjPgNcFg");
+pub const INSURANCE_PROGRAM_ID: Pubkey = solana_program::pubkey!("69JEStA6rKXi2y8LaLyNtXv4H2ZG211JFRmg6ES4GWEu");
+pub const RISK_POOL_PROGRAM_ID: Pubkey = solana_program::pubkey!("AGNZSGGL9hdWfT76TVFypbPcfsbrRJLDcHmczghbixoM");
 
 #[program]
 pub mod claims_processor {

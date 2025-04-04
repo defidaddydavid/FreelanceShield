@@ -1,23 +1,22 @@
 [toolchain]
-anchor_version = "0.28.0"
-solana_version = "1.16.13"
+anchor_version = "0.31.0"
+solana_version = "2.1.0"
 
 [features]
 resolution = true
 skip-lint = false
 
 [programs.devnet]
-claims_processor = "5pQBQ2oz7RWJVrcjVzCocbzZsqcAPokwn4Fs3UtPEtda"
-dao_governance = "FDJJ1NSYbLe3v1wCVGXcrA1hqKvf2BbpbNXE3G6TSuf7"
-enhanced_claims = "BYE7dnHiF7ptZY1oAxcRBA13NVKsCiFQ2QBQQEAnSf8H"
-enhanced_cover = "8wb2a2qR2rEpqALC8a1TdnGgsbVJLFUeRJQ5y7EfvQRT"
-escrow_program = "FUnA7YXC27uJBqrcS2Q5ofGL4ghyxoBZkieCtpxvCVab"
-freelance_insurance = "5PE9juxGEzx4gMhYBrpeypj8jYdiqNHvnK7PNZ3GAUvW"
-insurance_program = "Ge2xB8Hk3GY1p3YNJWbaxqNNRB6f18VxMsrjfSJ1DPVg"
-policy_nft = "2pwwsiBvc21ZcBaVmdWcymvz3QiP8DuYkB97S7gNoK6T"
-reputation_program = "9KbeVQ7mhcYSDUnQ9jcVpEeQx7uu1xJfqvKrQsfpaqEq"
-risk_pool_program = "FroU966kfvu5RAQxhLfb4mhFdDjY6JewEf41ZfYR3xhm"
-staking_program = "z1VyDVFdUGUXQzx6Dikrzt7aDR8BLgSARcncUvymcDb"
+claims_processor = "DT8eJ6wc6ZfT3MjDRvqZ8AonSsG3uuviLF8LmMJsievH"
+dao_governance = "CNA4hWFgYAwKLgeZRP4EvBc5G2PVQWoDbXtVd5YheBwF"
+enhanced_claims = "4jnnT3KKDFbWEci229ku4CGeRaiQupYDKxqDjAaQjyWM"
+enhanced_cover = "9TsZshBaMxUnCHeSfvqAZQdKKXWWXQ6sd4Z6S4YvGcxv"
+escrow_program = "8icbcJYrXk1yQTbW9C7WKyRGnTFZt3aD8d4kAzDkr5b7"
+freelance_insurance = "GpcM7kmhKWE4QKG1AWquX8xTs8mqSWn5r3SqMzTDWsys"
+insurance_program = "3GiieAndgnB7Wr3ZRHsvUw2KmFewydo59Py47wKJG4xQ"
+policy_nft = "94mWhnLu8RzEbFTE3ftcebd9xQtEG4JPt2y7fwHwcbup"
+reputation_program = "CvWfNXEGVivX8sYVjtrFyesav1SaHLFs349QKD12HeKK"
+risk_pool_program = "FCNXdEAFDuGJ1vaJDPNMff19qJmSTZi2cRZZjQVh18kM"
 
 [registry]
 url = "https://api.apr.dev"

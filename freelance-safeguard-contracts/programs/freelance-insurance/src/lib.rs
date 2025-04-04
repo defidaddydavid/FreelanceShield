@@ -10,7 +10,7 @@ pub use instructions::*;
 pub use state::*;
 
 // Use the same program ID as the original
-declare_id!("5PE9juxGEzx4gMhYBrpeypj8jYdiqNHvnK7PNZ3GAUvW");
+declare_id!("GpcM7kmhKWE4QKG1AWquX8xTs8mqSWn5r3SqMzTDWsys");
 
 #[program]
 pub mod freelance_insurance {
