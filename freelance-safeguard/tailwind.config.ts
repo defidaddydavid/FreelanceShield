@@ -20,10 +20,10 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Open Sans', 'sans-serif'],
-        heading: ['NT Brick Sans', 'sans-serif'],
-        display: ['NT Brick Sans', 'sans-serif'],
-        mono: ['NT Brick Sans', 'monospace'],
-        numeric: ['NT Brick Sans', 'sans-serif'],
+        heading: ['NT Brick Sans'],
+        display: ['NT Brick Sans'],
+        mono: ['NT Brick Sans'],
+        numeric: ['NT Brick Sans'],
       },
       letterSpacing: {
         tighter: '-0.05em',
