@@ -18,8 +18,7 @@ idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 
 [dependencies]
 anchor-lang = { workspace = true, features = ["init-if-needed"] }
-anchor-spl = { workspace = true, features = ["token"] }
-solana-program = { workspace = true }
+anchor-spl = { workspace = true, features = ["token", "token_2022"] }
 borsh = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
