@@ -85,6 +85,16 @@ export const SolanaProvider: React.FC<SolanaProviderProps> = ({ children }) => {
     }
   }, [connection, wallet.connected, wallet.publicKey, wallet.signTransaction, wallet.signAllTransactions]);
 
+  // Verify Solana provider configuration
+  useEffect(() => {
+    // Ensure all required providers are properly nested
+    // Check network configuration matches your environment
+    if (!NETWORK_CONFIG) {
+      console.error('NETWORK_CONFIG is not defined');
+      setError('NETWORK_CONFIG is not defined');
+    }
+  }, [NETWORK_CONFIG]);
+
   // Provide the context values to children
   return (
     <SolanaContext.Provider value={{ connection, sdk, isConnecting, error }}>

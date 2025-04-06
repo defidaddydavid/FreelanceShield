@@ -32,6 +32,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { NETWORK_CONFIG } from '@/lib/solana/constants';
+import { cn } from "@/lib/utils";
 
 export interface TransactionDialogProps {
   isOpen: boolean;
@@ -237,29 +238,23 @@ const WalletConnect = () => {
 
   if (!connected) {
     return (
-      <div className="relative">
-        <WalletMultiButton className="!bg-indigo-600 hover:!bg-indigo-700 text-white rounded-md px-4 py-2 text-sm font-medium" />
-        {showWalletPrompt && (
-          <div className="absolute top-full right-0 mt-2 p-3 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-50 w-64 animate-in fade-in slide-in-from-top-5">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Wallet connection required</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Please connect your wallet to access this feature
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <WalletMultiButton 
+        className="bg-primary hover:bg-primary/90"
+      />
     );
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          className={cn(
+            "rounded-full border-shield-purple text-shield-purple",
+            "hover:bg-shield-purple/10 dark:hover:bg-shield-purple/20",
+            "dark:border-shield-blue dark:text-shield-blue",
+          )}
+        >
           <div className={`w-2 h-2 rounded-full ${networkStatus === 'connected' ? 'bg-green-500' : networkStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'}`} />
           <span className="hidden md:inline-block">{shortenAddress(publicKey.toBase58())}</span>
           <span className="md:hidden">Wallet</span>

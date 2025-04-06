@@ -1,14 +1,8 @@
-import { FC, ReactNode, useMemo, useEffect, useState } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import { ConnectionProvider, WalletProvider as WalletProviderBase } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { 
-  PhantomWalletAdapter, 
-  SolflareWalletAdapter
-} from '@solana/wallet-adapter-wallets';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { NETWORK_CONFIG } from './constants';
-import { Commitment } from '@solana/web3.js';
-import { PhantomWalletProvider } from './PhantomWalletProvider';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { clusterApiUrl } from '@solana/web3.js';
 import { toast } from 'sonner';
 
 // Import Solana wallet styles
@@ -19,12 +13,10 @@ interface Props {
 }
 
 export const WalletProvider: FC<Props> = ({ children }) => {
-  const [isInitialized, setIsInitialized] = useState(false);
-  
-  // The network will be determined by the connected wallet
-  // We default to devnet for testing, but this can be changed by the wallet
-  const network = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => NETWORK_CONFIG.endpoint, []);
+  const wallets = useMemo(
+    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
+    []
+  );
 
   // Set up global error handler for wallet-related errors
   useEffect(() => {
@@ -53,10 +45,13 @@ export const WalletProvider: FC<Props> = ({ children }) => {
     };
   }, []);
 
-  // Just return the PhantomWalletProvider which now has better error handling
   return (
-    <PhantomWalletProvider>
-      {children}
-    </PhantomWalletProvider>
+    <ConnectionProvider endpoint={clusterApiUrl('mainnet-beta')}>
+      <WalletProviderBase wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          {children}
+        </WalletModalProvider>
+      </WalletProviderBase>
+    </ConnectionProvider>
   );
 };

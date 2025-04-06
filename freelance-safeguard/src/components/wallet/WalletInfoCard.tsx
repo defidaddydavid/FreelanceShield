@@ -4,8 +4,9 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Shield, Coins, ExternalLink } from "lucide-react";
+import { Shield, Coins, ExternalLink, Wallet } from "lucide-react";
 import WalletAvatar from "./WalletAvatar";
+import cn from "classnames";
 
 interface WalletInfoCardProps {
   className?: string;
@@ -38,9 +39,16 @@ const WalletInfoCard: React.FC<WalletInfoCardProps> = ({
 
   if (!connected || !publicKey) {
     return (
-      <Card className={`overflow-hidden ${className}`}>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-xl font-heading">Wallet</CardTitle>
+      <Card className={cn(
+        "border-shield-purple/20 bg-white dark:bg-gray-900",
+        "hover:shadow-md transition-shadow duration-200",
+        className
+      )}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-heading text-shield-purple dark:text-shield-blue">
+            <Wallet className="mr-2 h-5 w-5 inline" />
+            Wallet
+          </CardTitle>
           <CardDescription>Connect your wallet to view details</CardDescription>
         </CardHeader>
         <CardContent className="pb-2">
@@ -60,10 +68,17 @@ const WalletInfoCard: React.FC<WalletInfoCardProps> = ({
   }
 
   return (
-    <Card className={`overflow-hidden ${className}`}>
-      <CardHeader className="pb-4 bg-gradient-to-r from-shield-purple to-shield-blue text-white">
-        <CardTitle className="text-xl font-heading">Wallet Connected</CardTitle>
-        <CardDescription className="text-white/80">
+    <Card className={cn(
+      "border-shield-purple/20 bg-white dark:bg-gray-900",
+      "hover:shadow-md transition-shadow duration-200",
+      className
+    )}>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg font-heading text-shield-purple dark:text-shield-blue">
+          <Wallet className="mr-2 h-5 w-5 inline" />
+          Wallet Connected
+        </CardTitle>
+        <CardDescription className="text-shield-purple dark:text-shield-blue">
           {wallet?.adapter.name || "Unknown Wallet"}
         </CardDescription>
       </CardHeader>

@@ -21,6 +21,8 @@ import ReputationScorePage from './pages/ReputationScorePage';
 import RegulatoryCompliancePage from './pages/RegulatoryCompliancePage';
 import SolanaTestPage from './pages/SolanaTestPage';
 import { Toaster as SonnerToaster } from 'sonner';
+import { ErrorBoundary } from 'react-error-boundary';
+import { Toaster as SolanaToaster, toast } from '@solana-ui/react';
 
 // Protected route component that redirects to home if wallet is not connected
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -50,76 +52,88 @@ if (typeof window.ethereum === 'undefined') {
   // Inject your wallet provider logic here
 }
 
+function ErrorFallback({error}) {
+  return (
+    <div>
+      <h2>Something went wrong</h2>
+      <pre>{error.message}</pre>
+    </div>
+  );
+}
+
 export default function App() {
   return (
-    <Router>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="light" storageKey="freelance-shield-theme">
-          <WalletProvider>
-            <WalletIntegrationProvider>
-              <FreelanceInsuranceSDKProvider>
-                <TransactionProvider>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/how-it-works" element={<HowItWorksPage />} />
-                    <Route path="/pricing" element={<PricingPage />} />
-                    
-                    {/* Risk Pool Dashboard is public for transparency */}
-                    <Route path="/risk-pool" element={<RiskPoolDashboard />} />
-                    
-                    {/* Solana Integration Test Page */}
-                    <Route path="/solana-test" element={<SolanaTestPage />} />
-                    
-                    {/* All routes below require wallet connection */}
-                    <Route path="/reputation-score" element={
-                      <ProtectedRoute>
-                        <ReputationScorePage />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/dashboard" element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/risk-analysis" element={
-                      <ProtectedRoute>
-                        <RiskAnalysis />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/new-policy" element={
-                      <ProtectedRoute>
-                        <NewPolicy />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/ai-premium-calculator" element={
-                      <ProtectedRoute>
-                        <AIPremiumCalculator />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/staking" element={
-                      <ProtectedRoute>
-                        <StakingPage />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/regulatory-compliance" element={
-                      <ProtectedRoute>
-                        <Navigate to="/regulatory-compliance/new" replace />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/regulatory-compliance/new" element={
-                      <ProtectedRoute>
-                        <RegulatoryCompliancePage />
-                      </ProtectedRoute>
-                    } />
-                  </Routes>
-                  <Toaster />
-                  <SonnerToaster position="top-right" richColors />
-                </TransactionProvider>
-              </FreelanceInsuranceSDKProvider>
-            </WalletIntegrationProvider>
-          </WalletProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </Router>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <Router>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider defaultTheme="light" storageKey="freelance-shield-theme">
+            <WalletProvider>
+              <WalletIntegrationProvider>
+                <FreelanceInsuranceSDKProvider>
+                  <TransactionProvider>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/how-it-works" element={<HowItWorksPage />} />
+                      <Route path="/pricing" element={<PricingPage />} />
+                      
+                      {/* Risk Pool Dashboard is public for transparency */}
+                      <Route path="/risk-pool" element={<RiskPoolDashboard />} />
+                      
+                      {/* Solana Integration Test Page */}
+                      <Route path="/solana-test" element={<SolanaTestPage />} />
+                      
+                      {/* All routes below require wallet connection */}
+                      <Route path="/reputation-score" element={
+                        <ProtectedRoute>
+                          <ReputationScorePage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/dashboard" element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/risk-analysis" element={
+                        <ProtectedRoute>
+                          <RiskAnalysis />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/new-policy" element={
+                        <ProtectedRoute>
+                          <NewPolicy />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/ai-premium-calculator" element={
+                        <ProtectedRoute>
+                          <AIPremiumCalculator />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/staking" element={
+                        <ProtectedRoute>
+                          <StakingPage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/regulatory-compliance" element={
+                        <ProtectedRoute>
+                          <Navigate to="/regulatory-compliance/new" replace />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/regulatory-compliance/new" element={
+                        <ProtectedRoute>
+                          <RegulatoryCompliancePage />
+                        </ProtectedRoute>
+                      } />
+                    </Routes>
+                    <Toaster />
+                    <SonnerToaster position="top-right" richColors />
+                    <SolanaToaster />
+                  </TransactionProvider>
+                </FreelanceInsuranceSDKProvider>
+              </WalletIntegrationProvider>
+            </WalletProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Menu, X, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WalletConnect from '@/components/wallet/WalletConnect';
@@ -58,33 +58,39 @@ const Navbar = () => {
   ];
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white dark:bg-gray-900 py-3 shadow-md' : 'bg-white dark:bg-gray-900 py-3'
-      }`}
-    >
-      <div className="container mx-auto px-4 flex items-center justify-between">
-        <div onClick={handleNavigation('/')} className="flex items-center space-x-2 group cursor-pointer">
-          <Logo size={32} withText={true} textSize="text-xl" className="text-deep-purple" />
+    <header className="sticky top-0 z-50 w-full border-b border-shield-purple/20 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-shield-blue/20 dark:bg-gray-900/95">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div onClick={handleNavigation('/')} className="flex items-center space-x-2 cursor-pointer">
+            <Logo className="h-6 w-6 text-shield-purple dark:text-shield-blue" />
+            <span className="font-heading text-xl font-bold text-shield-purple dark:text-shield-blue">
+              FreelanceShield
+            </span>
+          </div>
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/dashboard" className="text-sm font-medium transition-colors hover:text-shield-purple dark:hover:text-shield-blue">
+              Dashboard
+            </Link>
+            <Link to="/risk-pool" className="text-sm font-medium transition-colors hover:text-shield-purple dark:hover:text-shield-blue">
+              Risk Pool
+            </Link>
+            <Link to="/how-it-works" className="text-sm font-medium transition-colors hover:text-shield-purple dark:hover:text-shield-blue">
+              How It Works
+            </Link>
+            <Link to="/regulatory-compliance" className="text-sm font-medium transition-colors hover:text-shield-purple dark:hover:text-shield-blue">
+              Compliance
+            </Link>
+            <Link to="/about" className="text-sm font-medium transition-colors hover:text-shield-purple dark:hover:text-shield-blue">
+              About
+            </Link>
+          </nav>
         </div>
-        
-        <nav className="hidden md:flex items-center space-x-8 ml-12">
-          {navItems.map((item, index) => (
-            <a 
-              key={index} 
-              href={item.path}
-              onClick={handleNavigation(item.path, item.needsWallet)}
-              className={`text-gray-700 dark:text-gray-300 hover:text-deep-purple dark:hover:text-deep-purple transition-colors ${
-                location.pathname === item.path ? 'text-deep-purple font-["NT_Brick_Sans"]' : ''
-              }`}
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
-        
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="flex items-center space-x-4">
           <ThemeToggleButton />
+          <WalletConnect 
+            className="border-shield-purple text-shield-purple hover:bg-shield-purple/10 
+                      dark:border-shield-blue dark:text-shield-blue dark:hover:bg-shield-blue/20" 
+          />
           {location.pathname !== '/dashboard' && (
             <Button 
               variant="outline" 
@@ -102,55 +108,7 @@ const Navbar = () => {
             Select Wallet
           </Button>
         </div>
-        
-        {/* Mobile menu button */}
-        <button 
-          className="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </div>
-      
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg">
-          <div className="container mx-auto px-4 py-4 space-y-4">
-            <nav className="flex flex-col space-y-4">
-              {navItems.map((item, index) => (
-                <a 
-                  key={index} 
-                  href={item.path}
-                  onClick={handleNavigation(item.path, item.needsWallet)}
-                  className={`text-gray-700 dark:text-gray-300 hover:text-deep-purple dark:hover:text-deep-purple transition-colors ${
-                    location.pathname === item.path ? 'text-deep-purple font-["NT_Brick_Sans"]' : ''
-                  }`}
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-            
-            <div className="flex flex-col space-y-3">
-              {location.pathname !== '/dashboard' && (
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-center text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700"
-                  onClick={handleDashboardClick}
-                >
-                  Dashboard
-                </Button>
-              )}
-              <Button 
-                className="w-full justify-center bg-deep-purple hover:bg-deep-purple/90 text-white"
-                onClick={() => navigate('/connect')}
-              >
-                Select Wallet
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 };
