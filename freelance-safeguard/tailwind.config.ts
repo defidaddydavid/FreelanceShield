@@ -19,10 +19,11 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Space Grotesk', 'sans-serif'],
-        mono: ['Space Grotesk', 'monospace'],
-        numeric: ['Space Grotesk', 'sans-serif'],
+        sans: ['Open Sans', 'sans-serif'],
+        heading: ['NT Brick Sans', 'sans-serif'],
+        display: ['NT Brick Sans', 'sans-serif'],
+        mono: ['NT Brick Sans', 'monospace'],
+        numeric: ['NT Brick Sans', 'sans-serif'],
       },
       letterSpacing: {
         tighter: '-0.05em',
@@ -42,16 +43,16 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#0066FF',
+          DEFAULT: '#2979ff', // Electric Blue
           foreground: '#FFFFFF',
         },
         secondary: {
-          DEFAULT: '#1A365D',
+          DEFAULT: '#5e35b1', // Deep Purple
           foreground: '#FFFFFF',
         },
         accent: {
-          DEFAULT: '#4D94FF',
-          foreground: '#FFFFFF',
+          DEFAULT: '#bdbdbd', // Silver
+          foreground: '#000000',
         },
         destructive: {
           DEFAULT: '#FF4444',
@@ -73,9 +74,10 @@ export default {
           DEFAULT: '#E2E8F0',
           foreground: '#4A5568',
         },
-        'shield-navy': '#0F172A',
-        'shield-blue': '#0066FF',
-        'shield-blue-light': '#4D94FF',
+        // Updated shield colors
+        'shield-purple': '#5e35b1',
+        'shield-blue': '#2979ff',
+        'shield-silver': '#bdbdbd',
       },
       borderRadius: {
         lg: '12px',
