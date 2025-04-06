@@ -42,45 +42,80 @@ pub fn calculate_premium_adjustment(
     expected_loss_ratio: u16,
     market_volatility: u8
 ) -> Result<i8> {
-    // Validate inputs
-    require!(
-        market_volatility <= 100,
-        FreelanceShieldError::InvalidRiskParameter
-    );
-    
     // Base adjustment starts at 0
     let mut adjustment: i16 = 0;
     
-    // Adjust based on capital adequacy
-    if capital_adequacy_ratio < 80 {
-        // Low capital adequacy, increase premium
+    // Enhanced capital adequacy adjustment with graduated tiers
+    if capital_adequacy_ratio < 60 {
+        // Critical capital adequacy, significant premium increase
+        adjustment += 25;
+        msg!("Critical capital adequacy ({}%), adding +25% to premium", capital_adequacy_ratio);
+    } else if capital_adequacy_ratio < 80 {
+        // Low capital adequacy, moderate premium increase
         adjustment += 15;
-    } else if capital_adequacy_ratio > 150 {
-        // High capital adequacy, decrease premium
-        adjustment -= 5;
-    }
-    
-    // Adjust based on expected loss ratio
-    if expected_loss_ratio > 80 {
-        // High expected losses, increase premium
-        adjustment += 10;
-    } else if expected_loss_ratio < 40 {
-        // Low expected losses, decrease premium
-        adjustment -= 5;
-    }
-    
-    // Adjust based on market volatility
-    if market_volatility > 70 {
-        // High volatility, increase premium
+        msg!("Low capital adequacy ({}%), adding +15% to premium", capital_adequacy_ratio);
+    } else if capital_adequacy_ratio < 100 {
+        // Below target capital adequacy, small premium increase
         adjustment += 5;
+        msg!("Below target capital adequacy ({}%), adding +5% to premium", capital_adequacy_ratio);
+    } else if capital_adequacy_ratio > 200 {
+        // Very high capital adequacy, larger premium decrease
+        adjustment -= 10;
+        msg!("Very high capital adequacy ({}%), reducing premium by -10%", capital_adequacy_ratio);
+    } else if capital_adequacy_ratio > 150 {
+        // High capital adequacy, moderate premium decrease
+        adjustment -= 5;
+        msg!("High capital adequacy ({}%), reducing premium by -5%", capital_adequacy_ratio);
+    }
+    
+    // Enhanced expected loss ratio adjustment with graduated tiers
+    if expected_loss_ratio > 90 {
+        // Critical loss ratio, significant premium increase
+        adjustment += 20;
+        msg!("Critical loss ratio ({}%), adding +20% to premium", expected_loss_ratio);
+    } else if expected_loss_ratio > 80 {
+        // High loss ratio, moderate premium increase
+        adjustment += 10;
+        msg!("High loss ratio ({}%), adding +10% to premium", expected_loss_ratio);
+    } else if expected_loss_ratio > 70 {
+        // Above target loss ratio, small premium increase
+        adjustment += 5;
+        msg!("Above target loss ratio ({}%), adding +5% to premium", expected_loss_ratio);
+    } else if expected_loss_ratio < 30 {
+        // Very low loss ratio, larger premium decrease
+        adjustment -= 10;
+        msg!("Very low loss ratio ({}%), reducing premium by -10%", expected_loss_ratio);
+    } else if expected_loss_ratio < 40 {
+        // Low loss ratio, moderate premium decrease
+        adjustment -= 5;
+        msg!("Low loss ratio ({}%), reducing premium by -5%", expected_loss_ratio);
+    }
+    
+    // Enhanced market volatility adjustment with graduated tiers
+    if market_volatility > 80 {
+        // Extreme volatility, significant premium increase
+        adjustment += 15;
+        msg!("Extreme market volatility ({}%), adding +15% to premium", market_volatility);
+    } else if market_volatility > 70 {
+        // High volatility, moderate premium increase
+        adjustment += 10;
+        msg!("High market volatility ({}%), adding +10% to premium", market_volatility);
+    } else if market_volatility > 60 {
+        // Above average volatility, small premium increase
+        adjustment += 5;
+        msg!("Above average market volatility ({}%), adding +5% to premium", market_volatility);
     }
     
     // Cap adjustment between -20% and +30%
     if adjustment > 30 {
         adjustment = 30;
+        msg!("Premium adjustment capped at maximum +30%");
     } else if adjustment < -20 {
         adjustment = -20;
+        msg!("Premium adjustment capped at minimum -20%");
     }
+    
+    msg!("Final premium adjustment: {}%", adjustment);
     
     // Convert to i8 for storage
     Ok(adjustment as i8)
@@ -169,3 +204,115 @@ pub fn calculate_risk_score(
     Ok(risk_score as u8)
 }
 
+/// Calculate risk score for a claim based on multiple weighted factors
+/// Returns a risk score from 0-100 (higher = riskier)
+pub fn calculate_claim_risk_score(
+    policy_risk_score: u8,
+    claim_amount: u64,
+    coverage_amount: u64,
+    policy_duration_seconds: i64,
+    time_since_policy_start: i64,
+    claims_count: u8,
+    avg_claim_amount: Option<u64>,
+) -> Result<u8> {
+    // Validate inputs
+    require!(
+        policy_risk_score <= 100,
+        FreelanceShieldError::InvalidRiskParameter
+    );
+    
+    // Factor 1: Amount ratio (claim amount as percentage of coverage)
+    // Higher percentage = higher risk
+    let amount_ratio = if coverage_amount > 0 {
+        ((claim_amount as f64 / coverage_amount as f64) * 100.0) as u8
+    } else {
+        100 // Maximum risk if coverage amount is zero
+    };
+    
+    // Factor 2: Policy age factor
+    // Newer policies with claims are riskier
+    let policy_age_factor = if policy_duration_seconds > 0 {
+        let policy_age_percentage = ((time_since_policy_start as f64 / policy_duration_seconds as f64) * 100.0) as u8;
+        // Invert so newer policies (lower percentage) have higher risk
+        100 - policy_age_percentage.min(100)
+    } else {
+        100 // Maximum risk if policy duration is zero
+    };
+    
+    // Factor 3: Previous claims factor
+    // More previous claims = higher risk
+    let claims_factor = (claims_count * 20).min(100);
+    
+    // Factor 4: Anomaly detection
+    // Compare claim amount to average claim amount
+    let anomaly_factor = if let Some(avg) = avg_claim_amount {
+        if avg > 0 {
+            let deviation = if claim_amount > avg {
+                ((claim_amount as f64 / avg as f64) - 1.0) * 100.0
+            } else {
+                0.0
+            };
+            (deviation as u8).min(100)
+        } else {
+            50 // Neutral if no average data
+        }
+    } else {
+        50 // Neutral if no average data
+    };
+    
+    // Calculate weighted risk score
+    // Base policy risk: 30%
+    // Amount ratio: 25%
+    // Policy age: 20%
+    // Claims history: 15%
+    // Anomaly detection: 10%
+    let risk_score = (
+        (policy_risk_score as u16 * 30) +
+        (amount_ratio as u16 * 25) +
+        (policy_age_factor as u16 * 20) +
+        (claims_factor as u16 * 15) +
+        (anomaly_factor as u16 * 10)
+    ) / 100;
+    
+    // Log detailed risk factors for transparency
+    msg!("Risk factors - Policy: {}, Amount: {}, Age: {}, Claims: {}, Anomaly: {}", 
+        policy_risk_score, amount_ratio, policy_age_factor, claims_factor, anomaly_factor);
+    
+    Ok(risk_score as u8)
+}
+
+/// Simple version of claim risk calculation for backward compatibility
+pub fn calculate_claim_risk_score_simple(
+    policy_risk_score: u8,
+    claim_amount: u64,
+    coverage_amount: u64,
+    policy_duration_seconds: i64,
+    time_since_policy_start: i64
+) -> Result<u8> {
+    // This is a simplified version that only uses basic factors
+    // for compatibility with existing code
+    
+    // Amount ratio (claim amount as percentage of coverage)
+    let amount_ratio = if coverage_amount > 0 {
+        ((claim_amount as f64 / coverage_amount as f64) * 100.0) as u8
+    } else {
+        100 // Maximum risk if coverage amount is zero
+    };
+    
+    // Policy age factor
+    let policy_age_factor = if policy_duration_seconds > 0 {
+        let policy_age_percentage = ((time_since_policy_start as f64 / policy_duration_seconds as f64) * 100.0) as u8;
+        100 - policy_age_percentage.min(100)
+    } else {
+        100 // Maximum risk if policy duration is zero
+    };
+    
+    // Calculate weighted risk score
+    let risk_score = (
+        (policy_risk_score as u16 * 40) +
+        (amount_ratio as u16 * 40) +
+        (policy_age_factor as u16 * 20)
+    ) / 100;
+    
+    Ok(risk_score as u8)
+}

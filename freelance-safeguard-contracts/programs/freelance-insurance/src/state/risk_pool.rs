@@ -7,7 +7,7 @@ pub struct RiskPool {
     pub total_coverage: u64,
     pub active_policies: u64,
     pub claims_paid: u64,
+    pub total_premiums_collected: u64,
     pub reserve_ratio: u8,
     pub bump: u8,
 }
-

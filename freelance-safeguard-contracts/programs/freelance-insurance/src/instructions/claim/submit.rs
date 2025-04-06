@@ -65,11 +65,10 @@ pub fn handler(
     claim.evidence_attachments = evidence_attachments;
     claim.submission_date = clock.unix_timestamp;
     claim.verdict = None;
-    claim.bump = *ctx.bumps.get("claim").unwrap();
+    claim.bump = *ctx.bumps.get("claim").expect("Bump not found");
     
     // Update policy claims count
     policy.claims_count += 1;
     
     Ok(())
 }
-

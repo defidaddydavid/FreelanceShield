@@ -58,10 +58,10 @@ pub fn calculate_risk_metrics(
     };
     
     // Calculate premium to claims ratio
-    let premium_to_claims_ratio = if total_premiums_collected > 0 {
-        ((total_claims_paid as u128 * 100) / total_premiums_collected as u128) as u16
+    let premium_to_claims_ratio = if total_claims_paid > 0 && total_premiums_collected > 0 {
+        ((total_premiums_collected as u128 * 100) / total_claims_paid as u128) as u16
     } else {
-        0 // Default to 0% if no premiums
+        100 // Default to 100% if no claims or premiums
     };
     
     Ok((reserve_ratio, premium_to_claims_ratio))

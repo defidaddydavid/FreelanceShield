@@ -81,6 +81,8 @@ pub struct ProgramState {
     pub rejected_claims: u64,
     /// Total arbitrated claims
     pub arbitrated_claims: u64,
+    /// Total arbitration fees collected
+    pub total_arbitration_fees: u64,
     /// Premium to claims ratio (x100)
     pub premium_to_claims_ratio: u16,
     
@@ -138,6 +140,7 @@ impl ProgramState {
         8 +  // approved_claims
         8 +  // rejected_claims
         8 +  // arbitrated_claims
+        8 +  // total_arbitration_fees
         2 +  // premium_to_claims_ratio
         8 +  // total_capital
         8 +  // total_coverage_liability
@@ -238,4 +241,3 @@ pub struct UpdateProgramParamsParams {
     /// Whether the program is paused
     pub is_paused: Option<bool>,
 }
-

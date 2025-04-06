@@ -4,7 +4,7 @@ use anchor_lang::solana_program::clock::Clock;
 mod bayesian_verification;
 use bayesian_verification::{BayesianVerificationModel as BayesianModel, ClaimEvidence, ClaimVerificationResult, verify_claim, calculate_claim_legitimacy, initialize_default_model};
 
-declare_id!("9udpCrckMkfKvSzARMAp8njEsoYbkc6GopwTf3PGtiuv");
+declare_id!("3NSs6fEa1nJzDMJgEYVtXUc7mA1WNA5C3Wst17WTrEyB");
 
 // Define program IDs for cross-program invocation
 pub const INSURANCE_PROGRAM_ID: Pubkey = solana_program::pubkey!("69JEStA6rKXi2y8LaLyNtXv4H2ZG211JFRmg6ES4GWEu");
@@ -31,7 +31,7 @@ pub mod claims_processor {
         claims_state.auto_process_threshold = auto_process_threshold;
         claims_state.claims_count = 0;
         claims_state.is_paused = false;
-        claims_state.bump = *ctx.bumps.get("claims_state").unwrap();
+        claims_state.bump = ctx.bumps.claims_state;
         
         Ok(())
     }
@@ -79,22 +79,30 @@ pub mod claims_processor {
         let time_factor = calculate_time_risk_factor(policy_age_days as u16);
         
         // Calculate amount-based risk factor (percentage of coverage)
-        let amount_risk = ((amount as f64 / policy.coverage_amount as f64) * 100f64) as u8;
+        let amount_risk = if policy.coverage_amount > 0 {
+            ((amount as f64 / policy.coverage_amount as f64) * 100f64) as u8
+        } else {
+            100 // Maximum risk if coverage amount is zero
+        };
         
         // Initialize claim with evidence
         claim.owner = ctx.accounts.owner.key();
         claim.policy = ctx.accounts.policy.key();
         claim.amount = amount;
         claim.evidence = ClaimEvidence {
-            evidence_type,
-            description: evidence_description,
-            attachments: evidence_attachments,
+            completion_score: 0,
+            review_score: 0,
+            history_score: 0,
+            days_since_completion: 0,
         };
+        claim.evidence_type = evidence_type;
+        claim.evidence_description = evidence_description;
+        claim.evidence_attachments = evidence_attachments;
         claim.creation_slot = clock.slot;
         claim.last_update_slot = clock.slot;
         claim.category = claim_category;
         claim.status = ClaimStatus::Pending;
-        claim.bump = *ctx.bumps.get("claim").unwrap();
+        claim.bump = ctx.bumps.claim;
         
         // Calculate initial risk score
         claim.risk_score = calculate_initial_risk_score(
@@ -233,6 +241,9 @@ pub mod claims_processor {
         msg!("Amount: {}", claim.amount);
         msg!("Status: {:?}", claim.status);
         msg!("Category: {:?}", claim.category);
+        msg!("Evidence Type: {}", claim.evidence_type);
+        msg!("Evidence Description: {}", claim.evidence_description);
+        msg!("Evidence Attachments: {:?}", claim.evidence_attachments);
         
         // Log verdict if available
         if let Some(verdict) = &claim.verdict {
@@ -351,7 +362,7 @@ pub mod claims_processor {
         bayesian_model.denied_claims = 0;
         bayesian_model.manual_review_claims = 0;
         bayesian_model.reserved = [0; 64];
-        bayesian_model.bump = *ctx.bumps.get("bayesian_model").unwrap();
+        bayesian_model.bump = ctx.bumps.bayesian_model;
         
         msg!("Bayesian verification model initialized");
         Ok(())
@@ -452,7 +463,7 @@ pub mod claims_processor {
         arbitrator_account.arbitrator = ctx.accounts.arbitrator.key();
         arbitrator_account.is_active = true;
         arbitrator_account.claims_processed = 0;
-        arbitrator_account.bump = *ctx.bumps.get("arbitrator_account").unwrap();
+        arbitrator_account.bump = ctx.bumps.arbitrator_account;
         
         msg!("Arbitrator added successfully");
         Ok(())
@@ -532,7 +543,11 @@ fn calculate_initial_risk_score(
     category: ClaimCategory,
 ) -> u8 {
     // Base risk is the ratio of claim to coverage (0-100)
-    let base_risk = (claim_amount as f64 / coverage_amount as f64 * 100.0) as u8;
+    let base_risk = if coverage_amount > 0 {
+        (claim_amount as f64 / coverage_amount as f64 * 100.0) as u8
+    } else {
+        100 // Maximum risk if coverage amount is zero
+    };
     
     // Previous claims impact
     let claims_factor = match previous_claims {
@@ -900,6 +915,9 @@ pub struct Claim {
     pub amount: u64,
     pub status: ClaimStatus,
     pub evidence: bayesian_verification::ClaimEvidence,
+    pub evidence_type: String,
+    pub evidence_description: String,
+    pub evidence_attachments: Vec<String>,
     pub creation_slot: u64,
     pub last_update_slot: u64,
     pub category: ClaimCategory,
@@ -915,7 +933,10 @@ impl Claim {
                             32 +    // owner pubkey
                             8 +     // amount
                             1 +     // status
-                            100 +   // evidence (estimated size)
+                            4 +     // evidence (ClaimEvidence struct)
+                            200 +   // evidence_type string (max size)
+                            500 +   // evidence_description string (max size)
+                            500 +   // evidence_attachments vector (max size)
                             8 +     // creation_slot
                             8 +     // last_update_slot
                             1 +     // category

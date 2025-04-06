@@ -45,21 +45,21 @@ pub fn handler(ctx: Context<UpdateRiskMetrics>) -> Result<()> {
     }
     
     // Calculate premium to claims ratio
-    if risk_pool.total_claims_paid > 0 {
+    if risk_pool.total_claims_paid > 0 && risk_pool.total_premiums_collected > 0 {
         risk_pool.premium_to_claims_ratio = 
             ((risk_pool.total_premiums_collected * 100) / risk_pool.total_claims_paid) as u16;
     } else {
-        risk_pool.premium_to_claims_ratio = 100; // Default to 100% if no claims paid
+        risk_pool.premium_to_claims_ratio = 100; // Default to 100% if no claims paid or no premiums collected
     }
     
     // Update program state metrics
     program_state.current_reserve_ratio = risk_pool.current_reserve_ratio;
     
-    if program_state.total_claims_paid > 0 {
+    if program_state.total_claims_paid > 0 && program_state.total_premiums > 0 {
         program_state.premium_to_claims_ratio = 
             ((program_state.total_premiums * 100) / program_state.total_claims_paid) as u16;
     } else {
-        program_state.premium_to_claims_ratio = 100; // Default to 100% if no claims paid
+        program_state.premium_to_claims_ratio = 100; // Default to 100% if no claims paid or no premiums
     }
     
     // Update program statistics
@@ -70,4 +70,3 @@ pub fn handler(ctx: Context<UpdateRiskMetrics>) -> Result<()> {
         risk_pool.current_reserve_ratio, risk_pool.premium_to_claims_ratio);
     Ok(())
 }
-

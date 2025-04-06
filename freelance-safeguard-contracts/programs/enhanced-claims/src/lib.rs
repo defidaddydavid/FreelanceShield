@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 use std::convert::TryFrom;
 
-declare_id!("4jnnT3KKDFbWEci229ku4CGeRaiQupYDKxqDjAaQjyWM");
+declare_id!("2BQh46xqDMFKSgBXxSTkq8whbv42idXsarGTTwnbafVb");
 
 // Define program IDs for cross-program invocation
 pub const ENHANCED_COVER_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("CvrPgm6dYqzKH5KVvKMiriyts4pVrk6ogLH1KUW3dVnW");

@@ -7,7 +7,6 @@ import { WalletProvider } from './lib/solana/WalletProvider';
 import { WalletIntegrationProvider, useWalletIntegrationContext } from './components/wallet/WalletIntegrationProvider';
 import { TransactionProvider } from './contexts/TransactionContext';
 import { FreelanceInsuranceSDKProvider } from './lib/solana/sdk/context';
-import { TestnetDemo } from './pages/TestnetDemo';
 import { Home } from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import RiskAnalysis from './pages/RiskAnalysis';
@@ -19,7 +18,6 @@ import PricingPage from './pages/Pricing';
 import StakingPage from './pages/StakingPage';
 import RiskPoolDashboard from './pages/RiskPoolDashboard';
 import ReputationScorePage from './pages/ReputationScorePage';
-import WalletDemo from './pages/WalletDemo';
 import RegulatoryCompliancePage from './pages/RegulatoryCompliancePage';
 import SolanaTestPage from './pages/SolanaTestPage';
 import { Toaster as SonnerToaster } from 'sonner';
@@ -65,7 +63,6 @@ export default function App() {
                     <Route path="/" element={<Index />} />
                     <Route path="/how-it-works" element={<HowItWorksPage />} />
                     <Route path="/pricing" element={<PricingPage />} />
-                    <Route path="/wallet-demo" element={<WalletDemo />} />
                     
                     {/* Risk Pool Dashboard is public for transparency */}
                     <Route path="/risk-pool" element={<RiskPoolDashboard />} />
@@ -82,11 +79,6 @@ export default function App() {
                     <Route path="/dashboard" element={
                       <ProtectedRoute>
                         <Dashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/testnet" element={
-                      <ProtectedRoute>
-                        <TestnetDemo />
                       </ProtectedRoute>
                     } />
                     <Route path="/risk-analysis" element={

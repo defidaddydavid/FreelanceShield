@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Connection, PublicKey, ConnectionConfig, Commitment } from '@solana/web3.js';
+import { Connection, PublicKey, ConnectionConfig, Commitment, clusterApiUrl } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { NETWORK_CONFIG } from './constants';
 import { FreelanceInsuranceSDK } from './sdk/freelanceInsurance';
@@ -37,20 +37,18 @@ export const SolanaProvider: React.FC<SolanaProviderProps> = ({ children }) => {
   // Initialize connection when the component mounts
   useEffect(() => {
     try {
-      // Use the connection config object instead of just the string
-      const commitment: Commitment = NETWORK_CONFIG.connectionConfig.commitment as Commitment;
+      // Use direct devnet endpoint for reliable connection
+      const endpoint = clusterApiUrl('devnet');
       
+      // Simplify connection config for more reliable startup
       const connectionConfig: ConnectionConfig = {
-        commitment,
-        confirmTransactionInitialTimeout: NETWORK_CONFIG.connectionConfig.confirmTransactionInitialTimeout
+        commitment: 'confirmed',
+        confirmTransactionInitialTimeout: 60000 // 60 seconds
       };
       
-      const newConnection = new Connection(
-        NETWORK_CONFIG.endpoint,
-        connectionConfig
-      );
+      const newConnection = new Connection(endpoint, connectionConfig);
       setConnection(newConnection);
-      console.log('Solana connection established to:', NETWORK_CONFIG.endpoint);
+      console.log('Solana connection established to:', endpoint);
     } catch (err) {
       console.error('Failed to initialize Solana connection:', err);
       setError('Failed to connect to Solana network');

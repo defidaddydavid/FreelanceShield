@@ -60,28 +60,25 @@ const Navbar = () => {
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'glass-effect py-3 shadow-md' : 'bg-transparent py-5'
+        isScrolled ? 'bg-white dark:bg-gray-900 py-3 shadow-md' : 'bg-white dark:bg-gray-900 py-3'
       }`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         <div onClick={handleNavigation('/')} className="flex items-center space-x-2 group cursor-pointer">
-          <Logo size={32} className="text-shield-blue dark:text-blue-500 group-hover:animate-spin-slow transition-all duration-300" />
-          <span className="text-xl font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 opacity-90 group-hover:opacity-100 transition-all duration-300">FreelanceShield</span>
+          <Logo size={32} withText={true} textSize="text-xl" className="text-deep-purple" />
         </div>
         
-        <nav className="hidden md:flex items-center space-x-8">
+        <nav className="hidden md:flex items-center space-x-8 ml-12">
           {navItems.map((item, index) => (
             <a 
               key={index} 
               href={item.path}
               onClick={handleNavigation(item.path, item.needsWallet)}
-              className={`text-foreground/80 hover:text-foreground transition-colors relative group overflow-hidden ${
-                location.pathname === item.path ? 'text-blue-600 dark:text-blue-400 font-medium' : ''
+              className={`text-gray-700 dark:text-gray-300 hover:text-deep-purple dark:hover:text-deep-purple transition-colors ${
+                location.pathname === item.path ? 'text-deep-purple font-["NT_Brick_Sans"]' : ''
               }`}
-              style={{ animationDelay: `${index * 100}ms` }}
             >
               {item.label}
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 dark:bg-blue-400 group-hover:w-full transition-all duration-300"></span>
             </a>
           ))}
         </nav>
@@ -92,83 +89,66 @@ const Navbar = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              className="hover-lift hover-glow"
+              className="text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={handleDashboardClick}
             >
               Dashboard
             </Button>
           )}
-          {connected && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="hover-lift hover-glow flex items-center gap-1"
-              onClick={handleNavigation('/staking')}
-            >
-              <Coins className="h-4 w-4" />
-              <span>Staking</span>
-            </Button>
-          )}
-          <div className="animate-fade-in">
-            <WalletConnect />
-          </div>
+          <Button 
+            className="bg-deep-purple hover:bg-deep-purple/90 text-white"
+            onClick={() => navigate('/connect')}
+          >
+            Select Wallet
+          </Button>
         </div>
         
+        {/* Mobile menu button */}
         <button 
-          className="md:hidden text-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          className="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
         >
-          {mobileMenuOpen ? <X className="h-6 w-6 animate-fade-in" /> : <Menu className="h-6 w-6 animate-fade-in" />}
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
       
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden glass-effect mt-3 p-4 mx-4 rounded-xl animate-fade-in-up shadow-lg">
-          <nav className="flex flex-col space-y-4">
-            {navItems.map((item, index) => (
-              <a 
-                key={index} 
-                href={item.path}
-                onClick={handleNavigation(item.path, item.needsWallet)}
-                className={`text-foreground/80 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 ${
-                  location.pathname === item.path ? 'text-blue-600 dark:text-blue-400 font-medium bg-blue-50/50 dark:bg-blue-900/10' : ''
-                }`}
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                {item.label}
-              </a>
-            ))}
-            <div className="pt-2 border-t border-border flex flex-col space-y-3">
-              <div className="flex items-center justify-between p-2">
-                <span className="text-foreground/80">Theme</span>
-                <ThemeToggleButton />
-              </div>
+        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg">
+          <div className="container mx-auto px-4 py-4 space-y-4">
+            <nav className="flex flex-col space-y-4">
+              {navItems.map((item, index) => (
+                <a 
+                  key={index} 
+                  href={item.path}
+                  onClick={handleNavigation(item.path, item.needsWallet)}
+                  className={`text-gray-700 dark:text-gray-300 hover:text-deep-purple dark:hover:text-deep-purple transition-colors ${
+                    location.pathname === item.path ? 'text-deep-purple font-["NT_Brick_Sans"]' : ''
+                  }`}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+            
+            <div className="flex flex-col space-y-3">
               {location.pathname !== '/dashboard' && (
                 <Button 
                   variant="outline" 
-                  className="w-full hover-lift"
+                  className="w-full justify-center text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700"
                   onClick={handleDashboardClick}
                 >
                   Dashboard
                 </Button>
               )}
-              {connected && (
-                <Button 
-                  variant="outline" 
-                  className="w-full hover-lift flex items-center justify-center gap-1"
-                  onClick={handleNavigation('/staking')}
-                >
-                  <Coins className="h-4 w-4" />
-                  <span>Staking</span>
-                </Button>
-              )}
-              <div className="w-full">
-                <WalletConnect />
-              </div>
+              <Button 
+                className="w-full justify-center bg-deep-purple hover:bg-deep-purple/90 text-white"
+                onClick={() => navigate('/connect')}
+              >
+                Select Wallet
+              </Button>
             </div>
-          </nav>
+          </div>
         </div>
       )}
     </header>

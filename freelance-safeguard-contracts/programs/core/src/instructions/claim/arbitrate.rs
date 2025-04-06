@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
+use anchor_lang::system_program;
 use crate::state::*;
+use crate::utils::arbitration_fees::*;
 use crate::FreelanceShieldError;
 
 /// Accounts for arbitrating a disputed or complex claim
@@ -7,6 +9,7 @@ use crate::FreelanceShieldError;
 pub struct ArbitrateClaim<'info> {
     /// Arbitrator (must be authorized)
     #[account(
+        mut, // Arbitrator receives fees
         constraint = program_state.authority == arbitrator.key() @ FreelanceShieldError::Unauthorized
     )]
     pub arbitrator: Signer<'info>,
@@ -54,6 +57,21 @@ pub struct ArbitrateClaim<'info> {
                      @ FreelanceShieldError::ClaimNotInArbitration
     )]
     pub claim: Account<'info, Claim>,
+    
+    /// Risk pool account to receive fees
+    #[account(mut)]
+    pub risk_pool: AccountInfo<'info>,
+    
+    /// DAO treasury account to receive fees
+    #[account(mut)]
+    pub dao_treasury: AccountInfo<'info>,
+    
+    /// Fee payer (usually the policy owner)
+    #[account(mut)]
+    pub fee_payer: Signer<'info>,
+    
+    /// System program
+    pub system_program: Program<'info, System>,
 }
 
 /// Arbitrate a disputed or complex claim
@@ -69,6 +87,60 @@ pub fn handler(ctx: Context<ArbitrateClaim>, params: ArbitrateClaimParams) -> Re
         params.reason.len() <= MAX_REASON_LENGTH,
         FreelanceShieldError::InvalidReason
     );
+    
+    // Calculate and collect arbitration fee
+    let complexity_level = params.complexity_level.unwrap_or_else(|| {
+        determine_claim_complexity(
+            claim.amount,
+            claim.description.len(),
+            claim.evidence_hash.is_some(),
+            claim.status == ClaimStatus::Disputed
+        )
+    });
+    
+    // Calculate arbitration fee
+    let arbitration_fee = calculate_arbitration_fee(claim.amount, complexity_level)?;
+    
+    // Calculate fee shares
+    let arbitrator_share = calculate_fee_share(arbitration_fee, ARBITRATOR_FEE_SHARE)?;
+    let risk_pool_share = calculate_fee_share(arbitration_fee, RISK_POOL_FEE_SHARE)?;
+    let dao_treasury_share = calculate_fee_share(arbitration_fee, DAO_TREASURY_FEE_SHARE)?;
+    
+    // Transfer fee to arbitrator
+    system_program::transfer(
+        CpiContext::new(
+            ctx.accounts.system_program.to_account_info(),
+            system_program::Transfer {
+                from: ctx.accounts.fee_payer.to_account_info(),
+                to: ctx.accounts.arbitrator.to_account_info(),
+            },
+        ),
+        arbitrator_share,
+    )?;
+    
+    // Transfer fee to risk pool
+    system_program::transfer(
+        CpiContext::new(
+            ctx.accounts.system_program.to_account_info(),
+            system_program::Transfer {
+                from: ctx.accounts.fee_payer.to_account_info(),
+                to: ctx.accounts.risk_pool.to_account_info(),
+            },
+        ),
+        risk_pool_share,
+    )?;
+    
+    // Transfer fee to DAO treasury
+    system_program::transfer(
+        CpiContext::new(
+            ctx.accounts.system_program.to_account_info(),
+            system_program::Transfer {
+                from: ctx.accounts.fee_payer.to_account_info(),
+                to: ctx.accounts.dao_treasury.to_account_info(),
+            },
+        ),
+        dao_treasury_share,
+    )?;
     
     // Update claim status based on arbitration decision
     if params.approved {
@@ -93,6 +165,11 @@ pub fn handler(ctx: Context<ArbitrateClaim>, params: ArbitrateClaimParams) -> Re
     // Update arbitration counter
     program_state.arbitrated_claims += 1;
     
+    // Update total arbitration fees collected
+    program_state.total_arbitration_fees = program_state.total_arbitration_fees
+        .checked_add(arbitration_fee)
+        .ok_or(FreelanceShieldError::ArithmeticError)?;
+    
     claim.last_update_slot = clock.slot;
     
     // Update product statistics if claim is approved
@@ -101,6 +178,8 @@ pub fn handler(ctx: Context<ArbitrateClaim>, params: ArbitrateClaimParams) -> Re
     }
     
     msg!("Claim arbitrated: Approved: {}", params.approved);
+    msg!("Arbitration fee collected: {} lamports", arbitration_fee);
+    msg!("Complexity level: {}", complexity_level);
     Ok(())
 }
 

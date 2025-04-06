@@ -46,6 +46,8 @@ pub struct Claim {
     pub creation_slot: u64,
     /// Last update slot
     pub last_update_slot: u64,
+    /// Claim index within the policy (same as policy.claims_count at creation)
+    pub index: u8,
     /// PDA bump seed
     pub bump: u8,
 }
@@ -68,6 +70,7 @@ impl Claim {
         1 +  // risk_score
         8 +  // creation_slot
         8 +  // last_update_slot
+        1 +  // index
         1;   // bump
         
     // Note: Vec sizes are dynamic and allocated separately
@@ -146,4 +149,3 @@ pub struct ArbitrateClaimParams {
     /// Reason for the decision
     pub reason: String,
 }
-

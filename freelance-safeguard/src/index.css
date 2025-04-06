@@ -5,7 +5,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
 /* NT Brick Sans will need to be added as a local font since it's not available on Google Fonts */
 
+<<<<<<< HEAD
 @layer base {
+=======
+  @font-face {
+    font-family: 'NTBrickSans';
+    src: url('/NTBrickSans/NTBrickSans.ttf') format('truetype'),
+         url('/NTBrickSans/NTBrickSans.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+>>>>>>> 93ae1d7 (Resolved dependency conflicts: updated syn to 2.0.46 and thiserror to 1.0.66, removed problematic patch)
   :root {
     --background: 210 50% 98%;
     --foreground: 222 47% 11%;

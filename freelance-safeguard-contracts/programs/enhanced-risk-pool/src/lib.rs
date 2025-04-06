@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("236VY59pJ2XJFtG4AwTQMiTRwMRamEgCgasgPj1hsJ6f");
+declare_id!("HU9BSW5pyqeKa8TjzBzUhnY7QtKAY94wBVQ6yMMG386f");
 
 #[program]
 pub mod enhanced_risk_pool {

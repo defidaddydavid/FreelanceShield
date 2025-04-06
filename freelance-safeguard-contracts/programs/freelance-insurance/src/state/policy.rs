@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use super::constants::*;
+use crate::InsuranceError;
 
 /// Premium calculation components stored for transparency and auditability
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
@@ -69,7 +70,7 @@ impl JobType {
             3 => Ok(JobType::Marketing),
             4 => Ok(JobType::Consulting),
             5 => Ok(JobType::Other),
-            _ => Err(error!(ErrorCode::InvalidJobType)),
+            _ => Err(error!(InsuranceError::InvalidJobType)),
         }
     }
     
@@ -106,7 +107,7 @@ impl Industry {
             4 => Ok(Industry::Retail),
             5 => Ok(Industry::Entertainment),
             6 => Ok(Industry::Other),
-            _ => Err(error!(ErrorCode::InvalidIndustry)),
+            _ => Err(error!(InsuranceError::InvalidIndustry)),
         }
     }
     
@@ -122,4 +123,3 @@ impl Industry {
         }
     }
 }
-

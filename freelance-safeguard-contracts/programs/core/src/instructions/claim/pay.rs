@@ -87,6 +87,23 @@ pub fn handler(ctx: Context<PayClaim>, transaction_signature: Option<String>) ->
     let program_state = &mut ctx.accounts.program_state;
     let risk_pool = &mut ctx.accounts.risk_pool;
     
+    // Validate token account ownership and sufficient balance before attempting transfer
+    require!(
+        ctx.accounts.program_token_account.owner == ctx.accounts.risk_pool.key(),
+        FreelanceShieldError::InvalidTokenAccountOwner
+    );
+    
+    require!(
+        ctx.accounts.claimant_token_account.owner == claim.owner,
+        FreelanceShieldError::InvalidTokenAccountOwner
+    );
+    
+    // Check if there's enough balance in the program token account
+    require!(
+        ctx.accounts.program_token_account.amount >= claim.amount,
+        FreelanceShieldError::InsufficientFundsForTokenTransfer
+    );
+    
     // Transfer claim amount
     let seeds = &[
         RiskPool::SEED_PREFIX,
@@ -103,7 +120,19 @@ pub fn handler(ctx: Context<PayClaim>, transaction_signature: Option<String>) ->
     let cpi_program = ctx.accounts.token_program.to_account_info();
     let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
     
-    token::transfer(cpi_ctx, claim.amount)?;
+    // Log transfer attempt for better debugging
+    msg!("Attempting token transfer of {} tokens from risk pool to claimant", claim.amount);
+    
+    // Perform the transfer with enhanced error handling
+    match token::transfer(cpi_ctx, claim.amount) {
+        Ok(_) => {
+            msg!("Token transfer successful");
+        },
+        Err(e) => {
+            msg!("Token transfer failed: {:?}", e);
+            return Err(FreelanceShieldError::TokenTransferFailed.into());
+        }
+    }
     
     // Update claim status
     claim.status = ClaimStatus::Paid;

@@ -41,8 +41,7 @@ pub fn handler(
     payment_verification.deadline = deadline;
     payment_verification.status = PaymentStatus::Pending;
     payment_verification.created_at = clock.unix_timestamp;
-    payment_verification.bump = *ctx.bumps.get("payment_verification").unwrap();
+    payment_verification.bump = *ctx.bumps.get("payment_verification").expect("Bump not found");
     
     Ok(())
 }
-

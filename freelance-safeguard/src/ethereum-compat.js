@@ -1,29 +1,32 @@
 /**
- * Ethereum Compatibility Plugin for FreelanceShield
+ * Solana Wallet Compatibility Helper for FreelanceShield
  * 
- * This plugin handles potential conflicts with browser extensions
- * by ensuring the ethereum property isn't redefined or blocked.
+ * This module handles compatibility between web3 browser extensions
+ * and our Solana wallet integration.
  */
 
-// Simple runtime check to ensure ethereum property is not manipulated
-// This doesn't try to modify window.ethereum at all, but provides
-// informational logging for debugging
 (function() {
   try {
-    console.info('FreelanceShield: Ethereum compatibility check running');
+    console.info('FreelanceShield: Initializing Solana wallet compatibility');
     
     if (typeof window !== 'undefined') {
-      // Just add a non-intrusive property for debugging
-      window.__freeLanceShieldEthCompatCheck = true;
+      // Set a flag to indicate we're running on Solana, not Ethereum
+      window.__freeLanceShieldSolanaMode = true;
       
-      // Log if ethereum is already defined (likely by an extension)
-      if (window.ethereum) {
-        console.info('FreelanceShield: Ethereum object detected (from extension)');
-      } else {
-        console.info('FreelanceShield: No ethereum object detected');
+      // Non-intrusive detection of installed wallets
+      if (window.phantom) {
+        console.info('FreelanceShield: Phantom wallet detected');
+      } 
+      
+      if (window.solflare) {
+        console.info('FreelanceShield: Solflare wallet detected');
+      }
+      
+      if (window.backpack) {
+        console.info('FreelanceShield: Backpack wallet detected');
       }
     }
   } catch (e) {
-    console.warn('FreelanceShield: Ethereum compatibility check failed', e);
+    console.warn('FreelanceShield: Wallet compatibility initialization failed', e);
   }
 })();

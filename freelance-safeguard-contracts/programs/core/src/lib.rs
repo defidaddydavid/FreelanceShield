@@ -5,6 +5,7 @@ pub mod instructions;
 pub mod state;
 pub mod utils;
 pub mod error_helpers;
+pub mod cpi_validation;
 
 // Re-export important structs for easier imports in clients
 // Use specific imports instead of glob imports to avoid ambiguity
@@ -51,8 +52,12 @@ pub use state::claim::Claim;
 pub use state::risk_pool::RiskPool;
 pub use state::program_state::ProgramState;
 
+// Add explicit exports for utility modules
+pub use crate::error_helpers::*;
+pub use crate::cpi_validation::*;
+
 // Program ID - this will be updated once deployed
-declare_id!("7U3mgDsMYS97FjrsDpuzqK7nKNrpHF4Bb1sJd1tFQkZc");
+declare_id!("6qGc98a8y6BbKAB2DfjTfJXWkuDKzUew6S915dfnTmxp");
 
 #[program]
 pub mod freelance_shield_core {
@@ -301,6 +306,9 @@ pub enum FreelanceShieldError {
     #[msg("Invalid claim amount")]
     InvalidClaimAmount,
     
+    #[msg("Claim amount too small (must be at least 1% of coverage amount)")]
+    ClaimAmountTooSmall,
+    
     #[msg("Invalid claim description")]
     InvalidClaimDescription,
     
@@ -349,6 +357,19 @@ pub enum FreelanceShieldError {
     
     #[msg("Invalid token account")]
     InvalidTokenAccount,
+    
+    // Token errors
+    #[msg("Token transfer failed")]
+    TokenTransferFailed,
+    
+    #[msg("Invalid token account owner")]
+    InvalidTokenAccountOwner,
+    
+    #[msg("Insufficient funds for token transfer")]
+    InsufficientFundsForTokenTransfer,
+    
+    #[msg("Token account mismatch")]
+    TokenAccountMismatch,
     
     // Domain treasury errors
     #[msg("Treasury address mismatch")]

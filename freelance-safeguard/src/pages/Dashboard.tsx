@@ -29,13 +29,15 @@ import {
 } from '../components/ui/table';
 import { Skeleton } from '../components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
-import { RefreshCw, AlertTriangle, CheckCircle2, Shield, Clock, BarChart3 } from 'lucide-react';
-import { Layout } from '../components/layout';
+import { RefreshCw, AlertTriangle, CheckCircle2, Shield, Clock, BarChart3, DollarSign, FileText, Users } from 'lucide-react';
+import { DashboardLayout } from '../components/layout/dashboard-layout';
 import { WalletStatus } from '../components/wallet/WalletStatus';
 import { formatCurrency, formatDate, timeAgo } from '../lib/utils/format';
 import { useInsuranceOperations } from '../hooks/useInsuranceOperations';
 import RiskAssessment from '../components/RiskAssessment';
 import { Policy, Claim, PolicyStatus, ClaimStatus, RiskPoolMetrics } from '../types/insurance';
+import { InsuranceCard } from '../components/ui/insurance-card';
+import { FreelanceShieldLogo } from '../components/ui/freelance-shield-logo';
 
 // Define the PoolMetrics interface to match what RiskAssessment component expects
 interface PoolMetrics {
@@ -133,14 +135,14 @@ export default function Dashboard() {
   }, [riskPoolMetrics]);
 
   return (
-    <Layout>
+    <DashboardLayout>
       <div className="container mx-auto py-6">
         <div className="flex flex-col space-y-6">
           {/* Header with wallet status */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
+              <p className="text-gray-400">
                 Manage your insurance policies and claims
               </p>
             </div>
@@ -150,6 +152,7 @@ export default function Dashboard() {
                 variant="outline" 
                 onClick={handleRefresh}
                 disabled={isRefreshing || !connected}
+                className="bg-transparent border-electric-blue text-electric-blue hover:bg-electric-blue/10"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
                 Refresh
@@ -157,6 +160,7 @@ export default function Dashboard() {
               <Button 
                 onClick={() => navigate('/new-policy')}
                 disabled={!connected}
+                className="bg-deep-purple hover:bg-deep-purple/90 text-white"
               >
                 Create Policy
               </Button>
@@ -166,383 +170,361 @@ export default function Dashboard() {
           {/* Status cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {/* Policy Status */}
-            <Card>
+            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg hover:border-deep-purple/50 transition-all">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Active Policies
                 </CardTitle>
-                <Shield className="h-4 w-4 text-muted-foreground" />
+                <Shield className="h-4 w-4 text-deep-purple" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {isLoading ? (
-                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-8 w-16 bg-gray-700" />
                   ) : (
                     policies?.filter(p => p.status === PolicyStatus.ACTIVE).length || 0
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-400">
                   {hasActivePolicies ? 'Coverage active' : 'No active policies'}
                 </p>
               </CardContent>
             </Card>
 
             {/* Claims Status */}
-            <Card>
+            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg hover:border-deep-purple/50 transition-all">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Pending Claims
                 </CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="h-4 w-4 text-electric-blue" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {isLoading ? (
-                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-8 w-16 bg-gray-700" />
                   ) : (
                     activeClaims.length
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {activeClaims.length > 0 ? 'Awaiting processing' : 'No pending claims'}
+                <p className="text-xs text-gray-400">
+                  {activeClaims.length > 0 ? 'Claims awaiting review' : 'No pending claims'}
                 </p>
               </CardContent>
             </Card>
 
-            {/* Coverage Amount */}
-            <Card>
+            {/* Total Coverage */}
+            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg hover:border-deep-purple/50 transition-all">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Coverage
                 </CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <DollarSign className="h-4 w-4 text-silver" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {isLoading ? (
-                    <Skeleton className="h-8 w-24" />
+                    <Skeleton className="h-8 w-16 bg-gray-700" />
                   ) : (
-                    formatCurrency(policies?.reduce((sum, policy) => sum + policy.coverageAmount, 0) || 0)
+                    formatCurrency(riskPoolMetrics?.totalCoverage || 0)
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Total insured value
+                <p className="text-xs text-gray-400">
+                  Protected value
                 </p>
               </CardContent>
             </Card>
 
-            {/* Risk Pool Health */}
-            <Card>
+            {/* Solvency Ratio */}
+            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg hover:border-deep-purple/50 transition-all">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Pool Health
+                  Solvency Ratio
                 </CardTitle>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                <BarChart3 className="h-4 w-4 text-deep-purple" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold flex items-center">
+                <div className="text-2xl font-bold">
                   {isLoading ? (
-                    <Skeleton className="h-8 w-24" />
+                    <Skeleton className="h-8 w-16 bg-gray-700" />
                   ) : (
-                    <>
-                      {solvencyStatus === 'excellent' && (
-                        <Badge className="bg-green-500">Excellent</Badge>
-                      )}
-                      {solvencyStatus === 'good' && (
-                        <Badge className="bg-blue-500">Good</Badge>
-                      )}
-                      {solvencyStatus === 'moderate' && (
-                        <Badge className="bg-yellow-500">Moderate</Badge>
-                      )}
-                      {solvencyStatus === 'at-risk' && (
-                        <Badge variant="destructive">At Risk</Badge>
-                      )}
-                      {solvencyStatus === 'unknown' && (
-                        <Badge variant="outline">Unknown</Badge>
-                      )}
-                    </>
+                    `${Math.round((riskPoolMetrics?.solvencyRatio || 0) * 100)}%`
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {riskPoolMetrics ? `${Math.round(riskPoolMetrics.solvencyRatio * 100)}% solvency ratio` : 'Solvency data unavailable'}
+                <p className="text-xs text-gray-400">
+                  {solvencyStatus === 'excellent' && 'Excellent financial health'}
+                  {solvencyStatus === 'good' && 'Good financial health'}
+                  {solvencyStatus === 'moderate' && 'Moderate financial health'}
+                  {solvencyStatus === 'at-risk' && 'At risk - needs attention'}
+                  {solvencyStatus === 'unknown' && 'Calculating...'}
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Main content tabs */}
-          <Tabs defaultValue="policies" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="policies">My Policies</TabsTrigger>
-              <TabsTrigger value="claims">My Claims</TabsTrigger>
-              <TabsTrigger value="riskpool">Risk Pool</TabsTrigger>
-            </TabsList>
-            
-            {/* Policies tab */}
-            <TabsContent value="policies">
-              <Card>
+          {/* Main content area */}
+          <div className="grid gap-6 md:grid-cols-7">
+            {/* Left column - 4/7 width */}
+            <div className="md:col-span-4 space-y-6">
+              <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    Insurance Policies
-                  </CardTitle>
-                  <CardDescription>
-                    View and manage your active insurance policies
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="space-y-2">
-                      <Skeleton className="h-12 w-full" />
-                      <Skeleton className="h-12 w-full" />
-                      <Skeleton className="h-12 w-full" />
-                    </div>
-                  ) : !connected ? (
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>Wallet not connected</AlertTitle>
-                      <AlertDescription>
-                        Connect your wallet to view your insurance policies
-                      </AlertDescription>
-                    </Alert>
-                  ) : !hasActivePolicies ? (
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>No policies found</AlertTitle>
-                      <AlertDescription>
-                        You don't have any insurance policies yet. Create one to get started.
-                      </AlertDescription>
-                    </Alert>
-                  ) : (
-                    <Table>
-                      <TableCaption>A list of your insurance policies</TableCaption>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Coverage</TableHead>
-                          <TableHead>Premium</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Expiry</TableHead>
-                          <TableHead>Project</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {policies.map((policy: Policy) => (
-                          <TableRow key={policy.policyId}>
-                            <TableCell className="font-medium">
-                              {formatCurrency(policy.coverageAmount)} USDC
-                            </TableCell>
-                            <TableCell>
-                              {formatCurrency(policy.premiumAmount)} USDC
-                            </TableCell>
-                            <TableCell>
-                              {policy.status === PolicyStatus.ACTIVE && (
-                                <Badge className="bg-green-500">Active</Badge>
-                              )}
-                              {policy.status === PolicyStatus.EXPIRED && (
-                                <Badge variant="outline">Expired</Badge>
-                              )}
-                              {policy.status === PolicyStatus.PENDING && (
-                                <Badge variant="secondary">Pending</Badge>
-                              )}
-                              {policy.status === PolicyStatus.CANCELLED && (
-                                <Badge variant="destructive">Cancelled</Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {formatDate(policy.expiryTime)}
-                            </TableCell>
-                            <TableCell>
-                              {policy.projectName}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-                {hasActivePolicies && (
-                  <CardFooter>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => navigate('/policy-details/' + activePolicy?.policyId)}
-                    >
-                      View Details
-                    </Button>
-                  </CardFooter>
-                )}
-              </Card>
-            </TabsContent>
-            
-            {/* Claims tab */}
-            <TabsContent value="claims">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5" />
-                    Insurance Claims
-                  </CardTitle>
-                  <CardDescription>
-                    View and manage your submitted claims
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="space-y-2">
-                      <Skeleton className="h-12 w-full" />
-                      <Skeleton className="h-12 w-full" />
-                      <Skeleton className="h-12 w-full" />
-                    </div>
-                  ) : !connected ? (
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>Wallet not connected</AlertTitle>
-                      <AlertDescription>
-                        Connect your wallet to view your insurance claims
-                      </AlertDescription>
-                    </Alert>
-                  ) : !hasClaims ? (
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>No claims found</AlertTitle>
-                      <AlertDescription>
-                        You haven't submitted any claims yet.
-                      </AlertDescription>
-                    </Alert>
-                  ) : (
-                    <Table>
-                      <TableCaption>A list of your insurance claims</TableCaption>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Amount</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Submitted</TableHead>
-                          <TableHead>Evidence</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {claims.map((claim: Claim) => (
-                          <TableRow key={claim.claimId}>
-                            <TableCell className="font-medium">
-                              {formatCurrency(claim.amount)} USDC
-                            </TableCell>
-                            <TableCell>
-                              {claim.status === ClaimStatus.PENDING && (
-                                <Badge variant="secondary">Pending</Badge>
-                              )}
-                              {claim.status === ClaimStatus.PROCESSING && (
-                                <Badge variant="outline">Processing</Badge>
-                              )}
-                              {claim.status === ClaimStatus.APPROVED && (
-                                <Badge className="bg-green-500">Approved</Badge>
-                              )}
-                              {claim.status === ClaimStatus.REJECTED && (
-                                <Badge variant="destructive">Rejected</Badge>
-                              )}
-                              {claim.status === ClaimStatus.ARBITRATION && (
-                                <Badge variant="outline" className="bg-yellow-500">Arbitration</Badge>
-                              )}
-                              {claim.status === ClaimStatus.PAID && (
-                                <Badge className="bg-blue-500">Paid</Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {timeAgo(claim.submissionTime)}
-                            </TableCell>
-                            <TableCell>
-                              {claim.evidenceType}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-                {activeClaims.length > 0 && (
-                  <CardFooter>
-                    <p className="text-sm text-muted-foreground">
-                      You have {activeClaims.length} pending claim{activeClaims.length !== 1 ? 's' : ''}
-                    </p>
-                  </CardFooter>
-                )}
-              </Card>
-            </TabsContent>
-            
-            {/* Risk Pool tab */}
-            <TabsContent value="riskpool">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5" />
-                    Risk Pool Health
-                  </CardTitle>
-                  <CardDescription>
-                    View the current status of the insurance risk pool
+                  <CardTitle>Your Insurance Policies</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Manage your active and pending insurance policies
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {isLoading ? (
                     <div className="space-y-4">
-                      <Skeleton className="h-[300px] w-full" />
-                      <div className="grid grid-cols-2 gap-4">
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                      </div>
+                      <Skeleton className="h-[200px] w-full bg-gray-700" />
+                      <Skeleton className="h-[200px] w-full bg-gray-700" />
                     </div>
-                  ) : !riskMetrics ? (
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>Data unavailable</AlertTitle>
+                  ) : !connected ? (
+                    <Alert className="bg-gray-700 border-deep-purple">
+                      <AlertTriangle className="h-4 w-4 text-deep-purple" />
+                      <AlertTitle>Wallet not connected</AlertTitle>
                       <AlertDescription>
-                        Risk pool metrics could not be loaded from the blockchain
+                        Connect your Solana wallet to view your insurance policies
                       </AlertDescription>
                     </Alert>
+                  ) : hasActivePolicies ? (
+                    <div className="space-y-4">
+                      {policies.map((policy) => (
+                        <InsuranceCard
+                          key={policy.id}
+                          title={policy.name}
+                          description={policy.description}
+                          premium={formatCurrency(policy.premium)}
+                          coverage={formatCurrency(policy.coverageAmount)}
+                          duration={`${policy.durationDays} days`}
+                          status={policy.status === PolicyStatus.ACTIVE ? 'active' : policy.status === PolicyStatus.PENDING ? 'pending' : 'expired'}
+                          onClick={() => navigate(`/policies/${policy.id}`)}
+                        />
+                      ))}
+                    </div>
                   ) : (
-                    <div className="space-y-6">
-                      <RiskAssessment metrics={riskMetrics} />
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="border rounded-lg p-4">
-                          <h3 className="text-sm font-medium mb-2">Pool Balance</h3>
-                          <p className="text-2xl font-bold">{formatCurrency(riskMetrics.poolBalance)} USDC</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Total funds available for claims
-                          </p>
-                        </div>
-                        
-                        <div className="border rounded-lg p-4">
-                          <h3 className="text-sm font-medium mb-2">Total Coverage</h3>
-                          <p className="text-2xl font-bold">{formatCurrency(riskMetrics.totalCoverage)} USDC</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Total coverage amount across all policies
-                          </p>
-                        </div>
-                        
-                        <div className="border rounded-lg p-4">
-                          <h3 className="text-sm font-medium mb-2">Policies</h3>
-                          <p className="text-2xl font-bold">{riskMetrics.totalPolicies}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {riskMetrics.activePolicies} active out of {riskMetrics.totalPolicies} total
-                          </p>
-                        </div>
-                        
-                        <div className="border rounded-lg p-4">
-                          <h3 className="text-sm font-medium mb-2">Claims</h3>
-                          <p className="text-2xl font-bold">{riskMetrics.claimCount}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {Math.round(riskMetrics.claimApprovalRate * 100)}% approval rate
-                          </p>
-                        </div>
-                      </div>
+                    <div className="text-center py-8">
+                      <Shield className="h-12 w-12 text-deep-purple mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Policies Found</h3>
+                      <p className="text-gray-400 mb-4">
+                        You don't have any insurance policies yet. Create your first policy to protect your freelance work.
+                      </p>
+                      <Button 
+                        onClick={() => navigate('/new-policy')}
+                        className="bg-deep-purple hover:bg-deep-purple/90 text-white"
+                      >
+                        Create Your First Policy
+                      </Button>
                     </div>
                   )}
                 </CardContent>
+                {hasActivePolicies && (
+                  <CardFooter className="border-t border-gray-700 bg-gray-800/50">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate('/policies')}
+                      className="w-full bg-transparent border-electric-blue text-electric-blue hover:bg-electric-blue/10"
+                    >
+                      View All Policies
+                    </Button>
+                  </CardFooter>
+                )}
               </Card>
-            </TabsContent>
-          </Tabs>
+
+              <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
+                <CardHeader>
+                  <CardTitle>Recent Claims</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Track the status of your recent insurance claims
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <Skeleton className="h-[200px] w-full bg-gray-700" />
+                  ) : !connected ? (
+                    <Alert className="bg-gray-700 border-deep-purple">
+                      <AlertTriangle className="h-4 w-4 text-deep-purple" />
+                      <AlertTitle>Wallet not connected</AlertTitle>
+                      <AlertDescription>
+                        Connect your Solana wallet to view your claims
+                      </AlertDescription>
+                    </Alert>
+                  ) : hasClaims ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-gray-700 hover:bg-gray-700/50">
+                          <TableHead className="text-gray-400">Claim ID</TableHead>
+                          <TableHead className="text-gray-400">Amount</TableHead>
+                          <TableHead className="text-gray-400">Date</TableHead>
+                          <TableHead className="text-gray-400">Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {claims.slice(0, 5).map((claim) => (
+                          <TableRow 
+                            key={claim.id} 
+                            className="border-gray-700 hover:bg-gray-700/50 cursor-pointer"
+                            onClick={() => navigate(`/claims/${claim.id}`)}
+                          >
+                            <TableCell className="font-medium text-electric-blue">
+                              {claim.id.substring(0, 8)}...
+                            </TableCell>
+                            <TableCell>{formatCurrency(claim.amount)}</TableCell>
+                            <TableCell>{formatDate(claim.createdAt)}</TableCell>
+                            <TableCell>
+                              <Badge 
+                                className={
+                                  claim.status === ClaimStatus.APPROVED 
+                                    ? "bg-green-500/20 text-green-500 hover:bg-green-500/30" 
+                                    : claim.status === ClaimStatus.REJECTED
+                                    ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
+                                    : "bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30"
+                                }
+                              >
+                                {claim.status}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <div className="text-center py-8">
+                      <FileText className="h-12 w-12 text-electric-blue mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Claims Filed</h3>
+                      <p className="text-gray-400 mb-4">
+                        You haven't filed any insurance claims yet. If you experience a covered loss, file a claim for review.
+                      </p>
+                      <Button 
+                        onClick={() => navigate('/new-claim')}
+                        disabled={!hasActivePolicies}
+                        className="bg-electric-blue hover:bg-electric-blue/90 text-white"
+                      >
+                        File a Claim
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+                {hasClaims && (
+                  <CardFooter className="border-t border-gray-700 bg-gray-800/50">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate('/claims')}
+                      className="w-full bg-transparent border-electric-blue text-electric-blue hover:bg-electric-blue/10"
+                    >
+                      View All Claims
+                    </Button>
+                  </CardFooter>
+                )}
+              </Card>
+            </div>
+
+            {/* Right column - 3/7 width */}
+            <div className="md:col-span-3 space-y-6">
+              <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
+                <CardHeader>
+                  <CardTitle>Risk Pool Health</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Current status of the FreelanceShield insurance pool
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <Skeleton className="h-[300px] w-full bg-gray-700" />
+                  ) : riskMetrics ? (
+                    <RiskAssessment metrics={riskMetrics} />
+                  ) : (
+                    <Alert className="bg-gray-700 border-deep-purple">
+                      <AlertTriangle className="h-4 w-4 text-deep-purple" />
+                      <AlertTitle>Data Unavailable</AlertTitle>
+                      <AlertDescription>
+                        Risk pool metrics are currently unavailable. Please try again later.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
+                <CardHeader>
+                  <CardTitle>Community Stats</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    FreelanceShield community activity
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Users className="h-5 w-5 text-deep-purple mr-2" />
+                        <span>Active Members</span>
+                      </div>
+                      <span className="font-bold">
+                        {isLoading ? (
+                          <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
+                        ) : (
+                          riskPoolMetrics?.activePolicies || 0
+                        )}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Shield className="h-5 w-5 text-electric-blue mr-2" />
+                        <span>Total Policies</span>
+                      </div>
+                      <span className="font-bold">
+                        {isLoading ? (
+                          <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
+                        ) : (
+                          riskPoolMetrics?.totalPolicies || 0
+                        )}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FileText className="h-5 w-5 text-silver mr-2" />
+                        <span>Claims Filed</span>
+                      </div>
+                      <span className="font-bold">
+                        {isLoading ? (
+                          <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
+                        ) : (
+                          riskPoolMetrics?.claimCount || 0
+                        )}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                        <span>Claim Approval Rate</span>
+                      </div>
+                      <span className="font-bold">
+                        {isLoading ? (
+                          <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
+                        ) : (
+                          `${Math.round((riskPoolMetrics?.claimApprovalRate || 0) * 100)}%`
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="border-t border-gray-700 bg-gray-800/50">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/community')}
+                    className="w-full bg-transparent border-silver text-silver hover:bg-silver/10"
+                  >
+                    View Community
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
-    </Layout>
+    </DashboardLayout>
   );
 }

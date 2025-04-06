@@ -304,7 +304,8 @@ const HowItWorksPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-950">
+      <div className="absolute top-0 left-0 w-full h-full opacity-30 dark:opacity-50 pointer-events-none bg-repeat bg-[length:4px_4px] dark:bg-[length:2px_2px] bg-[url('/images/scanline-light.png')] dark:bg-[url('/images/scanline-dark.png')]"></div>
       <Navbar />
       <div className="pt-20">
         {/* Hero Section with Animated Background */}
@@ -315,12 +316,12 @@ const HowItWorksPage = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 via-background to-background dark:from-blue-950/20 dark:via-background dark:to-background -z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-deep-purple/10 via-background to-background dark:from-deep-purple/20 dark:via-background dark:to-background -z-10" />
           
           {/* Animated background elements */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
             <motion.div 
-              className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-3xl" 
+              className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-pink-400/10 dark:bg-pink-600/20 rounded-full blur-3xl" 
               animate={{ 
                 scale: [1, 1.1, 1],
                 opacity: [0.5, 0.7, 0.5] 
@@ -332,7 +333,7 @@ const HowItWorksPage = () => {
               }}
             />
             <motion.div 
-              className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-indigo-400/10 dark:bg-indigo-400/5 rounded-full blur-3xl" 
+              className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-green-400/10 dark:bg-green-500/20 rounded-full blur-3xl" 
               animate={{ 
                 scale: [1, 1.2, 1],
                 opacity: [0.5, 0.8, 0.5] 
@@ -346,37 +347,25 @@ const HowItWorksPage = () => {
             />
           </div>
           
+          {/* Hero content */}
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
               <motion.h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+                className="text-5xl md:text-6xl font-['NT_Brick_Sans'] tracking-tight mb-6 text-white"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                How FreelanceShield
-                <motion.div 
-                  className="mt-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-blue-400 dark:to-indigo-300"
-                  animate={{ 
-                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] 
-                  }}
-                  transition={{ 
-                    duration: 15, 
-                    repeat: Infinity,
-                    ease: "linear" 
-                  }}
-                >
-                  Secures Your Work on Solana
-                </motion.div>
+                How <span className="bg-gradient-to-r from-indigo-500 to-blue-500 text-transparent bg-clip-text">FreelanceShield</span> Works
               </motion.h1>
               
               <motion.p 
-                className="text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl mx-auto"
+                className="text-xl text-gray-300 mt-4 max-w-3xl mx-auto font-['Open_Sans']"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                FreelanceShield provides blockchain-based insurance for freelancers, protecting your income against project cancellations, payment disputes, and work disruptions with a simple, transparent process on the Solana blockchain.
+                A simple, transparent process to protect your freelance business
               </motion.p>
               
               <motion.div 
@@ -428,7 +417,7 @@ const HowItWorksPage = () => {
                   )}
                   onClick={() => scrollToSection('connect-wallet')}
                 >
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-medium">1</span>
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-bold">1</span>
                   Connect Wallet
                 </a>
                 <a 
@@ -441,7 +430,7 @@ const HowItWorksPage = () => {
                   )}
                   onClick={() => scrollToSection('choose-plan')}
                 >
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-medium">2</span>
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-bold">2</span>
                   Choose Plan
                 </a>
                 <a 
@@ -454,7 +443,7 @@ const HowItWorksPage = () => {
                   )}
                   onClick={() => scrollToSection('pay-premium')}
                 >
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-medium">3</span>
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-bold">3</span>
                   Pay Premium
                 </a>
                 <a 
@@ -467,7 +456,7 @@ const HowItWorksPage = () => {
                   )}
                   onClick={() => scrollToSection('risk-pool')}
                 >
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-medium">4</span>
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-bold">4</span>
                   Risk Pool
                 </a>
                 <a 
@@ -480,7 +469,7 @@ const HowItWorksPage = () => {
                   )}
                   onClick={() => scrollToSection('submit-claim')}
                 >
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-medium">5</span>
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-bold">5</span>
                   Submit Claim
                 </a>
                 <a 
@@ -493,7 +482,7 @@ const HowItWorksPage = () => {
                   )}
                   onClick={() => scrollToSection('staking-governance')}
                 >
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-medium">6</span>
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-bold">6</span>
                   Staking & Governance
                 </a>
               </div>
@@ -508,7 +497,9 @@ const HowItWorksPage = () => {
           </div>
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold tracking-tight">How FreelanceShield Works</h2>
+              <h2 className="text-3xl font-bold tracking-tight">
+                How FreelanceShield Works
+              </h2>
               <p className="text-muted-foreground mt-4 max-w-3xl mx-auto">
                 Our streamlined process protects freelancers with blockchain-based insurance on Solana
               </p>
@@ -529,7 +520,9 @@ const HowItWorksPage = () => {
                   <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-md">1</span>
                   <Wallet className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-medium text-lg mb-2">Connect Wallet & Profile</h3>
+                <h3 className="font-bold text-lg mb-2">
+                  Connect Wallet & Profile
+                </h3>
                 <p className="text-sm text-muted-foreground text-center">
                   Connect your Solana wallet (Phantom, Solflare, or Backpack) and set up your freelancer profile.
                 </p>
@@ -554,7 +547,9 @@ const HowItWorksPage = () => {
                   <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-md">2</span>
                   <Shield className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-medium text-lg mb-2">Choose Insurance Plan</h3>
+                <h3 className="font-bold text-lg mb-2">
+                  Choose Insurance Plan
+                </h3>
                 <p className="text-sm text-muted-foreground text-center">
                   Select from Basic, Pro, or Enterprise plans with different coverage amounts and rates.
                 </p>
@@ -579,7 +574,9 @@ const HowItWorksPage = () => {
                   <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-md">3</span>
                   <CreditCard className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-medium text-lg mb-2">Pay Premium</h3>
+                <h3 className="font-bold text-lg mb-2">
+                  Pay Premium
+                </h3>
                 <p className="text-sm text-muted-foreground text-center">
                   Pay your insurance premium in USDC directly from your connected wallet.
                 </p>
@@ -604,7 +601,9 @@ const HowItWorksPage = () => {
                   <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-md">4</span>
                   <BarChart4 className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-medium text-lg mb-2">Risk Pool Management</h3>
+                <h3 className="font-bold text-lg mb-2">
+                  Risk Pool Management
+                </h3>
                 <p className="text-sm text-muted-foreground text-center">
                   Your premium joins our decentralized risk pool, managed by smart contracts.
                 </p>
@@ -629,7 +628,9 @@ const HowItWorksPage = () => {
                   <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-md">5</span>
                   <MessageSquare className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-medium text-lg mb-2">Submit a Claim</h3>
+                <h3 className="font-bold text-lg mb-2">
+                  Submit a Claim
+                </h3>
                 <p className="text-sm text-muted-foreground text-center">
                   If an insured event occurs, submit your claim with supporting documents.
                 </p>
@@ -654,7 +655,9 @@ const HowItWorksPage = () => {
                   <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-md">6</span>
                   <CheckCircle className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-medium text-lg mb-2">Receive Payout</h3>
+                <h3 className="font-bold text-lg mb-2">
+                  Receive Payout
+                </h3>
                 <p className="text-sm text-muted-foreground text-center">
                   Approved claims are paid instantly to your wallet in USDC with real-time tracking.
                 </p>
@@ -686,6 +689,42 @@ const HowItWorksPage = () => {
           </div>
         </section>
 
+        {/* Steps Section */}
+        <section className="py-20 relative overflow-hidden">
+          <div className="container mx-auto px-4">
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+            >
+              <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 flex flex-col">
+                <div className="text-6xl font-['NT_Brick_Sans'] text-indigo-500 mb-4">01</div>
+                <h3 className="text-2xl font-['NT_Brick_Sans'] text-white mb-3">Connect Your Wallet</h3>
+                <p className="text-gray-400 font-['Open_Sans']">
+                  Connect your Solana wallet to access the FreelanceShield platform and manage your insurance policies.
+                </p>
+              </div>
+              
+              <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 flex flex-col">
+                <div className="text-6xl font-['NT_Brick_Sans'] text-indigo-500 mb-4">02</div>
+                <h3 className="text-2xl font-['NT_Brick_Sans'] text-white mb-3">Select Coverage</h3>
+                <p className="text-gray-400 font-['Open_Sans']">
+                  Choose from different insurance plans based on your freelance activity and risk tolerance.
+                </p>
+              </div>
+              
+              <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 flex flex-col">
+                <div className="text-6xl font-['NT_Brick_Sans'] text-indigo-500 mb-4">03</div>
+                <h3 className="text-2xl font-['NT_Brick_Sans'] text-white mb-3">Pay Premium</h3>
+                <p className="text-gray-400 font-['Open_Sans']">
+                  Pay your premium in USDC with minimal fees thanks to Solana's efficient blockchain.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Connect Wallet Section */}
         <section id="connect-wallet" ref={connectWalletRef} className="py-24 relative">
           <div className="container mx-auto px-4">
@@ -702,8 +741,8 @@ const HowItWorksPage = () => {
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-4">
                     <Wallet className="h-6 w-6" />
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                    Connect Your <span className="text-blue-600 dark:text-blue-400">Solana Wallet</span>
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    Step 1: Connect Your Solana Wallet
                   </h2>
                   <p className="text-lg text-muted-foreground">
                     Start by connecting your Solana wallet to access FreelanceShield's insurance services. We support multiple wallet providers for your convenience.
@@ -711,7 +750,9 @@ const HowItWorksPage = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-semibold">Supported Wallets</h3>
+                  <h3 className="font-bold">
+                    Supported Wallets
+                  </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <Card className="bg-background border-2 hover:border-blue-400 transition-all duration-300">
                       <CardContent className="p-6 flex flex-col items-center text-center">
@@ -743,7 +784,9 @@ const HowItWorksPage = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-semibold">Why Connect Your Wallet?</h3>
+                  <h3 className="font-bold">
+                    Why Connect Your Wallet?
+                  </h3>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mt-0.5">
@@ -788,7 +831,7 @@ const HowItWorksPage = () => {
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-900/50 shadow-lg relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
                     <motion.div 
-                      className="absolute -top-40 -left-40 w-[300px] h-[300px] bg-blue-400/10 rounded-full blur-2xl" 
+                      className="absolute -top-40 -left-40 w-[300px] h-[300px] bg-pink-400/10 dark:bg-pink-600/20 rounded-full blur-3xl" 
                       animate={{ 
                         scale: [1, 1.1, 1],
                         opacity: [0.5, 0.7, 0.5] 
@@ -805,7 +848,7 @@ const HowItWorksPage = () => {
                     <div className="mb-8 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        <span className="font-semibold">FreelanceShield</span>
+                        <span className="font-bold">FreelanceShield</span>
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {NETWORK_CONFIG.name}
@@ -815,7 +858,9 @@ const HowItWorksPage = () => {
                     <div className="space-y-6">
                       <div className="text-center py-8">
                         <Wallet className="h-16 w-16 mx-auto mb-4 text-blue-600 dark:text-blue-400" />
-                        <h3 className="text-xl font-semibold mb-2">Connect Your Wallet</h3>
+                        <h3 className="text-2xl font-bold mb-2">
+                          Connect Your Wallet
+                        </h3>
                         <p className="text-muted-foreground mb-6">Choose your preferred wallet provider</p>
                         
                         <div className="space-y-3 max-w-xs mx-auto">
@@ -903,17 +948,17 @@ const HowItWorksPage = () => {
               </motion.div>
               
               <motion.h2 
-                className="text-3xl md:text-4xl font-bold tracking-tight mb-4"
+                className="text-2xl font-bold tracking-tight mb-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 viewport={{ once: true, margin: "-100px" }}
               >
-                Choose Your <span className="text-blue-600 dark:text-blue-400">Insurance Plan</span>
+                Step 2: Choose Your Insurance Plan
               </motion.h2>
               
               <motion.p 
-                className="text-lg text-muted-foreground"
+                className="text-muted-foreground"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -935,7 +980,7 @@ const HowItWorksPage = () => {
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-xl">Basic Plan</CardTitle>
+                        <CardTitle className="text-xl font-bold">Basic Plan</CardTitle>
                         <CardDescription>For occasional freelancers</CardDescription>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -1002,7 +1047,7 @@ const HowItWorksPage = () => {
               >
                 <Card className="border-2 border-blue-600 dark:border-blue-500 h-full flex flex-col bg-background hover:shadow-lg transition-all duration-300 relative overflow-hidden">
                   <div className="absolute top-0 right-0">
-                    <div className="bg-blue-600 text-white text-xs font-medium py-1 px-3 rounded-bl-lg">
+                    <div className="bg-blue-600 text-white text-xs font-bold py-1 px-3 rounded-bl-lg">
                       POPULAR
                     </div>
                   </div>
@@ -1010,7 +1055,7 @@ const HowItWorksPage = () => {
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-xl">Pro Plan</CardTitle>
+                        <CardTitle className="text-xl font-bold">Pro Plan</CardTitle>
                         <CardDescription>For active freelancers</CardDescription>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -1085,7 +1130,7 @@ const HowItWorksPage = () => {
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-xl">Enterprise Onboarding</CardTitle>
+                        <CardTitle className="text-xl font-bold">Enterprise Onboarding</CardTitle>
                         <CardDescription>For agencies & teams</CardDescription>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
@@ -1151,7 +1196,7 @@ const HowItWorksPage = () => {
             
             {/* Premium Calculator */}
             <motion.div 
-              className="mt-16 max-w-3xl mx-auto bg-background rounded-xl border-2 border-blue-100 dark:border-blue-900/50 shadow-lg overflow-hidden"
+              className="mt-16 max-w-3xl mx-auto bg-background rounded-xl border-2 border-cyan-100 dark:border-cyan-900/50 shadow-lg overflow-hidden"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
@@ -1159,8 +1204,10 @@ const HowItWorksPage = () => {
             >
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Calculator className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  <h3 className="text-xl font-semibold">Premium Calculator</h3>
+                  <Calculator className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                  <h3 className="font-bold text-xl">
+                    Premium Calculator
+                  </h3>
                 </div>
                 
                 <p className="text-muted-foreground mb-6">
@@ -1178,7 +1225,7 @@ const HowItWorksPage = () => {
                           max="50" 
                           value={premiumState.coverageAmount / 1000}
                           onChange={handleCoverageChange}
-                          className="w-full h-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg appearance-none cursor-pointer" 
+                          className="w-full h-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg appearance-none cursor-pointer" 
                         />
                         <div className="flex justify-between text-xs text-muted-foreground mt-1">
                           <span>$1,000</span>
@@ -1246,7 +1293,7 @@ const HowItWorksPage = () => {
                           max="100" 
                           value={premiumState.reputationScore}
                           onChange={handleReputationChange}
-                          className="w-full h-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg appearance-none cursor-pointer" 
+                          className="w-full h-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg appearance-none cursor-pointer" 
                         />
                         <div className="flex justify-between text-xs text-muted-foreground mt-1">
                           <span>0</span>
@@ -1260,61 +1307,66 @@ const HowItWorksPage = () => {
                     </div>
                   </div>
                   
-                  <div className="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-6 flex flex-col justify-between">
+                  <div className="bg-cyan-50 dark:bg-cyan-900/10 rounded-lg p-6 flex flex-col justify-between">
                     <div className="text-center">
                       <p className="text-sm text-muted-foreground mb-2">Estimated Premium</p>
-                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">${premiumState.premium}</div>
+                      <div className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 mb-2">${premiumState.premium}</div>
                       <p className="text-sm text-muted-foreground">per month</p>
                       
-                      <div className="mt-4 p-3 bg-background rounded-lg border border-border">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium">Risk Score</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold">{premiumState.riskScore}</span>
-                            <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full ${
-                                  premiumState.riskScore < 30 
-                                    ? 'bg-green-500' 
-                                    : premiumState.riskScore < 70 
-                                      ? 'bg-yellow-500' 
-                                      : 'bg-red-500'
-                                }`}
-                                style={{ width: `${premiumState.riskScore}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-1 mt-4 text-xs text-muted-foreground">
-                          <div className="flex justify-between">
-                            <span>Base Rate</span>
-                            <span>${premiumState.breakdownFactors.baseRate}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Coverage Factor</span>
-                            <span>×{premiumState.breakdownFactors.coverageRatio.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Period Adjustment</span>
-                            <span>×{premiumState.breakdownFactors.periodAdjustment.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Risk Adjustment</span>
-                            <span>×{premiumState.breakdownFactors.riskAdjustment.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Reputation Factor</span>
-                            <span>×{premiumState.breakdownFactors.reputationFactor.toFixed(2)}</span>
+                      <div className="mt-4 flex flex-wrap gap-2 justify-center">
+                        <Badge variant="outline" className="text-xs">Secure connection</Badge>
+                        <Badge variant="outline" className="text-xs">Profile customization</Badge>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 p-3 bg-background rounded-lg border border-border">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">Risk Score</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{premiumState.riskScore}</span>
+                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full ${
+                                premiumState.riskScore < 30 
+                                  ? 'bg-green-500' 
+                                  : premiumState.riskScore < 70 
+                                    ? 'bg-yellow-500' 
+                                    : 'bg-red-500'
+                              }`}
+                              style={{ width: `${premiumState.riskScore}%` }}
+                            />
                           </div>
                         </div>
                       </div>
                       
-                      <div className="mt-6">
-                        <Button className="bg-blue-600 hover:bg-blue-700" onClick={provideHapticFeedback}>
-                          Get Exact Quote
-                        </Button>
+                      <div className="space-y-1 mt-4 text-xs text-muted-foreground">
+                        <div className="flex justify-between">
+                          <span>Base Rate</span>
+                          <span>${premiumState.breakdownFactors.baseRate}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Coverage Factor</span>
+                          <span>×{premiumState.breakdownFactors.coverageRatio.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Period Adjustment</span>
+                          <span>×{premiumState.breakdownFactors.periodAdjustment.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Risk Adjustment</span>
+                          <span>×{premiumState.breakdownFactors.riskAdjustment.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Reputation Factor</span>
+                          <span>×{premiumState.breakdownFactors.reputationFactor.toFixed(2)}</span>
+                        </div>
                       </div>
+                    </div>
+                    
+                    <div className="mt-6">
+                      <Button className="bg-cyan-600 hover:bg-cyan-700" onClick={provideHapticFeedback}>
+                        Get Exact Quote
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -1324,7 +1376,7 @@ const HowItWorksPage = () => {
             {/* Connection Lines Animation */}
             <div className="flex justify-center mt-12">
               <motion.div 
-                className="w-0.5 h-12 bg-gradient-to-b from-blue-500 to-transparent"
+                className="w-0.5 h-12 bg-gradient-to-b from-cyan-500 to-transparent"
                 initial={{ height: 0 }}
                 whileInView={{ height: 48 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
@@ -1346,10 +1398,10 @@ const HowItWorksPage = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 viewport={{ once: true, margin: "-100px" }}
               >
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-900/50 shadow-lg relative overflow-hidden">
+                <div className="bg-gradient-to-br from-green-50 to-cyan-50 dark:from-green-950/20 dark:to-cyan-950/20 rounded-2xl p-6 border border-green-100 dark:border-green-900/50 shadow-lg relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
                     <motion.div 
-                      className="absolute -bottom-20 -left-20 w-[300px] h-[300px] bg-blue-400/10 rounded-full blur-2xl" 
+                      className="absolute -bottom-20 -left-20 w-[300px] h-[300px] bg-green-400/10 dark:bg-green-500/20 rounded-full blur-2xl" 
                       animate={{ 
                         scale: [1, 1.1, 1],
                         opacity: [0.3, 0.5, 0.3] 
@@ -1365,8 +1417,8 @@ const HowItWorksPage = () => {
                   <div className="relative z-10">
                     <div className="mb-8 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        <span className="font-semibold">FreelanceShield</span>
+                        <Shield className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <span className="font-bold">FreelanceShield</span>
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {NETWORK_CONFIG.name}
@@ -1375,8 +1427,10 @@ const HowItWorksPage = () => {
                     
                     <div className="space-y-6">
                       <div className="text-center py-4">
-                        <CreditCard className="h-12 w-12 mx-auto mb-4 text-blue-600 dark:text-blue-400" />
-                        <h3 className="text-xl font-semibold mb-2">Pay Premium</h3>
+                        <CreditCard className="h-12 w-12 mx-auto mb-4 text-green-600 dark:text-green-400" />
+                        <h3 className="text-2xl font-bold mb-2">
+                          Step 3: Pay Premium
+                        </h3>
                         <p className="text-muted-foreground mb-6">Confirm your payment details</p>
                       </div>
                       
@@ -1396,14 +1450,14 @@ const HowItWorksPage = () => {
                           </div>
                           <div className="flex justify-between items-center pt-2 border-t border-border mt-2">
                             <span className="font-medium">Total</span>
-                            <span className="font-bold text-blue-600 dark:text-blue-400">$49</span>
+                            <span className="font-bold text-green-600 dark:text-green-400">$49</span>
                           </div>
                         </div>
                         
                         <div className="bg-background rounded-lg p-4 border border-border">
                           <div className="flex justify-between items-center mb-3">
                             <span className="font-medium">Payment Method</span>
-                            <span className="text-xs text-blue-600 dark:text-blue-400 cursor-pointer">Change</span>
+                            <span className="text-xs text-green-600 dark:text-green-400 cursor-pointer">Change</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-[#AB9FF2]/20 flex items-center justify-center">
@@ -1417,7 +1471,7 @@ const HowItWorksPage = () => {
                         </div>
                         
                         <motion.button 
-                          className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg flex items-center justify-center gap-2"
+                          className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg flex items-center justify-center gap-2"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={provideHapticFeedback}
@@ -1427,7 +1481,7 @@ const HowItWorksPage = () => {
                         </motion.button>
                         
                         <div className="text-center text-xs text-muted-foreground">
-                          By paying, you agree to FreelanceShield's <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
+                          <p>By paying, you agree to FreelanceShield's <a href="#" className="text-green-600 dark:text-green-400 hover:underline">Terms of Service</a></p>
                         </div>
                       </div>
                     </div>
@@ -1443,7 +1497,7 @@ const HowItWorksPage = () => {
                   viewport={{ once: true }}
                 >
                   <motion.div 
-                    className="w-0.5 h-16 bg-gradient-to-b from-blue-500 to-transparent"
+                    className="w-0.5 h-16 bg-gradient-to-b from-green-500 to-transparent"
                     initial={{ height: 0 }}
                     whileInView={{ height: 64 }}
                     transition={{ duration: 0.8, delay: 1.2 }}
@@ -1462,11 +1516,11 @@ const HowItWorksPage = () => {
                 viewport={{ once: true, margin: "-100px" }}
               >
                 <div className="space-y-4">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 mb-4">
                     <Coins className="h-6 w-6" />
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                    Pay Your <span className="text-blue-600 dark:text-blue-400">Premium</span>
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    Step 3: Pay Your Premium
                   </h2>
                   <p className="text-lg text-muted-foreground">
                     Complete your insurance activation by paying your premium directly with USDC from your connected wallet. All transactions are secured by the Solana blockchain.
@@ -1475,7 +1529,9 @@ const HowItWorksPage = () => {
                 
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <h3 className="text-xl font-semibold">How Premium Payments Work</h3>
+                    <h3 className="font-bold">
+                      How Premium Payments Work
+                    </h3>
                     <p className="text-muted-foreground">
                       FreelanceShield uses the Solana blockchain to process premium payments quickly and with minimal fees. Here's how it works:
                     </p>
@@ -1483,7 +1539,7 @@ const HowItWorksPage = () => {
                   
                   <div className="space-y-4">
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 mt-0.5">
                         1
                       </div>
                       <div>
@@ -1493,7 +1549,7 @@ const HowItWorksPage = () => {
                     </div>
                     
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 mt-0.5">
                         2
                       </div>
                       <div>
@@ -1503,7 +1559,7 @@ const HowItWorksPage = () => {
                     </div>
                     
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 mt-0.5">
                         3
                       </div>
                       <div>
@@ -1513,7 +1569,7 @@ const HowItWorksPage = () => {
                     </div>
                     
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 mt-0.5">
                         4
                       </div>
                       <div>
@@ -1525,7 +1581,9 @@ const HowItWorksPage = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-semibold">Benefits of Blockchain Payments</h3>
+                  <h3 className="font-bold">
+                    Benefits of Blockchain Payments
+                  </h3>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mt-0.5">
@@ -1571,11 +1629,11 @@ const HowItWorksPage = () => {
                 viewport={{ once: true, margin: "-100px" }}
               >
                 <div className="space-y-4">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 mb-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-pink-600 dark:text-pink-400 mb-4">
                     <Database className="h-6 w-6" />
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                    Decentralized <span className="text-indigo-600 dark:text-indigo-400">Risk Pool</span>
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    Step 4: Decentralized Risk Pool
                   </h2>
                   <p className="text-lg text-muted-foreground">
                     Your premium is added to a transparent, on-chain risk pool that provides coverage for all policyholders. This collective approach ensures fair pricing and sustainable protection.
@@ -1584,7 +1642,9 @@ const HowItWorksPage = () => {
                 
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <h3 className="text-xl font-semibold">How the Risk Pool Works</h3>
+                    <h3 className="font-bold">
+                      How the Risk Pool Works
+                    </h3>
                     <p className="text-muted-foreground">
                       FreelanceShield's risk pool is a smart contract-based system that aggregates premiums and manages claims transparently:
                     </p>
@@ -1592,7 +1652,7 @@ const HowItWorksPage = () => {
                   
                   <div className="space-y-4">
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 mt-0.5">
                         1
                       </div>
                       <div>
@@ -1602,7 +1662,7 @@ const HowItWorksPage = () => {
                     </div>
                     
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 mt-0.5">
                         2
                       </div>
                       <div>
@@ -1612,7 +1672,7 @@ const HowItWorksPage = () => {
                     </div>
                     
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 mt-0.5">
                         3
                       </div>
                       <div>
@@ -1622,7 +1682,7 @@ const HowItWorksPage = () => {
                     </div>
                     
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 mt-0.5">
                         4
                       </div>
                       <div>
@@ -1634,7 +1694,9 @@ const HowItWorksPage = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-semibold">Benefits of Our Risk Pool</h3>
+                  <h3 className="font-bold">
+                    Benefits of Our Risk Pool
+                  </h3>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mt-0.5">
@@ -1664,7 +1726,7 @@ const HowItWorksPage = () => {
                 </div>
 
                 <div className="pt-2">
-                  <Button variant="outline" className="border-indigo-600 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-950/30" onClick={provideHapticFeedback}>
+                  <Button variant="outline" className="border-pink-200 hover:border-pink-300 dark:border-pink-500/50 dark:hover:border-pink-600/50" onClick={provideHapticFeedback}>
                     View Pool Statistics
                   </Button>
                 </div>
@@ -1678,10 +1740,10 @@ const HowItWorksPage = () => {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 viewport={{ once: true, margin: "-100px" }}
               >
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/50 shadow-lg relative overflow-hidden">
+                <div className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 rounded-2xl p-6 border border-pink-100 dark:border-pink-900/50 shadow-lg relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
                     <motion.div 
-                      className="absolute -top-20 -right-20 w-[300px] h-[300px] bg-indigo-400/10 rounded-full blur-2xl" 
+                      className="absolute -top-20 -left-20 w-[300px] h-[300px] bg-pink-400/10 dark:bg-pink-600/20 rounded-full blur-2xl" 
                       animate={{ 
                         scale: [1, 1.1, 1],
                         opacity: [0.3, 0.5, 0.3] 
@@ -1697,8 +1759,8 @@ const HowItWorksPage = () => {
                   <div className="relative z-10">
                     <div className="mb-8 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Database className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                        <span className="font-semibold">Risk Pool Dashboard</span>
+                        <Database className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                        <span className="font-bold">Risk Pool Dashboard</span>
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Live Data
@@ -1710,7 +1772,7 @@ const HowItWorksPage = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="p-4 bg-white dark:bg-background rounded-lg border border-border">
                           <div className="text-sm text-muted-foreground mb-1">Total Value Locked</div>
-                          <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                          <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">
                             2,450 USDC
                           </div>
                           <div className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-1">
@@ -1721,7 +1783,7 @@ const HowItWorksPage = () => {
                         
                         <div className="p-4 bg-white dark:bg-background rounded-lg border border-border">
                           <div className="text-sm text-muted-foreground mb-1">Active Policies</div>
-                          <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                          <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">
                             187
                           </div>
                           <div className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-1">
@@ -1732,7 +1794,7 @@ const HowItWorksPage = () => {
                         
                         <div className="p-4 bg-white dark:bg-background rounded-lg border border-border">
                           <div className="text-sm text-muted-foreground mb-1">Claims Paid</div>
-                          <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                          <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">
                             28
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
@@ -1742,7 +1804,7 @@ const HowItWorksPage = () => {
                         
                         <div className="p-4 bg-white dark:bg-background rounded-lg border border-border">
                           <div className="text-sm text-muted-foreground mb-1">Solvency Ratio</div>
-                          <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                          <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">
                             215%
                           </div>
                           <div className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-1">
@@ -1755,16 +1817,16 @@ const HowItWorksPage = () => {
                       {/* Pool Visualization */}
                       <div className="bg-white dark:bg-background rounded-lg p-4 border border-border">
                         <div className="flex justify-between items-center mb-4">
-                          <span className="text-sm font-medium">Risk Pool Allocation</span>
+                          <span className="font-medium">Risk Pool Allocation</span>
                           <span className="text-xs text-muted-foreground">Updated 5 min ago</span>
                         </div>
                         
                         <div className="h-[180px] relative">
                           {/* This would be a real chart in production */}
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-full max-w-[250px] aspect-square rounded-full border-8 border-indigo-200 dark:border-indigo-800/50 relative">
+                            <div className="w-full max-w-[250px] aspect-square rounded-full border-8 border-pink-200 dark:border-pink-500/50 relative">
                               <motion.div 
-                                className="absolute inset-0 rounded-full border-8 border-t-indigo-600 dark:border-t-indigo-400 border-r-transparent border-b-transparent border-l-transparent"
+                                className="absolute inset-0 rounded-full border-8 border-t-pink-600 dark:border-t-pink-400 border-r-transparent border-b-transparent border-l-transparent"
                                 animate={{ 
                                   rotate: 360
                                 }}
@@ -1776,7 +1838,7 @@ const HowItWorksPage = () => {
                               />
                               
                               <div className="absolute inset-0 flex items-center justify-center flex-col">
-                                <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">75%</div>
+                                <div className="text-3xl font-bold text-pink-600 dark:text-pink-400">75%</div>
                                 <div className="text-xs text-muted-foreground">Available</div>
                               </div>
                               
@@ -1815,14 +1877,13 @@ const HowItWorksPage = () => {
                             </div>
                           </div>
                         </div>
-                        
                         <div className="grid grid-cols-2 gap-2 mt-4">
                           <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-indigo-600 dark:bg-indigo-400"></div>
+                            <div className="w-3 h-3 rounded-full bg-pink-600 dark:bg-pink-400"></div>
                             <div className="text-xs">Available (75%)</div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-indigo-300 dark:bg-indigo-700"></div>
+                            <div className="w-3 h-3 rounded-full bg-pink-300 dark:bg-pink-700"></div>
                             <div className="text-xs">Reserved for Claims (25%)</div>
                           </div>
                         </div>
@@ -1830,7 +1891,7 @@ const HowItWorksPage = () => {
                       
                       {/* Recent Transactions */}
                       <div className="space-y-3">
-                        <div className="text-sm font-medium">Recent Pool Transactions</div>
+                        <div className="font-medium">Recent Pool Transactions</div>
                         
                         <div className="space-y-2 max-h-[120px] overflow-y-auto">
                           <div className="flex items-center justify-between text-xs p-2 rounded-md bg-background/80 backdrop-blur-sm border border-border">
@@ -1880,7 +1941,7 @@ const HowItWorksPage = () => {
                 {/* Connection Lines Animation */}
                 <div className="flex justify-center mt-12">
                   <motion.div 
-                    className="w-0.5 h-12 bg-gradient-to-b from-indigo-500 to-transparent"
+                    className="w-0.5 h-12 bg-gradient-to-b from-pink-500 to-transparent"
                     initial={{ height: 0 }}
                     whileInView={{ height: 48 }}
                     transition={{ duration: 0.8, delay: 0.6 }}
@@ -1904,10 +1965,10 @@ const HowItWorksPage = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 viewport={{ once: true, margin: "-100px" }}
               >
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-900/50 shadow-lg relative overflow-hidden">
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-2xl p-6 border border-pink-100 dark:border-pink-900/50 shadow-lg relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
                     <motion.div 
-                      className="absolute -bottom-20 -left-20 w-[300px] h-[300px] bg-purple-400/10 rounded-full blur-2xl" 
+                      className="absolute -bottom-20 -left-20 w-[300px] h-[300px] bg-pink-400/10 dark:bg-pink-600/20 rounded-full blur-2xl" 
                       animate={{ 
                         scale: [1, 1.1, 1],
                         opacity: [0.3, 0.5, 0.3] 
@@ -1923,8 +1984,8 @@ const HowItWorksPage = () => {
                   <div className="relative z-10">
                     <div className="mb-8 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <FileQuestion className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                        <span className="font-semibold">Claim Submission</span>
+                        <FileQuestion className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                        <span className="font-bold">Claim Submission</span>
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {NETWORK_CONFIG.name}
@@ -1933,8 +1994,10 @@ const HowItWorksPage = () => {
                     
                     <div className="space-y-6">
                       <div className="text-center py-4">
-                        <FileQuestion className="h-12 w-12 mx-auto mb-4 text-purple-600 dark:text-purple-400" />
-                        <h3 className="text-xl font-semibold mb-2">Submit a Claim</h3>
+                        <FileQuestion className="h-12 w-12 mx-auto mb-4 text-pink-600 dark:text-pink-400" />
+                        <h3 className="text-2xl font-bold mb-2">
+                          Step 5: Submit a Claim
+                        </h3>
                         <p className="text-muted-foreground mb-6">Complete the form to initiate your claim</p>
                       </div>
                       
@@ -1946,17 +2009,17 @@ const HowItWorksPage = () => {
                               type="text" 
                               value="FS-POL-2023-0042" 
                               readOnly
-                              className="w-full px-3 py-2 bg-background border border-border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                              className="w-full px-3 py-2 bg-background border border-border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent" 
                             />
-                            <div className="bg-purple-100 dark:bg-purple-900/30 border border-l-0 border-border rounded-r-lg px-3 flex items-center">
-                              <FileCheck className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                            <div className="bg-pink-100 dark:bg-pink-900/30 border border-l-0 border-border rounded-r-lg px-3 flex items-center">
+                              <FileCheck className="h-4 w-4 text-pink-600 dark:text-pink-400" />
                             </div>
                           </div>
                         </div>
                         
                         <div className="space-y-2">
                           <label className="text-sm font-medium">Claim Type</label>
-                          <select className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                          <select className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
                             <option>Non-payment</option>
                             <option>Contract breach</option>
                             <option>Scope change</option>
@@ -1970,7 +2033,7 @@ const HowItWorksPage = () => {
                             <input 
                               type="text" 
                               placeholder="0.00"
-                              className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                              className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                             />
                             <div className="absolute inset-y-0 left-0 px-3 flex items-center text-muted-foreground">
                               USDC
@@ -1983,7 +2046,7 @@ const HowItWorksPage = () => {
                           <textarea 
                             rows={3}
                             placeholder="Describe your claim in detail..."
-                            className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                           ></textarea>
                         </div>
                         
@@ -1992,7 +2055,7 @@ const HowItWorksPage = () => {
                           <div className="border-2 border-dashed border-border rounded-lg p-4 text-center bg-background/60">
                             <UploadCloud className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                             <p className="text-sm text-muted-foreground">
-                              Drag files here or <span className="text-purple-600 dark:text-purple-400">browse</span>
+                              Drag files here or <span className="text-pink-600 dark:text-pink-400">browse</span>
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
                               Max 10MB per file
@@ -2001,7 +2064,7 @@ const HowItWorksPage = () => {
                         </div>
                         
                         <motion.button 
-                          className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg flex items-center justify-center gap-2"
+                          className="w-full py-3 px-4 bg-pink-600 hover:bg-pink-700 text-white font-medium rounded-lg flex items-center justify-center gap-2"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={provideHapticFeedback}
@@ -2027,7 +2090,7 @@ const HowItWorksPage = () => {
                   viewport={{ once: true }}
                 >
                   <motion.div 
-                    className="w-0.5 h-16 bg-gradient-to-b from-purple-500 to-transparent"
+                    className="w-0.5 h-16 bg-gradient-to-b from-pink-500 to-transparent"
                     initial={{ height: 0 }}
                     whileInView={{ height: 64 }}
                     transition={{ duration: 0.8, delay: 1.2 }}
@@ -2046,11 +2109,11 @@ const HowItWorksPage = () => {
                 viewport={{ once: true, margin: "-100px" }}
               >
                 <div className="space-y-4">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 mb-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 mb-4">
                     <FileQuestion className="h-6 w-6" />
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                    Submit a <span className="text-purple-600 dark:text-purple-400">Claim</span>
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    Step 5: Submit a Claim
                   </h2>
                   <p className="text-lg text-muted-foreground">
                     When things don't go as planned, our streamlined claims process ensures you get the compensation you deserve quickly and fairly.
@@ -2059,7 +2122,9 @@ const HowItWorksPage = () => {
                 
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <h3 className="text-xl font-semibold">How the Claims Process Works</h3>
+                    <h3 className="font-bold">
+                      How the Claims Process Works
+                    </h3>
                     <p className="text-muted-foreground">
                       FreelanceShield uses blockchain technology to process claims efficiently and transparently:
                     </p>
@@ -2067,7 +2132,7 @@ const HowItWorksPage = () => {
                   
                   <div className="space-y-4">
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 mt-0.5">
                         1
                       </div>
                       <div>
@@ -2077,7 +2142,7 @@ const HowItWorksPage = () => {
                     </div>
                     
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 mt-0.5">
                         2
                       </div>
                       <div>
@@ -2087,7 +2152,7 @@ const HowItWorksPage = () => {
                     </div>
                     
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 mt-0.5">
                         3
                       </div>
                       <div>
@@ -2097,7 +2162,7 @@ const HowItWorksPage = () => {
                     </div>
                     
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mt-0.5">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 mt-0.5">
                         4
                       </div>
                       <div>
@@ -2109,7 +2174,9 @@ const HowItWorksPage = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-semibold">What Makes Our Claims Process Better</h3>
+                  <h3 className="font-bold">
+                    What Makes Our Claims Process Better
+                  </h3>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mt-0.5">
@@ -2139,7 +2206,7 @@ const HowItWorksPage = () => {
                 </div>
                 
                 <div className="pt-2">
-                  <Button variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-950/30" onClick={provideHapticFeedback}>
+                  <Button variant="outline" className="border-pink-200 hover:border-pink-300 dark:border-pink-500/50 dark:hover:border-pink-600/50" onClick={provideHapticFeedback}>
                     View Claims Statistics
                   </Button>
                 </div>
@@ -2161,12 +2228,12 @@ const HowItWorksPage = () => {
                   viewport={{ once: true, margin: "-100px" }}
                 >
                   <div className="space-y-6">
-                    <div className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
+                    <div className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-pink-600 dark:text-pink-400 px-3 py-1 rounded-full text-sm font-bold">
                       <Vote className="h-4 w-4" />
                       <span>Step 6: Staking & Governance</span>
                     </div>
                     
-                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+                    <h2 className="text-2xl font-bold tracking-tight">
                       Participate in Platform Governance
                     </h2>
                     
@@ -2177,10 +2244,10 @@ const HowItWorksPage = () => {
                     <div className="space-y-4 pt-2">
                       <div className="flex items-start gap-4">
                         <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
-                          <Coins className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                          <Coins className="h-5 w-5 text-pink-600 dark:text-pink-400" />
                         </div>
                         <div>
-                          <h3 className="font-medium text-lg">Stake Tokens</h3>
+                          <h3 className="font-bold text-lg">Stake Tokens</h3>
                           <p className="text-muted-foreground">
                             Lock your FLS tokens in the staking contract to earn passive rewards from protocol fees and demonstrate your commitment to the ecosystem.
                           </p>
@@ -2189,10 +2256,10 @@ const HowItWorksPage = () => {
                       
                       <div className="flex items-start gap-4">
                         <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                          <Vote className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                          <Vote className="h-5 w-5 text-pink-600 dark:text-pink-400" />
                         </div>
                         <div>
-                          <h3 className="font-medium text-lg">Vote on Proposals</h3>
+                          <h3 className="font-bold text-lg">Vote on Proposals</h3>
                           <p className="text-muted-foreground">
                             Use your staked tokens to vote on important protocol decisions, including premium adjustments, new coverage options, and reserve requirements.
                           </p>
@@ -2201,10 +2268,10 @@ const HowItWorksPage = () => {
                       
                       <div className="flex items-start gap-4">
                         <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
-                          <FileCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+                          <FileCheck className="h-5 w-5 text-pink-600 dark:text-pink-400" />
                         </div>
                         <div>
-                          <h3 className="font-medium text-lg">Submit Proposals</h3>
+                          <h3 className="font-bold text-lg">Submit Proposals</h3>
                           <p className="text-muted-foreground">
                             Suggest improvements to the protocol by creating governance proposals. Community members can discuss and vote on your ideas.
                           </p>
@@ -2232,14 +2299,14 @@ const HowItWorksPage = () => {
                   viewport={{ once: true, margin: "-100px" }}
                 >
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-6 rounded-xl border border-blue-100 dark:border-blue-800 shadow-lg relative">
-                    <div className="absolute -top-3 -right-3 bg-blue-600 text-white text-xs font-medium py-1 px-3 rounded-lg">
+                    <div className="absolute -top-3 -right-3 bg-blue-600 text-white text-xs font-bold py-1 px-3 rounded-lg">
                       Governance Dashboard
                     </div>
                     
                     <div className="space-y-6">
                       <div className="flex justify-between items-center pb-4 border-b border-blue-100 dark:border-blue-800">
                         <div>
-                          <h3 className="font-medium">Your Staking Overview</h3>
+                          <h3 className="font-bold text-lg">Your Staking Overview</h3>
                         </div>
                         <Badge variant="outline" className="border-blue-200 text-blue-700 dark:border-blue-700 dark:text-blue-400">
                           Active Staker
@@ -2261,12 +2328,12 @@ const HowItWorksPage = () => {
                       </div>
                       
                       <div className="space-y-3">
-                        <h4 className="font-medium">Active Proposals</h4>
+                        <h4 className="font-bold">Active Proposals</h4>
                         
                         <div className="p-4 bg-white dark:bg-background rounded-lg border border-border">
                           <div className="flex justify-between items-start">
                             <div>
-                              <div className="font-medium">FIP-23: Increase Reserve Ratio</div>
+                              <div className="font-bold">FIP-23: Increase Reserve Ratio</div>
                               <div className="text-sm text-muted-foreground">Ends in 3 days</div>
                             </div>
                             <Badge className="bg-yellow-500">In Progress</Badge>
@@ -2285,7 +2352,7 @@ const HowItWorksPage = () => {
                         <div className="p-4 bg-white dark:bg-background rounded-lg border border-border">
                           <div className="flex justify-between items-start">
                             <div>
-                              <div className="font-medium">FIP-24: Add New Coverage Type</div>
+                              <div className="font-bold">FIP-24: Add New Coverage Type</div>
                               <div className="text-sm text-muted-foreground">Ends in 5 days</div>
                             </div>
                             <Badge className="bg-yellow-500">In Progress</Badge>
@@ -2352,13 +2419,13 @@ const HowItWorksPage = () => {
             <motion.div 
               className="max-w-3xl mx-auto text-center space-y-8"
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true, margin: "-100px" }}
             >
               <div className="space-y-4">
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                  Ready to <span className="text-blue-600 dark:text-blue-400">Secure Your Work</span>?
+                <h2 className="text-2xl font-bold tracking-tight">
+                  Ready to Secure Your Work?
                 </h2>
                 <p className="text-lg text-muted-foreground">
                   Join thousands of freelancers who trust FreelanceShield to protect their business. Get started in minutes with our simple onboarding process.
@@ -2379,7 +2446,7 @@ const HowItWorksPage = () => {
                   <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
                     <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="font-medium mb-2">Protected Payments</h3>
+                  <h3 className="font-bold text-lg">Protected Payments</h3>
                   <p className="text-sm text-muted-foreground text-center">
                     Over $2M in freelance work protected
                   </p>
@@ -2389,7 +2456,7 @@ const HowItWorksPage = () => {
                   <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
                     <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="font-medium mb-2">Growing Community</h3>
+                  <h3 className="font-bold text-lg">Growing Community</h3>
                   <p className="text-sm text-muted-foreground text-center">
                     Join 1,000+ freelancers worldwide
                   </p>
@@ -2399,7 +2466,7 @@ const HowItWorksPage = () => {
                   <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
                     <Zap className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="font-medium mb-2">Fast Setup</h3>
+                  <h3 className="font-bold text-lg">Fast Setup</h3>
                   <p className="text-sm text-muted-foreground text-center">
                     Get insured in under 5 minutes
                   </p>

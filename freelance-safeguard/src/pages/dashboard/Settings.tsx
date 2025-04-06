@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,7 +15,7 @@ const Settings = () => {
   return (
     <DashboardLayout>
       <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold mb-2">Settings</h1>
+        <h1 className="text-2xl font-brick font-bold mb-2">Settings</h1>
         <p className="text-shield-gray-dark">
           Manage your account settings and preferences.
         </p>
@@ -33,7 +32,7 @@ const Settings = () => {
         <TabsContent value="profile">
           <Card>
             <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
+              <CardTitle className="font-brick">Profile Information</CardTitle>
               <CardDescription>
                 Update your personal information and profile details.
               </CardDescription>
@@ -74,7 +73,7 @@ const Settings = () => {
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
+              <CardTitle className="font-brick">Notification Preferences</CardTitle>
               <CardDescription>
                 Control which notifications you receive and how.
               </CardDescription>
@@ -83,35 +82,35 @@ const Settings = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium">Policy Updates</h3>
+                    <h3 className="font-brick">Policy Updates</h3>
                     <p className="text-sm text-shield-gray-dark">Receive notifications about your policy status</p>
                   </div>
                   <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium">Claim Status</h3>
+                    <h3 className="font-brick">Claim Status</h3>
                     <p className="text-sm text-shield-gray-dark">Get notified about changes to your claim status</p>
                   </div>
                   <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium">Premium Reminders</h3>
+                    <h3 className="font-brick">Premium Reminders</h3>
                     <p className="text-sm text-shield-gray-dark">Alerts before premium payments are due</p>
                   </div>
                   <Switch defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium">Platform News</h3>
+                    <h3 className="font-brick">Platform News</h3>
                     <p className="text-sm text-shield-gray-dark">Updates about new features and platform changes</p>
                   </div>
                   <Switch />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium">Marketing Emails</h3>
+                    <h3 className="font-brick">Marketing Emails</h3>
                     <p className="text-sm text-shield-gray-dark">Promotional content and special offers</p>
                   </div>
                   <Switch />
@@ -128,7 +127,7 @@ const Settings = () => {
         <TabsContent value="wallet">
           <Card>
             <CardHeader>
-              <CardTitle>Wallet Settings</CardTitle>
+              <CardTitle className="font-brick">Wallet Settings</CardTitle>
               <CardDescription>
                 Manage your connected wallets and payment settings.
               </CardDescription>
@@ -136,7 +135,7 @@ const Settings = () => {
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h3 className="font-medium mb-2">Connected Wallets</h3>
+                  <h3 className="font-brick mb-2">Connected Wallets</h3>
                   <div className="p-4 border rounded-lg mb-4">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
@@ -149,7 +148,7 @@ const Settings = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="font-medium">Phantom Wallet</p>
+                          <p className="font-brick">Phantom Wallet</p>
                           <p className="text-sm text-shield-gray-dark">5v2y...8mx4</p>
                         </div>
                       </div>
@@ -160,7 +159,7 @@ const Settings = () => {
                 </div>
                 
                 <div>
-                  <h3 className="font-medium mb-2">Default Payment Method</h3>
+                  <h3 className="font-brick mb-2">Default Payment Method</h3>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <input type="radio" id="sol" name="payment" defaultChecked className="h-4 w-4" />
@@ -184,7 +183,7 @@ const Settings = () => {
         <TabsContent value="security">
           <Card>
             <CardHeader>
-              <CardTitle>Security Settings</CardTitle>
+              <CardTitle className="font-brick">Security Settings</CardTitle>
               <CardDescription>
                 Manage your account security and access settings.
               </CardDescription>
@@ -192,13 +191,13 @@ const Settings = () => {
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h3 className="font-medium mb-2">Two-Factor Authentication</h3>
+                  <h3 className="font-brick mb-2">Two-Factor Authentication</h3>
                   <p className="text-sm text-shield-gray-dark mb-3">Add an extra layer of security to your account</p>
                   <Button>Enable 2FA</Button>
                 </div>
                 
                 <div>
-                  <h3 className="font-medium mb-2">Session Settings</h3>
+                  <h3 className="font-brick mb-2">Session Settings</h3>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-shield-gray-dark">Auto-lock after inactivity</p>
@@ -208,11 +207,11 @@ const Settings = () => {
                 </div>
                 
                 <div>
-                  <h3 className="font-medium mb-2">Active Sessions</h3>
+                  <h3 className="font-brick mb-2">Active Sessions</h3>
                   <div className="p-4 border rounded-lg mb-2">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-medium">Current Session</p>
+                        <p className="font-brick">Current Session</p>
                         <p className="text-sm text-shield-gray-dark">Chrome on macOS • 192.168.1.5</p>
                         <p className="text-xs text-shield-gray-dark">Started 2 hours ago</p>
                       </div>

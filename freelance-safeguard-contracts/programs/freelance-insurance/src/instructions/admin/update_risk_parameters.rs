@@ -1,10 +1,11 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
+use crate::InsuranceError;
 
 #[derive(Accounts)]
 pub struct UpdateRiskParameters<'info> {
     #[account(
-        constraint = authority.key() == insurance_state.authority @ ErrorCode::Unauthorized
+        constraint = authority.key() == insurance_state.authority @ InsuranceError::Unauthorized
     )]
     pub authority: Signer<'info>,
     
@@ -86,4 +87,3 @@ pub fn handler(
     
     Ok(())
 }
-

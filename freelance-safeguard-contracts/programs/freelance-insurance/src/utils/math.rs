@@ -160,11 +160,19 @@ pub fn calculate_premium_with_bayesian(
         
         // Calculate posterior probability (Bayes' theorem)
         // P(Risk|Claims) ∝ P(Claims|Risk) * P(Risk)
-        let posterior = (prior_probability as u32 * likelihood as u32) / 
-                        BAYESIAN_NORMALIZATION_FACTOR as u32;
+        let posterior = if BAYESIAN_NORMALIZATION_FACTOR > 0 {
+            (prior_probability as u32 * likelihood as u32) / 
+            BAYESIAN_NORMALIZATION_FACTOR as u32
+        } else {
+            prior_probability as u32 // Default to prior if normalization factor is zero
+        };
         
         // Calculate adjustment factor (how much the posterior differs from prior)
-        let bayesian_adjustment_float = (posterior as f64) / (DEFAULT_PRIOR_PROBABILITY as f64);
+        let bayesian_adjustment_float = if DEFAULT_PRIOR_PROBABILITY > 0 {
+            (posterior as f64) / (DEFAULT_PRIOR_PROBABILITY as f64)
+        } else {
+            1.0 // Default to no adjustment if prior probability is zero
+        };
         
         // Apply Bayesian adjustment with a dampening factor to prevent extreme adjustments
         let dampened_adjustment = 0.8 + (bayesian_adjustment_float * 0.2).min(2.0).max(0.5);
@@ -266,20 +274,20 @@ pub fn calculate_risk_score(
 
 /// Helper method to get job type risk weight
 pub fn get_job_type_risk_weight(job_type: u8, job_type_risk_weights: &[u8]) -> u8 {
-    if job_type < job_type_risk_weights.len() as u8 {
+    if !job_type_risk_weights.is_empty() && job_type < job_type_risk_weights.len() as u8 {
         job_type_risk_weights[job_type as usize]
     } else {
-        // Default to medium risk (1.5) if job type is out of range
+        // Default to medium risk (1.5) if job type is out of range or weights array is empty
         15
     }
 }
 
 /// Helper method to get industry risk weight
 pub fn get_industry_risk_weight(industry: u8, industry_risk_weights: &[u8]) -> u8 {
-    if industry < industry_risk_weights.len() as u8 {
+    if !industry_risk_weights.is_empty() && industry < industry_risk_weights.len() as u8 {
         industry_risk_weights[industry as usize]
     } else {
-        // Default to medium risk (1.5) if industry is out of range
+        // Default to medium risk (1.5) if industry is out of range or weights array is empty
         15
     }
 }
@@ -358,4 +366,3 @@ pub fn update_bayesian_parameters(
     // Update timestamp
     bayesian_parameters.last_update_timestamp = current_timestamp;
 }
-

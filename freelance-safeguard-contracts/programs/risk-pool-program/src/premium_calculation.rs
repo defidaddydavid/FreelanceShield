@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::reputation_integration::{calculate_premium_with_reputation, fetch_reputation_discount};
+use crate::utils::calculate_percentage_amount;
 
 /// Premium calculation module for the FreelanceShield risk pool
 /// Implements dynamic premium calculation based on:
@@ -23,53 +24,101 @@ pub const MIN_PREMIUM_LOW_RISK: u64 = 5_000_000;    // 0.005 SOL
 pub const MIN_PREMIUM_MEDIUM_RISK: u64 = 10_000_000; // 0.01 SOL
 pub const MIN_PREMIUM_HIGH_RISK: u64 = 20_000_000;   // 0.02 SOL
 
+// Duration factor constants (basis points)
+pub const DURATION_FACTOR_SHORT_TERM: u16 = 12000; // 1.20x multiplier for <= 7 days
+pub const DURATION_FACTOR_STANDARD: u16 = 10000;   // 1.00x multiplier for 8-30 days
+pub const DURATION_FACTOR_MEDIUM_TERM: u16 = 9000; // 0.90x multiplier for 31-90 days
+pub const DURATION_FACTOR_LONG_TERM: u16 = 8000;   // 0.80x multiplier for > 90 days
+pub const BASIS_POINTS_DIVISOR: u16 = 10000;       // Divisor for basis points calculations
+
 /// Calculate base premium for a contract
+///
+/// # Arguments
+/// * `contract_value` - The value of the contract in lamports
+/// * `risk_category` - The risk category (1=low, 2=medium, 3=high)
+/// * `contract_duration_days` - The duration of the contract in days
+///
+/// # Returns
+/// * `Result<u64>` - The calculated premium amount or an error
 pub fn calculate_base_premium(
     contract_value: u64,
     risk_category: u8,
     contract_duration_days: u16,
 ) -> Result<u64> {
+    // Validate inputs
+    require!(contract_value > 0, PremiumCalculationError::InvalidContractValue);
+    require!(contract_duration_days > 0, PremiumCalculationError::InvalidContractDuration);
+    
     // Get base premium rate based on risk category
     let base_rate = match risk_category {
         RISK_CATEGORY_LOW => BASE_PREMIUM_LOW_RISK,
         RISK_CATEGORY_MEDIUM => BASE_PREMIUM_MEDIUM_RISK,
         RISK_CATEGORY_HIGH => BASE_PREMIUM_HIGH_RISK,
-        _ => return Err(error!(RiskPoolError::InvalidRiskCategory)),
+        _ => return Err(error!(PremiumCalculationError::InvalidRiskCategory)),
     };
     
     // Calculate duration factor (longer contracts have reduced rates)
     let duration_factor = if contract_duration_days <= 7 {
         // Short term contracts have higher rates
-        12000 // 1.20x multiplier
+        DURATION_FACTOR_SHORT_TERM
     } else if contract_duration_days <= 30 {
         // 1-4 weeks
-        10000 // 1.00x multiplier (baseline)
+        DURATION_FACTOR_STANDARD
     } else if contract_duration_days <= 90 {
         // 1-3 months
-        9000 // 0.90x multiplier
+        DURATION_FACTOR_MEDIUM_TERM
     } else {
         // 3+ months
-        8000 // 0.80x multiplier
+        DURATION_FACTOR_LONG_TERM
     };
     
-    // Calculate premium with duration adjustment
-    let adjusted_rate = (base_rate as u64 * duration_factor as u64) / 10000;
+    // Calculate premium with duration adjustment using checked operations
+    let adjusted_rate = (base_rate as u128)
+        .checked_mul(duration_factor as u128)
+        .ok_or(PremiumCalculationError::PremiumCalculationError)?
+        .checked_div(BASIS_POINTS_DIVISOR as u128)
+        .ok_or(PremiumCalculationError::PremiumCalculationError)?;
     
     // Calculate premium amount
-    let premium = (contract_value * adjusted_rate) / 10000;
+    let premium = (contract_value as u128)
+        .checked_mul(adjusted_rate)
+        .ok_or(PremiumCalculationError::PremiumCalculationError)?
+        .checked_div(BASIS_POINTS_DIVISOR as u128)
+        .ok_or(PremiumCalculationError::PremiumCalculationError)?;
+    
+    // Ensure the result fits in u64
+    if premium > u64::MAX as u128 {
+        return Err(error!(PremiumCalculationError::PremiumCalculationError));
+    }
+    
+    let premium = premium as u64;
     
     // Enforce minimum premium
     let min_premium = match risk_category {
         RISK_CATEGORY_LOW => MIN_PREMIUM_LOW_RISK,
         RISK_CATEGORY_MEDIUM => MIN_PREMIUM_MEDIUM_RISK,
         RISK_CATEGORY_HIGH => MIN_PREMIUM_HIGH_RISK,
-        _ => return Err(error!(RiskPoolError::InvalidRiskCategory)),
+        _ => return Err(error!(PremiumCalculationError::InvalidRiskCategory)),
     };
     
     Ok(std::cmp::max(premium, min_premium))
 }
 
 /// Calculate premium with all factors including reputation
+///
+/// # Arguments
+/// * `ctx` - The context for the calculation
+/// * `contract_value` - The value of the contract in lamports
+/// * `risk_category` - The risk category (1=low, 2=medium, 3=high)
+/// * `contract_duration_days` - The duration of the contract in days
+/// * `reputation_program_id` - The reputation program ID
+/// * `user` - The user's public key
+/// * `user_reputation_profile` - The user's reputation profile
+/// * `reputation_state` - The reputation state account
+/// * `bayesian_params` - The Bayesian parameters account
+///
+/// # Returns
+/// * `Result<u64>` - The calculated premium amount or an error
 pub fn calculate_premium_with_all_factors(
     ctx: &Context<crate::instructions::calculate_premium::CalculatePremium>,
     contract_value: u64,
@@ -81,6 +130,14 @@ pub fn calculate_premium_with_all_factors(
     reputation_state: &Pubkey,
     bayesian_params: &Pubkey,
 ) -> Result<u64> {
+    // Validate inputs
+    require!(contract_value > 0, PremiumCalculationError::InvalidContractValue);
+    require!(contract_duration_days > 0, PremiumCalculationError::InvalidContractDuration);
+    require!(
+        risk_category >= RISK_CATEGORY_LOW && risk_category <= RISK_CATEGORY_HIGH,
+        PremiumCalculationError::InvalidRiskCategory
+    );
+    
     // Calculate base premium
     let base_premium = calculate_base_premium(
         contract_value, 
@@ -104,6 +161,18 @@ pub fn calculate_premium_with_all_factors(
 }
 
 /// Calculate risk for a specific contract
+///
+/// # Arguments
+/// * `contract_value` - The value of the contract in lamports
+/// * `freelancer_completed_contracts` - Number of contracts completed by the freelancer
+/// * `freelancer_reputation_score` - Reputation score of the freelancer (0-10000)
+/// * `client_completed_contracts` - Number of contracts completed by the client
+/// * `client_reputation_score` - Reputation score of the client (0-10000)
+/// * `contract_type` - The type of contract
+/// * `requires_milestone_payments` - Whether the contract requires milestone payments
+///
+/// # Returns
+/// * `u8` - The calculated risk category (1=low, 2=medium, 3=high)
 pub fn assess_contract_risk(
     contract_value: u64,
     freelancer_completed_contracts: u32,
@@ -185,7 +254,7 @@ pub fn assess_contract_risk(
 }
 
 #[error_code]
-pub enum RiskPoolError {
+pub enum PremiumCalculationError {
     #[msg("Invalid risk category provided")]
     InvalidRiskCategory,
     

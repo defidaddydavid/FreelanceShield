@@ -26,7 +26,6 @@ pub struct BayesianVerificationModel {
     pub manual_review_claims: u64,
     
     // Reserved space for future parameters without Default trait needed
-    #[cfg_attr(feature = "serde", serde(with = "serde_bytes"))]
     pub reserved: [u8; 64],
     
     pub bump: u8,

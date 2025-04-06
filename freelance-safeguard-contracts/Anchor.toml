@@ -7,16 +7,16 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-claims_processor = "DT8eJ6wc6ZfT3MjDRvqZ8AonSsG3uuviLF8LmMJsievH"
-dao_governance = "CNA4hWFgYAwKLgeZRP4EvBc5G2PVQWoDbXtVd5YheBwF"
-enhanced_claims = "4jnnT3KKDFbWEci229ku4CGeRaiQupYDKxqDjAaQjyWM"
-enhanced_cover = "9TsZshBaMxUnCHeSfvqAZQdKKXWWXQ6sd4Z6S4YvGcxv"
-escrow_program = "8icbcJYrXk1yQTbW9C7WKyRGnTFZt3aD8d4kAzDkr5b7"
-freelance_insurance = "GpcM7kmhKWE4QKG1AWquX8xTs8mqSWn5r3SqMzTDWsys"
-insurance_program = "3GiieAndgnB7Wr3ZRHsvUw2KmFewydo59Py47wKJG4xQ"
-policy_nft = "94mWhnLu8RzEbFTE3ftcebd9xQtEG4JPt2y7fwHwcbup"
-reputation_program = "CvWfNXEGVivX8sYVjtrFyesav1SaHLFs349QKD12HeKK"
-risk_pool_program = "FCNXdEAFDuGJ1vaJDPNMff19qJmSTZi2cRZZjQVh18kM"
+claims_processor = "3NSs6fEa1nJzDMJgEYVtXUc7mA1WNA5C3Wst17WTrEyB"
+dao_governance = "CMxCJYTYhk7gczJTHeuPv9z8TctstsXCNuciweDnviCf"
+enhanced_claims = "2BQh46xqDMFKSgBXxSTkq8whbv42idXsarGTTwnbafVb"
+enhanced_cover = "EV696qnLoxsLwDTKvpJqvz1UcSezez3dHFAiUyTkA7Cq"
+escrow_program = "BJdNWSKVWBZDz4Me8Y8hZ3Zhy1sVj3f5pQeowfcear8E"
+freelance_insurance = "FhUteMD3L7eZGgLH2SiTzrePzxazTTTrZ8nNFPTVUcVt"
+insurance_program = "8sWfHQUJuSsbf3aFW8TWqGXqmnjfpbqrrF6GhnsNAaJu"
+policy_nft = "6gq7GB6YHowQ9xdWJtzyi3VCwFx78Ufv29D64ZckTzAu"
+reputation_program = "62pv98Ymg4E4WpvZqrxtGA5kHSGwX3VxmKqsSjARAMhc"
+risk_pool_program = "4UFr2kyHQmr8efafSRDMT8NL3jsq8tPcx9qFEir3YFVH"
 
 [registry]
 url = "https://api.apr.dev"

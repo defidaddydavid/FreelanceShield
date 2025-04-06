@@ -117,8 +117,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-background dark:bg-background">
       <aside className={cn(
         "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar-background border-r border-sidebar-border transition-transform duration-300 ease-in-out transform",
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
@@ -204,8 +203,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </aside>
       
-      {/* Main content */}
-      <div className="flex-1 md:ml-64">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className={cn(
           "sticky top-0 z-40 w-full transition-all duration-200",
@@ -238,8 +236,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
         
         {/* Page content */}
-        <main className="pb-12 pt-4">
-          {children}
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-6">
+              {children}
+            </div>
+          </div>
         </main>
         
         {/* Footer */}

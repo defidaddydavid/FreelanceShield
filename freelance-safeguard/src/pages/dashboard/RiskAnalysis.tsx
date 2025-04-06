@@ -1,176 +1,111 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
+import { BarChart4, Shield, CheckCircle, AlertTriangle } from 'lucide-react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Shield, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import GlassCard from '@/components/ui/GlassCard';
 
-const RiskAnalysis = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  const riskData = [
-    { category: 'Payment Disputes', risk: 65, average: 45 },
-    { category: 'Project Cancellation', risk: 42, average: 38 },
-    { category: 'Scope Creep', risk: 78, average: 60 },
-    { category: 'Late Payments', risk: 80, average: 70 },
-    { category: 'Client Communication', risk: 35, average: 50 },
-    { category: 'Contract Breaches', risk: 55, average: 40 },
-  ];
-
+export default function RiskAnalysis() {
+  const [activeTab, setActiveTab] = useState('factors');
+  
   const riskFactors = [
-    {
-      icon: <AlertTriangle className="h-5 w-5 text-yellow-500" />,
-      title: "High Risk Factors",
-      description: "Late payments and scope creep are your highest risk areas based on past projects."
-    },
-    {
-      icon: <Shield className="h-5 w-5 text-green-500" />,
-      title: "Protected Areas",
-      description: "Your client communication processes show lower-than-average risk."
-    },
-    {
-      icon: <TrendingUp className="h-5 w-5 text-blue-500" />,
-      title: "Risk Trend",
-      description: "Your overall risk profile has improved by 12% in the last quarter."
-    }
+    { title: 'Payment Terms', score: 65, description: 'Client payment history and terms' },
+    { title: 'Scope Definition', score: 45, description: 'Clarity and specificity of project scope' },
+    { title: 'Contract Terms', score: 80, description: 'Favorability of contract conditions' },
+    { title: 'Client Reputation', score: 70, description: 'Client history with freelancers' },
+    { title: 'Project Duration', score: 60, description: 'Length and stability of engagement' },
   ];
-
+  
+  const recommendations = [
+    { id: 1, title: 'Improve Payment Terms', impact: 'High', effort: 'Medium' },
+    { id: 2, title: 'Detailed Scope Definition', impact: 'High', effort: 'High' },
+    { id: 3, title: 'Contract Review', impact: 'Medium', effort: 'Low' },
+  ];
+  
+  const coverageOptions = [
+    { id: 1, title: 'Payment Protection Plus', coverage: 'Up to $5,000', premium: '$15/month' },
+    { id: 2, title: 'Scope Control Insurance', coverage: 'Up to $10,000', premium: '$25/month' },
+  ];
+  
   return (
     <DashboardLayout>
       <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold mb-2">Risk Analysis</h1>
-        <p className="text-shield-gray-dark">
-          Review your risk profile and identify areas for improvement.
+        <h1 className="text-2xl font-brick mb-2">Risk Analysis</h1>
+        <p className="text-muted-foreground">
+          Detailed assessment of your project risks and recommended coverage
         </p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {riskFactors.map((factor, index) => (
-          <GlassCard key={index} className="p-6">
-            <div className="flex items-start mb-4">
-              <div className="mr-4">{factor.icon}</div>
-              <div>
-                <h3 className="font-medium text-lg mb-1">{factor.title}</h3>
-                <p className="text-shield-gray-dark text-sm">{factor.description}</p>
-              </div>
-            </div>
-          </GlassCard>
-        ))}
-      </div>
-      
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Risk Assessment by Category</CardTitle>
-          <CardDescription>
-            Comparison of your risk factors against platform average
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={riskData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="category" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={70} 
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="risk" name="Your Risk" fill="#3B82F6" />
-                <Bar dataKey="average" name="Platform Average" fill="#9CA3AF" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Recommended Actions</CardTitle>
-            <CardDescription>
-              Steps to improve your risk profile
-            </CardDescription>
+            <CardTitle className="font-brick">Risk Factors</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <div className="bg-blue-100 rounded-full p-1 mr-2 mt-0.5">
-                  <span className="text-shield-blue text-sm font-medium">1</span>
+            <div className="space-y-6">
+              {riskFactors.map((factor, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-brick">{factor.title}</h3>
+                    <span className="text-sm font-medium">{factor.score}/100</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{factor.description}</p>
+                  <Progress value={factor.score} className="h-2" />
                 </div>
-                <div>
-                  <p className="font-medium">Improve Payment Terms</p>
-                  <p className="text-sm text-shield-gray-dark">Request milestone payments to reduce late payment risk</p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <div className="bg-blue-100 rounded-full p-1 mr-2 mt-0.5">
-                  <span className="text-shield-blue text-sm font-medium">2</span>
-                </div>
-                <div>
-                  <p className="font-medium">Detailed Scope Definition</p>
-                  <p className="text-sm text-shield-gray-dark">Create more detailed project scopes to prevent scope creep</p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <div className="bg-blue-100 rounded-full p-1 mr-2 mt-0.5">
-                  <span className="text-shield-blue text-sm font-medium">3</span>
-                </div>
-                <div>
-                  <p className="font-medium">Contract Review</p>
-                  <p className="text-sm text-shield-gray-dark">Update your contract templates with clearer terms</p>
-                </div>
-              </li>
-            </ul>
+              ))}
+            </div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader>
-            <CardTitle>Coverage Recommendations</CardTitle>
-            <CardDescription>
-              Insurance policies based on your risk profile
-            </CardDescription>
+            <CardTitle className="font-brick">Recommendations</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium">Payment Protection Plus</h3>
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Recommended</span>
+              {recommendations.map(rec => (
+                <div key={rec.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                    <span className="text-blue-600 dark:text-blue-400 font-brick">{rec.id}</span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-brick">{rec.title}</h3>
+                    <div className="flex gap-4 mt-1">
+                      <span className="text-sm text-muted-foreground">Impact: {rec.impact}</span>
+                      <span className="text-sm text-muted-foreground">Effort: {rec.effort}</span>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm">Apply</Button>
                 </div>
-                <p className="text-sm text-shield-gray-dark mb-3">Enhanced coverage for payment disputes and delays</p>
-                <div className="flex justify-between text-sm">
-                  <span>40 SOL/month</span>
-                  <Button variant="outline" size="sm">View Details</Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-brick">Recommended Coverage</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-4">
+              {coverageOptions.map(option => (
+                <div key={option.id} className="border rounded-lg p-4 space-y-2">
+                  <h3 className="font-brick">{option.title}</h3>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Coverage:</span>
+                    <span>{option.coverage}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Premium:</span>
+                    <span>{option.premium}</span>
+                  </div>
+                  <Button className="w-full mt-3">Select Plan</Button>
                 </div>
-              </div>
-              
-              <div className="p-4 border rounded-lg">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium">Scope Control Insurance</h3>
-                </div>
-                <p className="text-sm text-shield-gray-dark mb-3">Protection against scope creep and changing requirements</p>
-                <div className="flex justify-between text-sm">
-                  <span>35 SOL/month</span>
-                  <Button variant="outline" size="sm">View Details</Button>
-                </div>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
       </div>
     </DashboardLayout>
   );
-};
-
-export default RiskAnalysis;
+}

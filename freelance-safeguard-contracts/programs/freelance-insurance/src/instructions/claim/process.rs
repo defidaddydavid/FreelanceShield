@@ -36,7 +36,6 @@ pub fn handler(
     reason: String,
 ) -> Result<()> {
     let claim = &mut ctx.accounts.claim;
-    let risk_pool = &mut ctx.accounts.risk_pool;
     
     // Only pending claims can be processed (constraint already checked)
     
@@ -49,17 +48,21 @@ pub fn handler(
             processed_at: Clock::get()?.unix_timestamp,
         });
         
+        // Get risk pool info before mutable borrow
+        let risk_pool_info = ctx.accounts.risk_pool.to_account_info();
+        let risk_pool_bump = ctx.accounts.risk_pool.bump;
+        
         // Transfer funds to claimant
         let seeds = &[
             RISK_POOL_SEED.as_bytes(),
-            &[risk_pool.bump],
+            &[risk_pool_bump],
         ];
         let signer = &[&seeds[..]];
         
         let cpi_accounts = Transfer {
             from: ctx.accounts.claim_source.to_account_info(),
             to: ctx.accounts.claim_destination.to_account_info(),
-            authority: ctx.accounts.risk_pool.to_account_info(),
+            authority: risk_pool_info,
         };
         
         let cpi_program = ctx.accounts.token_program.to_account_info();
@@ -71,7 +74,8 @@ pub fn handler(
         
         token::transfer(cpi_ctx, claim.amount)?;
         
-        // Update risk pool metrics
+        // Update risk pool metrics after transfer
+        let risk_pool = &mut ctx.accounts.risk_pool;
         risk_pool.claims_paid += claim.amount;
     } else {
         // Reject the claim
@@ -85,4 +89,3 @@ pub fn handler(
     
     Ok(())
 }
-

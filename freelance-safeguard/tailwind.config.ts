@@ -19,11 +19,19 @@ export default {
     },
     extend: {
       fontFamily: {
+<<<<<<< HEAD
         sans: ['Open Sans', 'sans-serif'],
         heading: ['NT Brick Sans', 'sans-serif'],
         display: ['NT Brick Sans', 'sans-serif'],
         mono: ['NT Brick Sans', 'monospace'],
         numeric: ['NT Brick Sans', 'sans-serif'],
+=======
+        sans: ['Inter', 'sans-serif'],
+        display: ['NTBrickSans', 'Space Grotesk', 'sans-serif'],
+        mono: ['Space Grotesk', 'monospace'],
+        numeric: ['Space Grotesk', 'sans-serif'],
+        brick: ['NTBrickSans', 'sans-serif'],
+>>>>>>> 93ae1d7 (Resolved dependency conflicts: updated syn to 2.0.46 and thiserror to 1.0.66, removed problematic patch)
       },
       letterSpacing: {
         tighter: '-0.05em',
@@ -42,17 +50,37 @@ export default {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        // FreelanceShield Brand Colors
+        'deep-purple': '#5e35b1',
+        'electric-blue': '#2979ff',
+        'silver': '#bdbdbd',
         primary: {
+<<<<<<< HEAD
           DEFAULT: '#2979ff', // Electric Blue
+=======
+          DEFAULT: '#5e35b1', // Deep Purple as primary
+>>>>>>> 93ae1d7 (Resolved dependency conflicts: updated syn to 2.0.46 and thiserror to 1.0.66, removed problematic patch)
           foreground: '#FFFFFF',
+          hover: '#4527a0',
         },
         secondary: {
+<<<<<<< HEAD
           DEFAULT: '#5e35b1', // Deep Purple
+=======
+          DEFAULT: '#2979ff', // Electric Blue as secondary
+>>>>>>> 93ae1d7 (Resolved dependency conflicts: updated syn to 2.0.46 and thiserror to 1.0.66, removed problematic patch)
           foreground: '#FFFFFF',
+          hover: '#2962ff',
         },
         accent: {
+<<<<<<< HEAD
           DEFAULT: '#bdbdbd', // Silver
           foreground: '#000000',
+=======
+          DEFAULT: '#bdbdbd', // Silver as accent
+          foreground: '#000000',
+          hover: '#9e9e9e',
+>>>>>>> 93ae1d7 (Resolved dependency conflicts: updated syn to 2.0.46 and thiserror to 1.0.66, removed problematic patch)
         },
         destructive: {
           DEFAULT: '#FF4444',
@@ -74,10 +102,18 @@ export default {
           DEFAULT: '#E2E8F0',
           foreground: '#4A5568',
         },
+<<<<<<< HEAD
         // Updated shield colors
         'shield-purple': '#5e35b1',
         'shield-blue': '#2979ff',
         'shield-silver': '#bdbdbd',
+=======
+        // Legacy colors maintained for compatibility
+        'shield-navy': '#0F172A',
+        'shield-blue': '#2979ff',
+        'shield-blue-light': '#4D94FF',
+        'shield-purple': '#5e35b1',
+>>>>>>> 93ae1d7 (Resolved dependency conflicts: updated syn to 2.0.46 and thiserror to 1.0.66, removed problematic patch)
       },
       borderRadius: {
         lg: '12px',

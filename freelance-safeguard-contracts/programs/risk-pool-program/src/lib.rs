@@ -1,18 +1,20 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount, Transfer, Mint};
-use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
-mod staking_integration;
 mod domain_integration;
 mod reputation_integration;
-use staking_integration::{distribute_staking_rewards, transfer_premium_share_to_staking, StakingProgram};
-use domain_integration::{validate_domain_treasury, DomainPremiumRecord as RecordDomainPremium, DomainRiskPoolError as RiskPoolError};
-use reputation_integration::*;
+mod utils;
 
-declare_id!("FCNXdEAFDuGJ1vaJDPNMff19qJmSTZi2cRZZjQVh18kM");
+use utils::calculate_reserve_ratio;
 
-// Define the Staking Program ID
-pub const STAKING_PROGRAM_ID: Pubkey = anchor_lang::solana_program::pubkey!("JAZVb77udn2QeTq6fKoot1yB23yBsWyvC6a6BK2SAKaG");
+declare_id!("4UFr2kyHQmr8efafSRDMT8NL3jsq8tPcx9qFEir3YFVH");
+
+// Constants for calculations
+pub const BASIS_POINTS_DIVISOR: u16 = 10000;
+pub const PERCENTAGE_DIVISOR: u8 = 100;
+pub const DEFAULT_PREMIUM_TO_CLAIMS_RATIO: u16 = 100; // Default 100% (1:1 ratio)
+pub const DEFAULT_TARGET_RESERVE_RATIO: u8 = 150; // Default 150% (1.5x coverage)
+pub const MAX_RESERVE_RATIO: u8 = 255;
 
 #[program]
 pub mod risk_pool_program {
@@ -25,7 +27,6 @@ pub mod risk_pool_program {
         target_reserve_ratio: u8,
         min_capital_requirement: u64,
         risk_buffer_percentage: u8,
-        monte_carlo_iterations: u16,
     ) -> Result<()> {
         let risk_pool_state = &mut ctx.accounts.risk_pool_state;
         risk_pool_state.authority = ctx.accounts.authority.key();
@@ -34,16 +35,21 @@ pub mod risk_pool_program {
         risk_pool_state.target_reserve_ratio = target_reserve_ratio;
         risk_pool_state.min_capital_requirement = min_capital_requirement;
         risk_pool_state.risk_buffer_percentage = risk_buffer_percentage;
-        risk_pool_state.monte_carlo_iterations = monte_carlo_iterations;
         risk_pool_state.total_capital = 0;
         risk_pool_state.total_coverage_liability = 0;
         risk_pool_state.current_reserve_ratio = 0;
-        risk_pool_state.total_premiums_collected = 0;
+        risk_pool_state.total_premiums = 0;
         risk_pool_state.total_claims_paid = 0;
-        risk_pool_state.premium_to_claims_ratio = 100; // Default 100% (1:1 ratio)
+        risk_pool_state.premium_to_claims_ratio = DEFAULT_PREMIUM_TO_CLAIMS_RATIO; // Default 100% (1:1 ratio)
         risk_pool_state.last_metrics_update = Clock::get()?.unix_timestamp;
         risk_pool_state.is_paused = false;
-        risk_pool_state.bump = *ctx.bumps.get("risk_pool_state").unwrap();
+        risk_pool_state.is_processing_external_call = false;
+        risk_pool_state.bump = ctx.bumps.risk_pool_state;
+        risk_pool_state.expected_loss = 0;
+        risk_pool_state.recommended_capital = 0;
+        risk_pool_state.capital_adequacy = 0; // Changed from bool to u8
+        risk_pool_state.policy_count = 0;
+        risk_pool_state.reserved = [0; 31];
         
         msg!("Risk pool initialized");
         Ok(())
@@ -53,53 +59,56 @@ pub mod risk_pool_program {
         ctx: Context<DepositCapital>,
         amount: u64,
     ) -> Result<()> {
-        let risk_pool_state = &ctx.accounts.risk_pool_state;
+        let risk_pool_state = &mut ctx.accounts.risk_pool_state;
         let capital_provider = &mut ctx.accounts.capital_provider;
         
-        // Validate program is not paused
-        require!(!risk_pool_state.is_paused, RiskPoolError::ProgramPaused);
-        
-        // Validate deposit amount
+        // Validate amount
         require!(amount > 0, RiskPoolError::InvalidAmount);
         
+        // Set reentrancy guard
+        risk_pool_state.is_processing_external_call = true;
+        
+        // Update capital provider data
+        capital_provider.provider = ctx.accounts.provider.key();
+        capital_provider.deposited_amount = capital_provider.deposited_amount.checked_add(amount)
+            .ok_or(RiskPoolError::ArithmeticError)?;
+        capital_provider.last_deposit_timestamp = Clock::get()?.unix_timestamp;
+        capital_provider.bump = ctx.bumps.capital_provider;
+        
         // Transfer tokens from provider to risk pool
-        let transfer_ctx = CpiContext::new(
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.provider_token_account.to_account_info(),
+            to: ctx.accounts.risk_pool_token_account.to_account_info(),
+            authority: ctx.accounts.provider.to_account_info(),
+        };
+        
+        let cpi_ctx = CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.provider_token_account.to_account_info(),
-                to: ctx.accounts.risk_pool_token_account.to_account_info(),
-                authority: ctx.accounts.provider.to_account_info(),
-            },
+            cpi_accounts,
         );
         
-        token::transfer(transfer_ctx, amount)?;
-        
-        // Initialize or update capital provider account
-        let is_new_provider = capital_provider.deposited_amount == 0;
-        capital_provider.provider = ctx.accounts.provider.key();
-        capital_provider.deposited_amount += amount;
-        capital_provider.last_deposit_timestamp = Clock::get()?.unix_timestamp;
-        capital_provider.bump = *ctx.bumps.get("capital_provider").unwrap();
+        token::transfer(cpi_ctx, amount)?;
         
         // Update risk pool state
-        let mut risk_pool_state_account = ctx.accounts.risk_pool_state.to_account_info();
-        let mut pool_data = risk_pool_state_account.try_borrow_mut_data()?;
-        let mut state = RiskPoolState::try_deserialize(&mut &pool_data[..])?;
+        risk_pool_state.total_capital = risk_pool_state.total_capital.checked_add(amount)
+            .ok_or(RiskPoolError::ArithmeticError)?;
         
-        state.total_capital += amount;
-        
-        // Recalculate reserve ratio
-        if state.total_coverage_liability > 0 {
-            let reserve_ratio = (((state.total_capital as u128 * 100) / state.total_coverage_liability as u128) as u8);
-            state.current_reserve_ratio = reserve_ratio.saturating_sub(state.target_reserve_ratio);
+        // Calculate new reserve ratio if there's coverage liability
+        if risk_pool_state.total_coverage_liability > 0 {
+            risk_pool_state.current_reserve_ratio = ((risk_pool_state.total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8;
         }
         
-        // Update last metrics update timestamp
-        state.last_metrics_update = Clock::get()?.unix_timestamp;
+        // Clear reentrancy guard
+        risk_pool_state.is_processing_external_call = false;
         
-        RiskPoolState::try_serialize(&state, &mut &mut pool_data[..])?;
+        // Emit event
+        emit!(CapitalDeposited {
+            provider: ctx.accounts.provider.key(),
+            amount,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
         
-        msg!("Capital deposited successfully");
+        msg!("Capital deposited: {}", amount);
         Ok(())
     }
 
@@ -107,77 +116,84 @@ pub mod risk_pool_program {
         ctx: Context<WithdrawCapital>,
         amount: u64,
     ) -> Result<()> {
-        let risk_pool_state = &ctx.accounts.risk_pool_state;
+        let risk_pool_state = &mut ctx.accounts.risk_pool_state;
         let capital_provider = &mut ctx.accounts.capital_provider;
         
-        // Validate program is not paused
-        require!(!risk_pool_state.is_paused, RiskPoolError::ProgramPaused);
-        
-        // Validate withdrawal amount
+        // Validate amount
         require!(
-            amount <= capital_provider.deposited_amount,
-            RiskPoolError::InsufficientDepositedAmount
+            amount > 0 && amount <= capital_provider.deposited_amount,
+            RiskPoolError::InsufficientCapital
         );
         
-        // Calculate new reserve ratio after withdrawal
-        let new_total_capital = risk_pool_state.total_capital.saturating_sub(amount);
-        let new_reserve_ratio = if risk_pool_state.total_coverage_liability > 0 {
-            let reserve_ratio = (((new_total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8);
-            reserve_ratio.saturating_sub(risk_pool_state.target_reserve_ratio)
-        } else {
-            100
-        };
+        // Set reentrancy guard
+        risk_pool_state.is_processing_external_call = true;
         
-        // Validate withdrawal doesn't breach minimum reserve requirements
+        // Check if withdrawal would breach reserve requirements
+        let new_total_capital = risk_pool_state.total_capital.checked_sub(amount)
+            .ok_or(RiskPoolError::ArithmeticError)?;
+            
+        // If there's coverage liability, ensure we maintain the target reserve ratio
+        if risk_pool_state.total_coverage_liability > 0 {
+            let new_reserve_ratio = ((new_total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8;
+            
+            require!(
+                new_reserve_ratio >= risk_pool_state.target_reserve_ratio,
+                RiskPoolError::InsufficientLiquidity
+            );
+        }
+        
+        // Also ensure we maintain the minimum capital requirement
         require!(
-            new_reserve_ratio >= risk_pool_state.target_reserve_ratio || 
-            risk_pool_state.total_coverage_liability == 0,
-            RiskPoolError::WithdrawalWouldBreachReserveRequirements
+            new_total_capital >= risk_pool_state.min_capital_requirement,
+            RiskPoolError::InsufficientCapital
         );
+        
+        // Update capital provider data
+        capital_provider.deposited_amount = capital_provider.deposited_amount.checked_sub(amount)
+            .ok_or(RiskPoolError::ArithmeticError)?;
         
         // Transfer tokens from risk pool to provider
-        let seeds = &[
+        let risk_pool_seeds = &[
             b"risk_pool_state".as_ref(),
             &[risk_pool_state.bump],
         ];
-        let signer = &[&seeds[..]];
         
-        let transfer_ctx = CpiContext::new_with_signer(
+        let risk_pool_signer = &[&risk_pool_seeds[..]];
+        
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.risk_pool_token_account.to_account_info(),
+            to: ctx.accounts.provider_token_account.to_account_info(),
+            authority: risk_pool_state.to_account_info(),
+        };
+        
+        let cpi_ctx = CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
-            Transfer {
-                from: ctx.accounts.risk_pool_token_account.to_account_info(),
-                to: ctx.accounts.provider_token_account.to_account_info(),
-                authority: ctx.accounts.risk_pool_state.to_account_info(),
-            },
-            signer,
+            cpi_accounts,
+            risk_pool_signer,
         );
         
-        token::transfer(transfer_ctx, amount)?;
-        
-        // Update capital provider account
-        capital_provider.deposited_amount -= amount;
+        token::transfer(cpi_ctx, amount)?;
         
         // Update risk pool state
-        let mut risk_pool_state_account = ctx.accounts.risk_pool_state.to_account_info();
-        let mut pool_data = risk_pool_state_account.try_borrow_mut_data()?;
-        let mut state = RiskPoolState::try_deserialize(&mut &pool_data[..])?;
+        risk_pool_state.total_capital = risk_pool_state.total_capital.checked_sub(amount)
+            .ok_or(RiskPoolError::ArithmeticError)?;
         
-        state.total_capital -= amount;
-        
-        // Recalculate reserve ratio
-        if state.total_coverage_liability > 0 {
-            let reserve_ratio = (((state.total_capital as u128 * 100) / state.total_coverage_liability as u128) as u8);
-            state.current_reserve_ratio = reserve_ratio.saturating_sub(state.target_reserve_ratio);
-        } else {
-            state.current_reserve_ratio = 100;
+        // Calculate new reserve ratio if there's coverage liability
+        if risk_pool_state.total_coverage_liability > 0 {
+            risk_pool_state.current_reserve_ratio = ((risk_pool_state.total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8;
         }
         
-        // Update metrics timestamp
-        state.last_metrics_update = Clock::get()?.unix_timestamp;
+        // Clear reentrancy guard
+        risk_pool_state.is_processing_external_call = false;
         
-        RiskPoolState::try_serialize(&state, &mut &mut pool_data[..])?;
+        // Emit event
+        emit!(CapitalWithdrawn {
+            provider: ctx.accounts.provider.key(),
+            amount,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
         
-        msg!("Capital withdrawn successfully");
+        msg!("Capital withdrawn: {}", amount);
         Ok(())
     }
 
@@ -204,8 +220,8 @@ pub mod risk_pool_program {
         
         // Recalculate reserve ratio
         if risk_pool_state.total_coverage_liability > 0 {
-            let reserve_ratio = (((risk_pool_state.total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8);
-            risk_pool_state.current_reserve_ratio = reserve_ratio.saturating_sub(risk_pool_state.target_reserve_ratio);
+            let reserve_ratio = calculate_reserve_ratio(risk_pool_state.total_capital, risk_pool_state.total_coverage_liability, risk_pool_state.target_reserve_ratio)?;
+            risk_pool_state.current_reserve_ratio = reserve_ratio;
         } else {
             risk_pool_state.current_reserve_ratio = 100;
         }
@@ -223,53 +239,44 @@ pub mod risk_pool_program {
     ) -> Result<()> {
         let risk_pool_state = &mut ctx.accounts.risk_pool_state;
         
-        // Validate caller is authorized
+        // Validate amount
+        require!(amount > 0, RiskPoolError::InvalidAmount);
+        
+        // Validate authority
         require!(
-            ctx.accounts.authority.key() == risk_pool_state.authority || 
-            ctx.accounts.authority.key() == risk_pool_state.insurance_program_id,
+            ctx.accounts.authority.key() == risk_pool_state.authority,
             RiskPoolError::Unauthorized
         );
         
-        // Update total premiums collected
-        risk_pool_state.total_premiums_collected += amount;
+        // Record premium in risk pool state
+        risk_pool_state.total_premiums = risk_pool_state.total_premiums.checked_add(amount)
+            .ok_or(RiskPoolError::ArithmeticError)?;
+        risk_pool_state.policy_count = risk_pool_state.policy_count.checked_add(1)
+            .ok_or(RiskPoolError::ArithmeticError)?;
+            
+        // Update risk metrics with simplified deterministic model
+        let current_policies = risk_pool_state.policy_count;
+        let avg_claim_frequency = 5; // Example value: 5% of policies result in claims
+        let avg_claim_severity = 1000 * 1_000_000; // Example value: 1000 USDC average claim
         
-        // If staking is enabled, distribute a portion of premiums to stakers
-        if ctx.remaining_accounts.len() >= 3 {
-            let staking_state = &ctx.remaining_accounts[0];
-            let staking_rewards_pool = &ctx.remaining_accounts[1];
-            let premium_share_percent = ctx.remaining_accounts[2].data.borrow()[0]; // First byte contains the percentage
-            
-            // Validate accounts
-            require!(
-                staking_rewards_pool.owner == staking_state.key(),
-                RiskPoolError::InvalidAccount
-            );
-            
-            // Transfer premium share to staking rewards pool
-            if let Ok(staking_rewards_account) = Account::<TokenAccount>::try_from(staking_rewards_pool) {
-                if let Ok(risk_pool_token_account) = Account::<TokenAccount>::try_from(&ctx.accounts.risk_pool_token_account) {
-                    transfer_premium_share_to_staking(
-                        risk_pool_state,
-                        &risk_pool_token_account,
-                        &staking_rewards_account,
-                        &ctx.accounts.token_program,
-                        amount,
-                        premium_share_percent,
-                    )?;
-                    
-                    // Call the staking program to distribute rewards
-                    let staking_program = &ctx.remaining_accounts[3];
-                    if let Ok(program) = Program::<StakingProgram>::try_from(staking_program) {
-                        distribute_staking_rewards(
-                            risk_pool_state,
-                            &ctx.accounts.authority,
-                            staking_state,
-                            &program,
-                            amount,
-                        )?;
-                    }
-                }
-            }
+        // Calculate expected loss
+        let expected_loss = current_policies
+            .checked_mul(avg_claim_severity)
+            .and_then(|result| result.checked_mul(avg_claim_frequency as u64))
+            .and_then(|result| result.checked_div(100)) // Convert from percentage
+            .ok_or(RiskPoolError::ArithmeticError)?;
+        
+        // Update risk pool state with calculated metrics
+        risk_pool_state.expected_loss = expected_loss;
+        risk_pool_state.recommended_capital = expected_loss.saturating_mul(2); // 200% of expected loss
+        
+        // Calculate capital adequacy (as percentage)
+        if expected_loss > 0 {
+            risk_pool_state.capital_adequacy = (risk_pool_state.total_capital as u128)
+                .checked_mul(100)
+                .and_then(|result| result.checked_div(expected_loss as u128))
+                .map(|result| if result > 255 { 255 } else { result as u8 })
+                .unwrap_or(0);
         }
         
         // Update metrics timestamp
@@ -292,61 +299,11 @@ pub mod risk_pool_program {
             RiskPoolError::Unauthorized
         );
         
-        // Update claims paid total
-        risk_pool_state.total_claims_paid += amount;
+        // Update total claims paid
+        risk_pool_state.total_claims_paid = risk_pool_state.total_claims_paid.checked_add(amount)
+            .ok_or(RiskPoolError::ArithmeticError)?;
         
-        // Update metrics timestamp
-        risk_pool_state.last_metrics_update = Clock::get()?.unix_timestamp;
-        
-        msg!("Claim payment recorded");
-        Ok(())
-    }
-
-    pub fn run_monte_carlo_simulation(
-        ctx: Context<RunMonteCarloSimulation>,
-        current_policies: u64,
-        avg_claim_frequency: u8,
-        avg_claim_severity: u64,
-        market_volatility: u8,
-    ) -> Result<()> {
-        let risk_pool_state = &mut ctx.accounts.risk_pool_state;
-        let simulation_result = &mut ctx.accounts.simulation_result;
-        
-        // Validate caller is authorized
-        require!(
-            ctx.accounts.authority.key() == risk_pool_state.authority,
-            RiskPoolError::Unauthorized
-        );
-        
-        // Run Monte Carlo simulation
-        let (expected_loss, var_95, var_99, recommended_capital) = run_simulation(
-            current_policies,
-            avg_claim_frequency,
-            avg_claim_severity,
-            market_volatility,
-            risk_pool_state.monte_carlo_iterations,
-            risk_pool_state.risk_buffer_percentage,
-        );
-        
-        // Initialize simulation result
-        simulation_result.run_timestamp = Clock::get()?.unix_timestamp;
-        simulation_result.current_policies = current_policies;
-        simulation_result.avg_claim_frequency = avg_claim_frequency;
-        simulation_result.avg_claim_severity = avg_claim_severity;
-        simulation_result.market_volatility = market_volatility;
-        simulation_result.expected_loss = expected_loss;
-        simulation_result.var_95 = var_95;
-        simulation_result.var_99 = var_99;
-        simulation_result.recommended_capital = recommended_capital;
-        simulation_result.current_capital = risk_pool_state.total_capital;
-        simulation_result.capital_adequacy = if risk_pool_state.total_capital >= recommended_capital {
-            true
-        } else {
-            false
-        };
-        simulation_result.bump = *ctx.bumps.get("simulation_result").unwrap();
-        
-        msg!("Monte Carlo simulation completed");
+        msg!("Claim payment recorded: {}", amount);
         Ok(())
     }
 
@@ -355,12 +312,11 @@ pub mod risk_pool_program {
         target_reserve_ratio: Option<u8>,
         min_capital_requirement: Option<u64>,
         risk_buffer_percentage: Option<u8>,
-        monte_carlo_iterations: Option<u16>,
         is_paused: Option<bool>,
     ) -> Result<()> {
         let risk_pool_state = &mut ctx.accounts.risk_pool_state;
         
-        // Validate authority
+        // Validate caller is authorized
         require!(
             ctx.accounts.authority.key() == risk_pool_state.authority,
             RiskPoolError::Unauthorized
@@ -368,33 +324,27 @@ pub mod risk_pool_program {
         
         // Update parameters if provided
         if let Some(ratio) = target_reserve_ratio {
+            require!(ratio > 0 && ratio <= 100, RiskPoolError::InvalidParameter);
             risk_pool_state.target_reserve_ratio = ratio;
         }
         
-        if let Some(capital) = min_capital_requirement {
-            risk_pool_state.min_capital_requirement = capital;
+        if let Some(min_capital) = min_capital_requirement {
+            risk_pool_state.min_capital_requirement = min_capital;
         }
         
         if let Some(buffer) = risk_buffer_percentage {
+            require!(buffer > 0 && buffer <= 100, RiskPoolError::InvalidParameter);
             risk_pool_state.risk_buffer_percentage = buffer;
-        }
-        
-        if let Some(iterations) = monte_carlo_iterations {
-            risk_pool_state.monte_carlo_iterations = iterations;
         }
         
         if let Some(paused) = is_paused {
             risk_pool_state.is_paused = paused;
         }
         
-        // Update metrics timestamp
-        risk_pool_state.last_metrics_update = Clock::get()?.unix_timestamp;
-        
         msg!("Risk parameters updated");
         Ok(())
     }
 
-    // New function to get risk pool metrics without requiring a wallet connection
     pub fn get_public_risk_pool_metrics(ctx: Context<GetPublicRiskPoolMetrics>) -> Result<()> {
         let risk_pool_state = &ctx.accounts.risk_pool_state;
         
@@ -404,85 +354,37 @@ pub mod risk_pool_program {
         msg!("Total Coverage Liability: {}", risk_pool_state.total_coverage_liability);
         msg!("Current Reserve Ratio: {}", risk_pool_state.current_reserve_ratio);
         msg!("Target Reserve Ratio: {}", risk_pool_state.target_reserve_ratio);
-        msg!("Total Premiums Collected: {}", risk_pool_state.total_premiums_collected);
+        msg!("Total Premiums: {}", risk_pool_state.total_premiums);
         msg!("Total Claims Paid: {}", risk_pool_state.total_claims_paid);
         msg!("Premium to Claims Ratio: {}", risk_pool_state.premium_to_claims_ratio);
         msg!("Last Update: {}", risk_pool_state.last_metrics_update);
-        
-        // Calculate solvency metrics
-        let buffer_percentage = if risk_pool_state.total_coverage_liability > 0 {
-            let reserve_ratio = (((risk_pool_state.total_capital as u128 * 100) / risk_pool_state.total_coverage_liability as u128) as u8);
-            reserve_ratio.saturating_sub(risk_pool_state.target_reserve_ratio)
-        } else {
-            100
-        };
-        
-        msg!("Buffer Percentage: {}", buffer_percentage);
-        msg!("Risk Buffer Target: {}", risk_pool_state.risk_buffer_percentage);
+        msg!("Expected Loss: {}", risk_pool_state.expected_loss);
+        msg!("Recommended Capital: {}", risk_pool_state.recommended_capital);
+        msg!("Capital Adequacy: {}", risk_pool_state.capital_adequacy);
         
         // Return success
         Ok(())
     }
 
-    // New function to update premium to claims ratio
-    pub fn update_premium_claims_ratio(ctx: Context<UpdateRiskParameters>) -> Result<()> {
-        let risk_pool = &mut ctx.accounts.risk_pool_state;
+    pub fn process_domain_premium(ctx: Context<RecordDomainPremium>, amount: u64) -> Result<()> {
+        let risk_pool_state = &mut ctx.accounts.risk_pool_state;
         
-        require!(risk_pool.total_claims_paid > 0, RiskPoolError::DivideByZero);
+        // Validate amount
+        require!(amount > 0, RiskPoolError::InvalidAmount);
         
-        risk_pool.premium_to_claims_ratio = ((risk_pool.total_premiums_collected as u128)
-            .checked_mul(100)
-            .unwrap_or(0)
-            .checked_div(risk_pool.total_claims_paid as u128)
-            .unwrap_or(0)) as u16;
-            
-        risk_pool.last_metrics_update = Clock::get()?.unix_timestamp;
+        // Record premium in risk pool state
+        risk_pool_state.total_premiums = risk_pool_state.total_premiums.checked_add(amount)
+            .ok_or(RiskPoolError::ArithmeticError)?;
+        
+        // Validate the domain treasury is owned by the core program
+        require!(
+            *ctx.accounts.domain_treasury.owner == ctx.accounts.core_program.key(),
+            RiskPoolError::InvalidAccount
+        );
+        
+        msg!("Domain premium recorded: {}", amount);
         Ok(())
     }
-    
-    /// Record a premium payment received via the FreelanceShield.xyz domain
-    pub fn process_domain_premium(ctx: Context<RecordDomainPremium>, amount: u64) -> Result<()> {
-        // Validate the domain treasury is authorized to send to this risk pool
-        validate_domain_treasury(
-            &ctx.accounts.domain_treasury.to_account_info(),
-            &ctx.accounts.core_program.key(),
-            &ctx.accounts.risk_pool_state.key()
-        )?;
-        
-        // Record the premium in our risk pool
-        domain_integration::record_domain_premium(ctx, amount)
-    }
-}
-
-// Helper function to run Monte Carlo simulation
-fn run_simulation(
-    current_policies: u64,
-    avg_claim_frequency: u8,
-    avg_claim_severity: u64,
-    market_volatility: u8,
-    iterations: u16,
-    risk_buffer_percentage: u8,
-) -> (u64, u64, u64, u64) {
-    // This is a simplified simulation for demonstration
-    // In a real implementation, this would use more sophisticated statistical methods
-    
-    // Expected loss = policies * frequency * severity
-    let expected_loss = (current_policies as u128 * avg_claim_frequency as u128 * avg_claim_severity as u128 / 100) as u64;
-    
-    // Value at Risk calculations (simplified)
-    // Higher market volatility increases the tail risk
-    let volatility_factor = 1.0 + (market_volatility as f64 / 100.0);
-    
-    // VaR 95% = expected loss * volatility factor * 1.645 (normal distribution 95% confidence)
-    let var_95 = (expected_loss as f64 * volatility_factor * 1.645) as u64;
-    
-    // VaR 99% = expected loss * volatility factor * 2.326 (normal distribution 99% confidence)
-    let var_99 = (expected_loss as f64 * volatility_factor * 2.326) as u64;
-    
-    // Recommended capital = VaR 99% * (1 + risk buffer)
-    let recommended_capital = (var_99 as u128 * (100 + risk_buffer_percentage as u128) / 100) as u64;
-    
-    (expected_loss, var_95, var_99, recommended_capital)
 }
 
 #[derive(Accounts)]
@@ -493,7 +395,7 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + RiskPoolState::SIZE,
+        space = 8 + RiskPoolState::LEN,
         seeds = [b"risk_pool_state"],
         bump
     )]
@@ -503,20 +405,24 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(amount: u64)]
 pub struct DepositCapital<'info> {
     #[account(mut)]
     pub provider: Signer<'info>,
     
     #[account(
+        mut,
         seeds = [b"risk_pool_state"],
         bump = risk_pool_state.bump,
+        constraint = !risk_pool_state.is_processing_external_call @ RiskPoolError::ReentrancyDetected,
+        constraint = !risk_pool_state.is_paused @ RiskPoolError::ProgramPaused
     )]
     pub risk_pool_state: Account<'info, RiskPoolState>,
     
     #[account(
         init_if_needed,
         payer = provider,
-        space = 8 + CapitalProvider::SIZE,
+        space = 8 + CapitalProvider::LEN,
         seeds = [b"capital_provider", provider.key().as_ref()],
         bump
     )]
@@ -524,15 +430,20 @@ pub struct DepositCapital<'info> {
     
     #[account(
         mut,
-        constraint = provider_token_account.owner == provider.key()
+        constraint = provider_token_account.owner == provider.key() @ RiskPoolError::InvalidAccount,
+        constraint = provider_token_account.mint == risk_pool_token_account.mint @ RiskPoolError::InvalidAccount
     )]
     pub provider_token_account: Account<'info, TokenAccount>,
     
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = risk_pool_token_account.owner == risk_pool_state.key() @ RiskPoolError::InvalidAccount
+    )]
     pub risk_pool_token_account: Account<'info, TokenAccount>,
     
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]
@@ -583,6 +494,7 @@ pub struct UpdateCoverageLiability<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(amount: u64)]
 pub struct RecordPremium<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -595,10 +507,6 @@ pub struct RecordPremium<'info> {
     )]
     pub risk_pool_state: Account<'info, RiskPoolState>,
     
-    #[account(mut)]
-    pub risk_pool_token_account: AccountInfo<'info>,
-    
-    pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
 
@@ -613,29 +521,6 @@ pub struct RecordClaimPayment<'info> {
         bump = risk_pool_state.bump,
     )]
     pub risk_pool_state: Account<'info, RiskPoolState>,
-    
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct RunMonteCarloSimulation<'info> {
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    
-    #[account(
-        seeds = [b"risk_pool_state"],
-        bump = risk_pool_state.bump,
-    )]
-    pub risk_pool_state: Account<'info, RiskPoolState>,
-    
-    #[account(
-        init,
-        payer = authority,
-        space = 8 + SimulationResult::SIZE,
-        seeds = [b"simulation", &Clock::get()?.unix_timestamp.to_le_bytes()[..], &[0]],
-        bump
-    )]
-    pub simulation_result: Account<'info, SimulationResult>,
     
     pub system_program: Program<'info, System>,
 }
@@ -664,12 +549,27 @@ pub struct GetPublicRiskPoolMetrics<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(amount: u64)]
 pub struct RecordDomainPremium<'info> {
     #[account(mut)]
-    pub domain_treasury: AccountInfo<'info>,
-    #[account(mut)]
+    pub authority: Signer<'info>,
+    
+    #[account(
+        mut,
+        seeds = [b"risk_pool_state"],
+        bump = risk_pool_state.bump,
+        constraint = !risk_pool_state.is_processing_external_call @ RiskPoolError::ReentrancyDetected,
+        constraint = !risk_pool_state.is_paused @ RiskPoolError::ProgramPaused
+    )]
     pub risk_pool_state: Account<'info, RiskPoolState>,
-    pub core_program: Program<'info, System>,
+    
+    /// CHECK: Validated in the function
+    pub domain_treasury: AccountInfo<'info>,
+    
+    /// CHECK: Used for validation only
+    pub core_program: AccountInfo<'info>,
+    
+    pub system_program: Program<'info, System>,
 }
 
 #[account]
@@ -681,38 +581,45 @@ pub struct RiskPoolState {
     pub target_reserve_ratio: u8,         // 1 byte
     pub min_capital_requirement: u64,     // 8 bytes
     pub risk_buffer_percentage: u8,       // 1 byte
-    pub monte_carlo_iterations: u16,      // 2 bytes
     pub total_capital: u64,               // 8 bytes
     pub total_coverage_liability: u64,    // 8 bytes
     pub current_reserve_ratio: u8,        // 1 byte
-    pub total_premiums_collected: u64,    // 8 bytes
+    pub total_premiums: u64,              // 8 bytes
     pub total_claims_paid: u64,           // 8 bytes
-    pub premium_to_claims_ratio: u8,      // 1 byte (New field)
-    pub last_metrics_update: i64,         // 8 bytes (New field)
+    pub premium_to_claims_ratio: u16,     // 2 bytes
+    pub expected_loss: u64,               // 8 bytes
+    pub recommended_capital: u64,         // 8 bytes
+    pub capital_adequacy: u8,             // 1 byte
     pub is_paused: bool,                  // 1 byte
+    pub is_processing_external_call: bool, // 1 byte
     pub bump: u8,                         // 1 byte
-    // Added padding for future fields
-    pub reserved: [u8; 32],               // 32 bytes for future expansion
+    pub last_metrics_update: i64,         // 8 bytes
+    pub policy_count: u64,                // 8 bytes
+    pub reserved: [u8; 31],               // 31 bytes for future expansion
 }
 
 impl RiskPoolState {
-    pub const SIZE: usize = 32 + // authority
+    pub const LEN: usize = 32 + // authority
                             32 + // insurance_program_id
                             32 + // claims_processor_id
                             1 +  // target_reserve_ratio
                             8 +  // min_capital_requirement
                             1 +  // risk_buffer_percentage
-                            2 +  // monte_carlo_iterations
                             8 +  // total_capital
                             8 +  // total_coverage_liability
                             1 +  // current_reserve_ratio
-                            8 +  // total_premiums_collected
+                            8 +  // total_premiums
                             8 +  // total_claims_paid
-                            1 +  // premium_to_claims_ratio
-                            8 +  // last_metrics_update
+                            2 +  // premium_to_claims_ratio
+                            8 +  // expected_loss
+                            8 +  // recommended_capital
+                            1 +  // capital_adequacy
                             1 +  // is_paused
+                            1 +  // is_processing_external_call
                             1 +  // bump
-                            32;  // reserved
+                            8 +  // last_metrics_update
+                            8 +  // policy_count
+                            31;  // reserved
 }
 
 #[account]
@@ -725,41 +632,9 @@ pub struct CapitalProvider {
 }
 
 impl CapitalProvider {
-    pub const SIZE: usize = 32 + // provider
+    pub const LEN: usize = 32 + // provider
                             8 +  // deposited_amount
                             8 +  // last_deposit_timestamp
-                            1;   // bump
-}
-
-#[account]
-#[derive(Default)]
-pub struct SimulationResult {
-    pub run_timestamp: i64,
-    pub current_policies: u64,
-    pub avg_claim_frequency: u8,
-    pub avg_claim_severity: u64,
-    pub market_volatility: u8,
-    pub expected_loss: u64,
-    pub var_95: u64,
-    pub var_99: u64,
-    pub recommended_capital: u64,
-    pub current_capital: u64,
-    pub capital_adequacy: bool,
-    pub bump: u8,
-}
-
-impl SimulationResult {
-    pub const SIZE: usize = 8 +  // run_timestamp
-                            8 +  // current_policies
-                            1 +  // avg_claim_frequency
-                            8 +  // avg_claim_severity
-                            1 +  // market_volatility
-                            8 +  // expected_loss
-                            8 +  // var_95
-                            8 +  // var_99
-                            8 +  // recommended_capital
-                            8 +  // current_capital
-                            1 +  // capital_adequacy
                             1;   // bump
 }
 
@@ -768,21 +643,50 @@ pub enum RiskPoolError {
     #[msg("Unauthorized access")]
     Unauthorized,
     
-    #[msg("Program is paused")]
-    ProgramPaused,
+    #[msg("Invalid parameter")]
+    InvalidParameter,
     
-    #[msg("Invalid amount")]
-    InvalidAmount,
-    
-    #[msg("Insufficient deposited amount")]
-    InsufficientDepositedAmount,
-    
-    #[msg("Withdrawal would breach reserve requirements")]
-    WithdrawalWouldBreachReserveRequirements,
+    #[msg("Arithmetic error")]
+    ArithmeticError,
     
     #[msg("Invalid account")]
     InvalidAccount,
     
-    #[msg("Cannot divide by zero")]
+    #[msg("Insufficient funds")]
+    InsufficientFunds,
+    
+    #[msg("Insufficient capital")]
+    InsufficientCapital,
+    
+    #[msg("Insufficient liquidity")]
+    InsufficientLiquidity,
+    
+    #[msg("Program paused")]
+    ProgramPaused,
+    
+    #[msg("Reentrancy detected")]
+    ReentrancyDetected,
+    
+    #[msg("Invalid domain")]
+    InvalidDomain,
+    
+    #[msg("Invalid amount")]
+    InvalidAmount,
+    
+    #[msg("Divide by zero")]
     DivideByZero,
+}
+
+#[event]
+pub struct CapitalDeposited {
+    pub provider: Pubkey,
+    pub amount: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct CapitalWithdrawn {
+    pub provider: Pubkey,
+    pub amount: u64,
+    pub timestamp: i64,
 }

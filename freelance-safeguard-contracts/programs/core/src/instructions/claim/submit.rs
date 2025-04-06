@@ -66,9 +66,17 @@ pub fn handler(ctx: Context<SubmitClaim>, params: SubmitClaimParams) -> Result<(
     let program_state = &mut ctx.accounts.program_state;
     
     // Validate claim parameters
+    // Validate claim amount is within reasonable limits
     require!(
         params.amount <= policy.coverage_amount,
         FreelanceShieldError::InvalidClaimAmount
+    );
+    
+    // Additional validation to prevent unreasonably small claims
+    // Claims should be at least 1% of coverage amount to prevent spam
+    require!(
+        params.amount >= policy.coverage_amount / 100,
+        FreelanceShieldError::ClaimAmountTooSmall
     );
     
     require!(
@@ -112,18 +120,21 @@ pub fn handler(ctx: Context<SubmitClaim>, params: SubmitClaimParams) -> Result<(
     claim.transaction_signature = None;
     
     // Calculate risk score for fraud detection (0-100)
-    // This is a simplified version - in a real implementation, this would use more sophisticated fraud detection
+    // Using the enhanced risk scoring model with multiple weighted factors
     let risk_score = calculate_claim_risk_score(
         policy.risk_score,
         params.amount,
         policy.coverage_amount,
         policy.end_date - policy.start_date,
-        clock.unix_timestamp - policy.start_date
+        clock.unix_timestamp - policy.start_date,
+        policy.claims_count,
+        Some(program_state.avg_claim_amount)
     )?;
     
     claim.risk_score = risk_score;
     claim.creation_slot = clock.slot;
     claim.last_update_slot = clock.slot;
+    claim.index = policy.claims_count;
     claim.bump = *ctx.bumps.get("claim").unwrap();
     
     // Update policy
@@ -152,4 +163,3 @@ pub fn handler(ctx: Context<SubmitClaim>, params: SubmitClaimParams) -> Result<(
     msg!("Claim submitted: Amount: {}, Risk Score: {}", params.amount, risk_score);
     Ok(())
 }
-

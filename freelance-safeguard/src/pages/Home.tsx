@@ -11,7 +11,7 @@ export function Home() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">FreeLanceShield</h1>
+          <h1 className="text-4xl font-bold tracking-tight">FreelanceShield</h1>
           <p className="text-xl text-muted-foreground mt-2">
             Decentralized insurance for freelancers on Solana
           </p>
@@ -22,7 +22,7 @@ export function Home() {
             <CardHeader className="space-y-1">
               <div className="flex items-center justify-between">
                 <CardTitle>Wallet Connection</CardTitle>
-                <Wallet className="h-5 w-5 text-primary" />
+                <Wallet className="h-5 w-5 text-pink-600 dark:text-pink-400" />
               </div>
               <CardDescription>Connect your Solana wallet to get started</CardDescription>
             </CardHeader>
@@ -38,7 +38,7 @@ export function Home() {
             <CardHeader className="space-y-1">
               <div className="flex items-center justify-between">
                 <CardTitle>Insurance Policies</CardTitle>
-                <ShieldCheck className="h-5 w-5 text-primary" />
+                <ShieldCheck className="h-5 w-5 text-pink-600 dark:text-pink-400" />
               </div>
               <CardDescription>Create customized insurance coverage</CardDescription>
             </CardHeader>
@@ -54,7 +54,7 @@ export function Home() {
             <CardHeader className="space-y-1">
               <div className="flex items-center justify-between">
                 <CardTitle>Claims Processing</CardTitle>
-                <FileText className="h-5 w-5 text-primary" />
+                <FileText className="h-5 w-5 text-pink-600 dark:text-pink-400" />
               </div>
               <CardDescription>Fast and transparent claims resolution</CardDescription>
             </CardHeader>
@@ -69,18 +69,18 @@ export function Home() {
 
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle>Testnet Demo</CardTitle>
-            <CardDescription>Try FreeLanceShield on the Solana testnet</CardDescription>
+            <CardTitle>Get Started</CardTitle>
+            <CardDescription>Protect your freelance work with blockchain-based insurance</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Experience the full functionality of FreeLanceShield using test SOL on the Solana testnet.
+              Experience the full functionality of FreelanceShield on the Solana blockchain.
               Create policies, submit claims, and explore our risk assessment model.
             </p>
           </CardContent>
           <CardFooter>
-            <Button onClick={() => navigate('/testnet')} className="w-full">
-              Launch Testnet Demo <ArrowRight className="ml-2 h-4 w-4" />
+            <Button onClick={() => navigate('/how-it-works')} className="w-full bg-pink-600 hover:bg-pink-500 text-white">
+              Learn How It Works <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </CardFooter>
         </Card>

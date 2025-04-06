@@ -22,7 +22,10 @@ pub enum FreelanceShieldProgram {
 impl FreelanceShieldProgram {
     /// Check if program ID belongs to FreelanceShield ecosystem
     pub fn is_freelance_shield_program(program_id: &Pubkey) -> bool {
-        Self::try_from(*program_id) != Self::Unknown
+        match Self::try_from(*program_id) {
+            Self::Unknown => false,
+            _ => true
+        }
     }
     
     /// Validate that caller is an authorized FreelanceShield program

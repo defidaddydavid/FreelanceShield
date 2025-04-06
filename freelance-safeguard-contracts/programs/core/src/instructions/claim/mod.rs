@@ -41,5 +41,6 @@ pub struct ArbitrateClaimParams {
     pub approved: bool,
     /// Reason for the decision
     pub reason: String,
+    /// Complexity level of the arbitration (1=low, 2=medium, 3=high)
+    pub complexity_level: Option<u8>,
 }
-

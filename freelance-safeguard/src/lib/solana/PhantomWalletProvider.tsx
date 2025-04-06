@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react';
-import { Connection } from '@solana/web3.js';
+import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider, useWallet } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
@@ -51,50 +51,19 @@ export const usePhantomWallet = () => {
 };
 
 export const PhantomWalletProvider: FC<PhantomWalletProviderProps> = ({ children }) => {
-  // Set up error handling
-  const [walletInitialized, setWalletInitialized] = useState(false);
-
-  // Setup connection to Solana network
-  const endpoint = NETWORK_CONFIG.endpoint;
-  const connection = useMemo(() => {
-    try {
-      return new Connection(endpoint, 'confirmed');
-    } catch (error) {
-      console.error('Failed to connect to Solana network:', error);
-      return null;
-    }
-  }, [endpoint]);
-
-  // Create wallet adapters with error handling
+  // Use Devnet endpoint directly from clusterApiUrl for reliable connection
+  const endpoint = useMemo(() => clusterApiUrl('devnet'), []);
+  
+  // Create wallet adapters
   const wallets = useMemo(() => {
     try {
-      // Safely initialize wallet adapters
-      const adapters = [];
-      
-      // Only add adapters that successfully initialize
-      try {
-        adapters.push(new PhantomWalletAdapter());
-      } catch (e) {
-        console.warn('Failed to initialize Phantom wallet:', e);
-      }
-      
-      try {
-        adapters.push(new SolflareWalletAdapter());
-      } catch (e) {
-        console.warn('Failed to initialize Solflare wallet:', e);
-      }
-      
-      try {
-        adapters.push(new BackpackWalletAdapter());
-      } catch (e) {
-        console.warn('Failed to initialize Backpack wallet:', e);
-      }
-      
-      setWalletInitialized(true);
-      return adapters;
+      return [
+        new PhantomWalletAdapter(),
+        new SolflareWalletAdapter(),
+        new BackpackWalletAdapter()
+      ];
     } catch (error) {
       console.error('Error initializing wallet adapters:', error);
-      setWalletInitialized(false);
       return [];
     }
   }, []);
@@ -126,14 +95,9 @@ export const PhantomWalletProvider: FC<PhantomWalletProviderProps> = ({ children
     };
   }, []);
 
-  // If connection is null, render the children with a fallback provider
-  if (!connection) {
-    return <>{children}</>;
-  }
-
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <SolanaWalletProvider wallets={wallets} autoConnect={false}>
+      <SolanaWalletProvider wallets={wallets} autoConnect={true}>
         <WalletModalProvider>
           <SolanaProvider>
             {children}
