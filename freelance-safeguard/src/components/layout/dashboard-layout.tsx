@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FreelanceShieldLogo } from '../ui/freelance-shield-logo';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
+import { cn } from '@/lib/utils';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 // Icons
 import { 
@@ -15,7 +18,9 @@ import {
   Bars3Icon as MenuIcon, 
   XMarkIcon as XIcon,
   BellIcon,
-  UserCircleIcon
+  UserCircleIcon,
+  SunIcon,
+  MoonIcon
 } from '@heroicons/react/24/outline';
 
 interface NavItemProps {
@@ -27,14 +32,21 @@ interface NavItemProps {
 }
 
 const NavItem: React.FC<NavItemProps> = ({ icon, label, active, onClick }) => {
+  const { isDark } = useSolanaTheme();
+  
   return (
     <button
       onClick={onClick}
-      className={`flex items-center w-full px-4 py-3 rounded-md transition-colors ${
+      className={cn(
+        "flex items-center w-full px-4 py-3 rounded-md transition-colors",
         active 
-          ? 'bg-deep-purple text-white' 
-          : 'text-gray-300 hover:bg-deep-purple/20 hover:text-white'
-      }`}
+          ? isDark 
+            ? "bg-shield-blue text-white" 
+            : "bg-shield-purple text-white"
+          : isDark
+            ? "text-gray-300 hover:bg-shield-blue/20 hover:text-white"
+            : "text-gray-700 hover:bg-shield-purple/20 hover:text-gray-900"
+      )}
     >
       <div className="w-6 h-6 mr-3">{icon}</div>
       <span className="font-medium">{label}</span>
@@ -48,9 +60,36 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [balance, setBalance] = useState<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { connected } = useWallet();
+  const { connected, publicKey, connection } = useWallet();
+  const { isDark, setTheme } = useSolanaTheme();
+
+  // Fetch wallet balance when connected
+  useEffect(() => {
+    if (connected && publicKey && connection) {
+      const fetchBalance = async () => {
+        try {
+          const balance = await connection.getBalance(publicKey);
+          setBalance(balance / LAMPORTS_PER_SOL);
+        } catch (error) {
+          console.error('Error fetching balance:', error);
+          setBalance(null);
+        }
+      };
+      
+      fetchBalance();
+      
+      // Set up interval to refresh balance
+      const intervalId = setInterval(fetchBalance, 30000);
+      return () => clearInterval(intervalId);
+    }
+  }, [connected, publicKey, connection]);
+
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark');
+  };
 
   const navItems = [
     { 
@@ -86,7 +125,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   ];
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className={cn(
+      "flex h-screen",
+      isDark 
+        ? "bg-gray-900 text-white" 
+        : "bg-gray-50 text-gray-900"
+    )}>
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -97,16 +141,34 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
       {/* Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-30 w-64 transform bg-gray-800 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+        className={cn(
+          "fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+          isDark 
+            ? "bg-gray-800" 
+            : "bg-white",
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        )}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-between h-16 px-4 border-b border-gray-700">
-            <FreelanceShieldLogo />
+          <div className={cn(
+            "flex items-center justify-between h-16 px-4 border-b",
+            isDark 
+              ? "border-gray-700" 
+              : "border-gray-200"
+          )}>
+            <FreelanceShieldLogo className={cn(
+              isDark 
+                ? "text-shield-blue" 
+                : "text-shield-purple"
+            )} />
             <button 
-              className="p-1 rounded-md lg:hidden hover:bg-gray-700"
+              className={cn(
+                "p-1 rounded-md lg:hidden",
+                isDark 
+                  ? "hover:bg-gray-700" 
+                  : "hover:bg-gray-100"
+              )}
               onClick={() => setSidebarOpen(false)}
             >
               <XIcon className="w-6 h-6" />
@@ -131,20 +193,42 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           </nav>
 
           {/* User section */}
-          <div className="p-4 border-t border-gray-700">
+          <div className={cn(
+            "p-4 border-t",
+            isDark 
+              ? "border-gray-700" 
+              : "border-gray-200"
+          )}>
             {connected ? (
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <UserCircleIcon className="w-10 h-10 text-electric-blue" />
+                  <UserCircleIcon className={cn(
+                    "w-10 h-10",
+                    isDark 
+                      ? "text-shield-blue" 
+                      : "text-shield-purple"
+                  )} />
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium">Connected Wallet</p>
-                  <p className="text-xs text-gray-400">Solana</p>
+                  <p className={cn(
+                    "text-xs",
+                    isDark 
+                      ? "text-gray-400" 
+                      : "text-gray-500"
+                  )}>
+                    {balance !== null ? `${balance.toFixed(4)} SOL` : 'Loading...'}
+                  </p>
                 </div>
               </div>
             ) : (
               <div className="w-full">
-                <WalletMultiButton className="w-full !bg-deep-purple hover:!bg-deep-purple/90" />
+                <WalletMultiButton className={cn(
+                  "w-full !transition-colors",
+                  isDark 
+                    ? "!bg-shield-blue hover:!bg-shield-blue/90" 
+                    : "!bg-shield-purple hover:!bg-shield-purple/90"
+                )} />
               </div>
             )}
           </div>
@@ -154,29 +238,72 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       {/* Main content */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between h-16 px-6 bg-gray-800 border-b border-gray-700">
+        <header className={cn(
+          "flex items-center justify-between h-16 px-6 border-b",
+          isDark 
+            ? "bg-gray-800 border-gray-700" 
+            : "bg-white border-gray-200"
+        )}>
           <div className="flex items-center">
             <button
-              className="p-1 mr-4 rounded-md lg:hidden hover:bg-gray-700"
+              className={cn(
+                "p-1 mr-4 rounded-md lg:hidden",
+                isDark 
+                  ? "hover:bg-gray-700" 
+                  : "hover:bg-gray-100"
+              )}
               onClick={() => setSidebarOpen(true)}
             >
               <MenuIcon className="w-6 h-6" />
             </button>
-            <h1 className="text-xl font-semibold">FreelanceShield</h1>
+            <h1 className="text-xl font-heading font-semibold">FreelanceShield</h1>
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="p-1 rounded-md hover:bg-gray-700">
+            {/* Theme Toggle */}
+            <button 
+              onClick={toggleTheme}
+              className={cn(
+                "p-2 rounded-md transition-colors",
+                isDark 
+                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600" 
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              )}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDark ? (
+                <SunIcon className="w-5 h-5" />
+              ) : (
+                <MoonIcon className="w-5 h-5" />
+              )}
+            </button>
+            
+            <button className={cn(
+              "p-1 rounded-md",
+              isDark 
+                ? "hover:bg-gray-700" 
+                : "hover:bg-gray-100"
+            )}>
               <BellIcon className="w-6 h-6" />
             </button>
             <div className="hidden lg:block">
-              <WalletMultiButton className="!bg-deep-purple hover:!bg-deep-purple/90" />
+              <WalletMultiButton className={cn(
+                "!transition-colors",
+                isDark 
+                  ? "!bg-shield-blue hover:!bg-shield-blue/90" 
+                  : "!bg-shield-purple hover:!bg-shield-purple/90"
+              )} />
             </div>
           </div>
         </header>
 
         {/* Main content area */}
-        <main className="flex-1 overflow-y-auto bg-gray-900 p-6">
+        <main className={cn(
+          "flex-1 overflow-y-auto p-6",
+          isDark 
+            ? "bg-gray-900" 
+            : "bg-gray-50"
+        )}>
           {children}
         </main>
       </div>

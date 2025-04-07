@@ -14,16 +14,96 @@
 @tailwind utilities;
 
 :root {
-  /* Colors */
+  /* FreelanceShield Brand Colors */
   --shield-purple: #5e35b1;
   --shield-blue: #2979ff;
   --shield-silver: #bdbdbd;
   --shield-purple-light: rgba(94, 53, 177, 0.1);
   --shield-blue-light: rgba(41, 121, 255, 0.1);
   
+  /* Solana UI Colors - Light Mode */
+  --solana-purple: #9945FF;
+  --solana-green: #14F195;
+  --solana-blue: #00C2FF;
+  --solana-orange: #FF8B12;
+  --solana-red: #FF4B55;
+  
   /* Typography */
   --font-heading: 'NT Brick Sans';
   --font-body: 'Open Sans', sans-serif;
+  
+  /* Light Mode Theme Variables */
+  --background: #ffffff;
+  --foreground: #1c1c1c;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --card: #ffffff;
+  --card-foreground: #1c1c1c;
+  --popover: #ffffff;
+  --popover-foreground: #1c1c1c;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  
+  /* Primary colors - using FreelanceShield brand colors */
+  --primary: var(--shield-purple);
+  --primary-foreground: #ffffff;
+  
+  /* Secondary colors */
+  --secondary: var(--shield-blue);
+  --secondary-foreground: #ffffff;
+  
+  /* Accent colors - using Solana colors */
+  --accent: var(--solana-purple);
+  --accent-foreground: #ffffff;
+  
+  /* Destructive colors */
+  --destructive: var(--solana-red);
+  --destructive-foreground: #ffffff;
+  
+  /* UI element colors */
+  --ring: var(--shield-purple);
+  --radius: 0.5rem;
+}
+
+/* Dark Mode Theme Variables */
+.dark {
+  /* Solana UI Colors - Dark Mode Adjustments */
+  --solana-purple: #B066FF;
+  --solana-green: #3EF8AC;
+  --solana-blue: #33D6FF;
+  --solana-orange: #FFA64C;
+  --solana-red: #FF6A73;
+  
+  /* Dark Mode Theme Variables */
+  --background: #121212;
+  --foreground: #f5f5f5;
+  --muted: #2a2a2a;
+  --muted-foreground: #a3a3a3;
+  --card: #1c1c1c;
+  --card-foreground: #f5f5f5;
+  --popover: #1c1c1c;
+  --popover-foreground: #f5f5f5;
+  --border: #333333;
+  --input: #333333;
+  
+  /* Primary colors - using FreelanceShield brand colors with dark mode adjustments */
+  --primary: #7c52c8;
+  --primary-foreground: #ffffff;
+  
+  /* Secondary colors */
+  --secondary: #4a93ff;
+  --secondary-foreground: #ffffff;
+  
+  /* Accent colors - using Solana colors */
+  --accent: var(--solana-purple);
+  --accent-foreground: #ffffff;
+  
+  /* Destructive colors */
+  --destructive: var(--solana-red);
+  --destructive-foreground: #ffffff;
+  
+  /* UI element colors */
+  --ring: #7c52c8;
 }
 
 @layer base {
@@ -34,6 +114,60 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
   }
+  
+  /* Solana UI specific element styling */
+  .solana-wallet-button {
+    background-color: var(--solana-purple);
+    color: white;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-weight: 600;
+  }
+  
+  .solana-token-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--card-foreground);
+  }
+  
+  .solana-transaction-toast {
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--foreground);
+  }
+  
+  /* Status colors for transactions */
+  .status-success {
+    color: var(--solana-green);
+  }
+  
+  .status-pending {
+    color: var(--solana-orange);
+  }
+  
+  .status-error {
+    color: var(--solana-red);
+  }
 }
 
-/* Rest of the original CSS */
+/* Animation utilities for Solana UI components */
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

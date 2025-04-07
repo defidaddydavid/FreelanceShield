@@ -1,7 +1,12 @@
-import { FC, ReactNode, useMemo } from 'react';
+import { FC, ReactNode, useMemo, useEffect } from 'react';
 import { ConnectionProvider, WalletProvider as WalletProviderBase } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { 
+  PhantomWalletAdapter, 
+  SolflareWalletAdapter,
+  GlowWalletAdapter,
+  BackpackWalletAdapter
+} from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 import { toast } from 'sonner';
 
@@ -13,15 +18,21 @@ interface Props {
 }
 
 export const WalletProvider: FC<Props> = ({ children }) => {
+  const endpoint = process.env.NEXT_PUBLIC_RPC_URL || clusterApiUrl('mainnet-beta');
+  
   const wallets = useMemo(
-    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
+      new GlowWalletAdapter(),
+      new BackpackWalletAdapter()
+    ],
     []
   );
 
   // Set up global error handler for wallet-related errors
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      // Check if the error is related to wallet adapters
       if (
         event.error?.message?.includes('Cannot read properties of null') ||
         event.error?.message?.includes('wallet adapter') ||
@@ -29,24 +40,18 @@ export const WalletProvider: FC<Props> = ({ children }) => {
         event.error?.message?.includes('phantom')
       ) {
         console.warn('Intercepted wallet error:', event.error.message);
-        // Prevent the error from crashing the app
         event.preventDefault();
         event.stopPropagation();
-        
-        // Optionally show a user-friendly error
         toast.error('Wallet connection issue. Try refreshing the page.');
       }
     };
 
     window.addEventListener('error', handleError);
-    
-    return () => {
-      window.removeEventListener('error', handleError);
-    };
+    return () => window.removeEventListener('error', handleError);
   }, []);
 
   return (
-    <ConnectionProvider endpoint={clusterApiUrl('mainnet-beta')}>
+    <ConnectionProvider endpoint={endpoint}>
       <WalletProviderBase wallets={wallets} autoConnect>
         <WalletModalProvider>
           {children}
