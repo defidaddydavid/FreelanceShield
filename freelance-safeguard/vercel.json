@@ -1,8 +1,8 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/landing.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "buildCommand": "npm run build:landing",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
   "headers": [
