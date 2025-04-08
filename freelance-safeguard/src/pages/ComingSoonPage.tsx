@@ -262,10 +262,10 @@ export default function ComingSoonPage() {
         />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 py-16 overflow-hidden container mx-auto max-w-7xl">
+      <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 py-8 md:py-16 overflow-hidden container mx-auto max-w-7xl">
         {/* Logo */}
-        <div className="mb-6">
-          <Logo size="lg" className="h-24 w-auto" />
+        <div className="mb-4 md:mb-6">
+          <Logo size="lg" className="h-16 md:h-24 w-auto" />
         </div>
 
         {/* Animated tag line */}
@@ -273,7 +273,7 @@ export default function ComingSoonPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-center mb-8"
+          className="text-center mb-6 md:mb-8 px-2"
         >
           <style dangerouslySetInnerHTML={{ __html: `
             @keyframes silverShine {
@@ -291,10 +291,10 @@ export default function ComingSoonPage() {
               animation: silverShine 5s linear infinite;
             }
           `}} />
-          <h1 className="font-heading text-5xl md:text-7xl mb-4 font-bold silver-text">
+          <h1 className="font-heading text-4xl md:text-5xl lg:text-7xl mb-3 md:mb-4 font-bold silver-text break-words hyphens-auto">
             FreelanceShield
           </h1>
-          <p className="text-lg md:text-xl text-center mx-auto mb-6 max-w-2xl bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-300 font-medium">
+          <p className="text-base md:text-lg lg:text-xl text-center mx-auto mb-4 md:mb-6 max-w-2xl bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-300 font-medium px-2 md:px-4">
             The first decentralized insurance protocol for freelancers on Solana
           </p>
         </motion.div>
@@ -304,7 +304,7 @@ export default function ComingSoonPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="w-full max-w-2xl mb-12"
+          className="w-full max-w-2xl mb-8 md:mb-12 px-2 md:px-4"
         >
           <div className="w-full bg-black/80 backdrop-blur-sm rounded-lg border border-[#1971E9]/30 overflow-hidden shadow-[0_0_15px_rgba(25,113,233,0.15)]">
             <div className="flex items-center justify-between p-2 bg-gray-800/80 border-b border-gray-700">
@@ -316,14 +316,14 @@ export default function ComingSoonPage() {
               <div className="text-xs text-gray-400">FreelanceShield Interface v0.1</div>
               <div><Terminal className="w-4 h-4 text-gray-400" /></div>
             </div>
-            <div className="p-4 font-mono text-sm">
+            <div className="p-4 font-mono text-sm overflow-x-auto">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentTerminalTextIndex}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-[#00FFFF]"
+                  className="text-[#00FFFF] whitespace-pre-wrap break-words"
                 >
                   {`> ${terminalTexts[currentTerminalTextIndex]}`}
                   {currentTerminalTextIndex === terminalTexts.length - 1 && showTerminalCursor && (
@@ -340,11 +340,11 @@ export default function ComingSoonPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="mb-10 text-center"
+          className="mb-6 md:mb-10 text-center px-2"
         >
-          <div className="inline-block px-4 py-2 rounded-full bg-[#1971E9]/10 backdrop-blur-sm border border-[#1971E9]/30 mb-6">
+          <div className="inline-block px-3 md:px-4 py-1 md:py-2 rounded-full bg-[#1971E9]/10 backdrop-blur-sm border border-[#1971E9]/30 mb-4 md:mb-6">
             <span className="inline-block w-2 h-2 rounded-full bg-[#00FFFF] animate-pulse mr-2"></span>
-            <span className="text-gray-300">Launching Soon on Solana</span>
+            <span className="text-gray-300 text-sm md:text-base">Launching Soon on Solana</span>
           </div>
         </motion.div>
 
@@ -353,29 +353,29 @@ export default function ComingSoonPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.8 }}
-          className="w-full max-w-sm mb-14"
+          className="w-full max-w-sm mb-10 md:mb-14 px-4"
         >
           <div className="p-[1px] rounded-lg bg-gradient-to-r from-[#9945FF]/40 via-[#00FFFF]/30 to-[#9945FF]/40">
-            <div className="p-5 rounded-lg bg-black/60 backdrop-blur-sm flex flex-col items-center text-center border border-[#9945FF]/10">
+            <div className="p-4 md:p-5 rounded-lg bg-black/60 backdrop-blur-sm flex flex-col items-center text-center border border-[#9945FF]/10">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring" }}
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#9945FF]/10 mb-3 border border-[#9945FF]/20">
-                  <Shield className="w-6 h-6 text-[#00FFFF]" />
+                <div className="inline-flex items-center justify-center w-10 md:w-12 h-10 md:h-12 rounded-full bg-[#9945FF]/10 mb-3 border border-[#9945FF]/20">
+                  <Shield className="w-5 md:w-6 h-5 md:h-6 text-[#00FFFF]" />
                 </div>
               </motion.div>
-              <h3 className="text-lg font-heading text-white mb-1 font-bold">Join Our Waitlist</h3>
-              <p className="text-gray-300 mb-4 text-sm">Be the first to know when FreelanceShield launches.</p>
+              <h3 className="text-base md:text-lg font-heading text-white mb-1 font-bold">Join Our Waitlist</h3>
+              <p className="text-gray-300 mb-4 text-xs md:text-sm">Be the first to know when FreelanceShield launches.</p>
               
               <Button
                 onClick={handleJoinWaitlist}
-                className="bg-gradient-to-r from-[#9945FF] to-[#00FFFF] hover:opacity-90 text-white font-medium py-3 px-6 rounded-md w-full max-w-xs transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(153,69,255,0.2)]"
+                className="bg-gradient-to-r from-[#9945FF] to-[#00FFFF] hover:opacity-90 text-white font-medium py-2 md:py-3 px-4 md:px-6 rounded-md w-full max-w-xs transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(153,69,255,0.2)]"
               >
-                <span className="flex items-center justify-center">
+                <span className="flex items-center justify-center text-sm md:text-base">
                   Join Waitlist
-                  <ExternalLink className="w-4 h-4 ml-2" />
+                  <ExternalLink className="w-3 md:w-4 h-3 md:h-4 ml-2" />
                 </span>
               </Button>
             </div>
@@ -387,7 +387,7 @@ export default function ComingSoonPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.0 }}
-          className="w-full max-w-3xl mb-16"
+          className="w-full max-w-3xl mb-10 md:mb-16 px-2 md:px-4"
         >
           <div className="relative overflow-hidden rounded-lg border border-[#9945FF]/30 bg-black/40 backdrop-blur-sm shadow-[0_0_25px_rgba(153,69,255,0.2)]">
             {/* Window header */}
@@ -453,8 +453,8 @@ export default function ComingSoonPage() {
         </motion.div>
 
         {/* Animated features showcase */}
-        <div className="w-full max-w-6xl mb-20">
-          <h2 className="text-2xl md:text-3xl font-heading text-center mb-12 font-bold">
+        <div className="w-full max-w-6xl mb-10 md:mb-20 px-2 md:px-4">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-heading text-center mb-8 md:mb-12 font-bold">
             <span className="relative inline-block">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#9945FF] to-[#8752F3]">
                 Key Features
@@ -468,7 +468,7 @@ export default function ComingSoonPage() {
             </span>
           </h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -476,19 +476,19 @@ export default function ComingSoonPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 + index * 0.1 }}
                 className={cn(
-                  "p-6 rounded-lg border backdrop-blur-sm transition-all duration-300 group hover:transform hover:scale-105",
+                  "p-4 md:p-6 rounded-lg border backdrop-blur-sm transition-all duration-300 group hover:transform hover:scale-105",
                   currentFeatureIndex === index 
                     ? "bg-[#9945FF]/10 border-[#9945FF]/40 shadow-[0_0_15px_rgba(153,69,255,0.15)]" 
                     : "bg-gray-900/30 border-gray-700 hover:border-[#9945FF]/30 hover:bg-[#9945FF]/5"
                 )}
               >
-                <div className="text-3xl mb-4 flex items-center justify-center w-12 h-12 rounded-full bg-black/30 border border-gray-700 group-hover:border-[#9945FF]/30">
+                <div className="text-2xl md:text-3xl mb-3 md:mb-4 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/30 border border-gray-700 group-hover:border-[#9945FF]/30">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-heading text-white mb-2 font-bold">{feature.title}</h3>
-                <p className="text-white">{feature.description}</p>
+                <h3 className="text-lg md:text-xl font-heading text-white mb-1 md:mb-2 font-bold">{feature.title}</h3>
+                <p className="text-white text-sm md:text-base">{feature.description}</p>
                 <motion.div 
-                  className="w-full h-[1px] mt-4 bg-gradient-to-r from-transparent via-[#9945FF]/30 to-transparent"
+                  className="w-full h-[1px] mt-3 md:mt-4 bg-gradient-to-r from-transparent via-[#9945FF]/30 to-transparent"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
