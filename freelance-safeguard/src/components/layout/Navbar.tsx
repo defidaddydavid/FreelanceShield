@@ -17,13 +17,14 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ConnectWalletPopover } from '@/components/wallet/ConnectWalletPopover';
-import { ConnectWalletDialog } from '@/components/wallet/ConnectWalletDialog';
+import ConnectWalletButton from '@/components/wallet/ConnectWalletButton';
 import Logo from '@/components/ui/logo';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
+import ThemeToggleDropdown from '@/components/ui/ThemeToggleDropdown';
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 
 const Navbar = () => {
   // State for scroll detection and mobile menu
@@ -108,38 +109,46 @@ const Navbar = () => {
         "border-b backdrop-blur supports-[backdrop-filter]:bg-opacity-80",
         // Theme-specific styles
         isDark 
-          ? "border-shield-blue/20 bg-gray-900/95 text-gray-100" 
-          : "border-shield-purple/20 bg-white/95 text-gray-800",
+          ? "border-shield-blue/30 bg-gray-900 text-white" 
+          : "border-shield-purple/20 bg-background/95 text-foreground",
         // Conditional shadow on scroll
         isScrolled && "shadow-sm"
       )}
     >
+      {/* Purple underline accent */}
+      <div className="absolute bottom-0 left-0 right-0 h-[2px]">
+        <div className={cn(
+          "h-full w-full max-w-[50%] mx-auto",
+          isDark 
+            ? "bg-gradient-to-r from-transparent via-shield-blue to-transparent" 
+            : "bg-gradient-to-r from-transparent via-shield-purple to-transparent"
+        )} />
+      </div>
+      
       {/* Main Navbar Container */}
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-18 items-center justify-between py-2 mx-auto max-w-full">
         {/* Left Side: Logo and Desktop Navigation */}
-        <div className="flex items-center space-x-4">
+        <div className="flex w-full items-center justify-between">
           {/* Logo and Brand Name */}
           <div 
             onClick={handleNavigation('/')} 
             className={cn(
-              "flex items-center space-x-2 cursor-pointer",
+              "flex items-center cursor-pointer min-w-[200px]",
               "transition-transform hover:scale-105"
             )}
           >
-            <Logo className={cn(
-              "h-6 w-6",
-              isDark ? "text-shield-blue" : "text-shield-purple"
-            )} />
-            <span className={cn(
-              "font-heading text-xl font-bold",
-              isDark ? "text-shield-blue" : "text-shield-purple"
-            )}>
-              FreelanceShield
-            </span>
+            <Logo 
+              size={55}
+              className="text-shield-purple"
+              withText
+              textSize="text-lg"
+              textColor={isDark ? "text-white" : "text-black"}
+              textMargin="ml-4"
+            />
           </div>
           
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-10 flex-grow justify-center">
             {navItems.map((item) => (
               <Link 
                 key={item.path}
@@ -152,7 +161,9 @@ const Navbar = () => {
                     ? isDark 
                       ? "text-shield-blue font-semibold" 
                       : "text-shield-purple font-semibold"
-                    : "hover:text-shield-purple dark:hover:text-shield-blue",
+                    : isDark
+                      ? "text-gray-100 hover:text-shield-blue"
+                      : "text-gray-700 hover:text-shield-purple",
                   // Active indicator line
                   isActive(item.path) && "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5",
                   isActive(item.path) && (isDark ? "after:bg-shield-blue" : "after:bg-shield-purple")
@@ -166,134 +177,116 @@ const Navbar = () => {
         </div>
         
         {/* Right Side: Actions and Controls */}
-        <div className="flex items-center space-x-3">
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className={cn(
-              // Base styles
-              "p-2 rounded-md transition-colors duration-200",
-              "border flex items-center justify-center",
-              // Theme-specific styles
-              isDark 
-                ? "border-gray-700 bg-gray-800 hover:bg-gray-700 text-shield-blue" 
-                : "border-gray-200 bg-gray-100 hover:bg-gray-200 text-shield-purple"
-            )}
-            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {isDark ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </button>
-          
-          {/* Wallet Connection Components */}
-          {!connected && (
-            <>
-              {/* Desktop: Popover, Mobile: Dialog */}
-              <div className="hidden md:block">
-                <ConnectWalletPopover 
-                  className={cn(
-                    "border transition-colors",
-                    isDark 
-                      ? "border-shield-blue text-shield-blue hover:bg-shield-blue/20" 
-                      : "border-shield-purple text-shield-purple hover:bg-shield-purple/10"
-                  )} 
-                />
-              </div>
-              <div className="md:hidden">
-                <ConnectWalletDialog 
-                  className={cn(
-                    "border transition-colors",
-                    isDark 
-                      ? "border-shield-blue text-shield-blue hover:bg-shield-blue/20" 
-                      : "border-shield-purple text-shield-purple hover:bg-shield-purple/10"
-                  )} 
-                />
-              </div>
-            </>
-          )}
-          
-          {/* Dashboard Button - only show if not on dashboard */}
-          {location.pathname !== '/dashboard' && (
+        <div className="flex items-center space-x-5 min-w-[200px] justify-end">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-5 ml-4">
+            {/* Theme Toggle */}
+            <ThemeToggleDropdown className="mr-3" />
+            
+            {/* Dashboard Button */}
             <Button 
-              variant="outline" 
-              size="sm" 
-              className={cn(
-                "transition-colors font-medium",
-                isDark 
-                  ? "text-gray-300 border-gray-700 hover:bg-gray-800 hover:text-white" 
-                  : "text-gray-700 border-gray-300 hover:bg-gray-100"
-              )}
+              variant="link" 
               onClick={handleDashboardClick}
+              className={cn(
+                "text-lg font-medium",
+                isActive('/dashboard') 
+                  ? "text-shield-purple dark:text-shield-blue" 
+                  : "text-foreground/80 hover:text-shield-purple dark:hover:text-shield-blue"
+              )}
             >
               Dashboard
             </Button>
-          )}
+            
+            {/* Connect Wallet Button */}
+            <ConnectWalletButton />
+          </div>
           
-          {/* Primary Action Button */}
-          <Button 
-            className={cn(
-              "text-white font-medium transition-colors",
-              isDark 
-                ? "bg-shield-blue hover:bg-shield-blue/90" 
-                : "bg-shield-purple hover:bg-shield-purple/90"
-            )}
-            onClick={() => navigate('/connect')}
-          >
-            Select Wallet
-          </Button>
-          
-          {/* Mobile Menu Toggle Button */}
-          <button
-            className={cn(
-              "md:hidden p-2 rounded-md",
-              isDark 
-                ? "text-gray-300 hover:bg-gray-800" 
-                : "text-gray-700 hover:bg-gray-100"
-            )}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
+          {/* Mobile Menu Button */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className={cn(
+                  "px-0 text-base hover:bg-transparent focus:bg-transparent md:hidden",
+                  isDark ? "text-white hover:text-white/80" : "text-gray-700 hover:text-gray-900"
+                )}
+              >
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent 
+              side="left" 
+              className={cn(
+                "w-[300px] px-6",
+                isDark ? "bg-gray-900 text-white border-r border-shield-blue/30" : "bg-white text-foreground"
+              )}
+            >
+              <SheetHeader className="mb-8">
+                <SheetTitle className="text-left">
+                  <Link to="/" className="flex items-center text-2xl" onClick={() => setMobileMenuOpen(false)}>
+                    <img src="/logo.svg" alt="FreelanceShield Logo" className="w-8 h-8 mr-2" />
+                    <span className={cn(
+                      "font-bold font-heading", 
+                      isDark ? "text-white" : "text-gray-900"
+                    )}>
+                      FreelanceShield
+                    </span>
+                  </Link>
+                </SheetTitle>
+                <SheetDescription className={cn(
+                  "text-left", 
+                  isDark ? "text-gray-300" : "text-gray-500"
+                )}>
+                  Decentralized Freelance Insurance
+                </SheetDescription>
+              </SheetHeader>
+              <nav className="flex flex-col space-y-4">
+                {navItems.map((item) => (
+                  <a
+                    key={item.path}
+                    href={item.path}
+                    onClick={item.needsWallet ? handleNavigation(item.path, true) : handleNavigation(item.path)}
+                    className={cn(
+                      "px-3 py-2 rounded-md text-lg font-medium",
+                      isActive(item.path)
+                        ? "bg-shield-purple/10 dark:bg-shield-blue/10 text-shield-purple dark:text-shield-blue"
+                        : "text-foreground/80 hover:bg-shield-purple/5 dark:hover:bg-shield-blue/5 hover:text-shield-purple dark:hover:text-shield-blue"
+                    )}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+                
+                {/* Theme Toggle in Mobile Menu */}
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="text-lg font-medium">Theme</span>
+                  <ThemeToggleDropdown />
+                </div>
+                
+                {/* Dashboard in Mobile Menu */}
+                <a
+                  href="/dashboard"
+                  onClick={handleDashboardClick}
+                  className={cn(
+                    "px-3 py-2 rounded-md text-lg font-medium",
+                    isActive('/dashboard')
+                      ? "bg-shield-purple/10 dark:bg-shield-blue/10 text-shield-purple dark:text-shield-blue"
+                      : "text-foreground/80 hover:bg-shield-purple/5 dark:hover:bg-shield-blue/5 hover:text-shield-purple dark:hover:text-shield-blue"
+                  )}
+                >
+                  Dashboard
+                </a>
+                
+                {/* Mobile Wallet Connection */}
+                <div className="px-3 py-2">
+                  <ConnectWalletButton className="w-full" />
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-      
-      {/* Mobile Navigation Menu (Conditional Render) */}
-      {mobileMenuOpen && (
-        <div className={cn(
-          "md:hidden py-4 px-6 space-y-4 border-t transition-all",
-          isDark 
-            ? "bg-gray-900 border-gray-800" 
-            : "bg-white border-gray-200"
-        )}>
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "block py-2 text-base font-medium transition-colors",
-                isActive(item.path) 
-                  ? isDark 
-                    ? "text-shield-blue font-semibold" 
-                    : "text-shield-purple font-semibold"
-                  : isDark 
-                    ? "text-gray-300 hover:text-shield-blue" 
-                    : "text-gray-700 hover:text-shield-purple"
-              )}
-              onClick={item.needsWallet ? handleNavigation(item.path, true) : undefined}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      )}
     </header>
   );
 };

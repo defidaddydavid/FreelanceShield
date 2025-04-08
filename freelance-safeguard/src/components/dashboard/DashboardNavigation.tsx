@@ -107,7 +107,7 @@ const DashboardNavigation: React.FC = () => {
       title: 'Claims Management',
       description: 'Submit and track insurance claims for your policies',
       icon: <FileText className="h-5 w-5" />,
-      path: '/claims',
+      path: '/claims-system',
       color: 'info',
       delay: 300
     },

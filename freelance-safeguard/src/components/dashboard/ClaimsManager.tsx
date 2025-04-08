@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useClaimsAndPool } from '@/hooks/useClaimsAndPool';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
@@ -31,8 +31,17 @@ export function ClaimsManager() {
     attachments: [],
   });
 
-  // Get status of selected claim
-  const claimStatus = useClaimStatus(selectedClaim || undefined);
+  // Get status of selected claim with proper error handling
+  const claimStatus = useMemo(() => {
+    try {
+      // Only call the hook if we have a valid claim
+      if (!selectedClaim) return { data: null, isLoading: false, error: null };
+      return useClaimStatus(selectedClaim);
+    } catch (error) {
+      console.error('Error in claim status hook:', error);
+      return { data: null, isLoading: false, error };
+    }
+  }, [selectedClaim, useClaimStatus]);
 
   const handleSubmitClaim = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,11 +64,20 @@ export function ClaimsManager() {
   };
 
   const handleVote = async (claimId: PublicKey, vote: boolean, comments: string) => {
-    await submitArbitrationVote.mutate({
-      claimId,
-      vote,
-      comments,
-    });
+    if (!comments.trim()) {
+      alert('Please provide comments for your vote');
+      return;
+    }
+    
+    try {
+      await submitArbitrationVote.mutate({
+        claimId,
+        vote,
+        comments,
+      });
+    } catch (error) {
+      console.error('Error submitting vote:', error);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -178,34 +196,39 @@ export function ClaimsManager() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {selectedClaim && claimStatus.data ? (
+              {selectedClaim && claimStatus?.data ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium">
                       Claim #{selectedClaim.toString().slice(0, 8)}...
                     </h3>
-                    <Badge className={getStatusColor(claimStatus.data.status)}>
-                      {claimStatus.data.status}
+                    <Badge className={getStatusColor(claimStatus.data.status || 'UNKNOWN')}>
+                      {claimStatus.data.status || 'UNKNOWN'}
                     </Badge>
                   </div>
 
                   <div className="grid gap-2">
                     <div>
                       <span className="font-medium">Amount:</span>{' '}
-                      {formatSOL(claimStatus.data.payoutAmount)}
+                      {formatSOL(claimStatus.data.payoutAmount || 0)}
                     </div>
                     <div>
                       <span className="font-medium">Reason:</span>{' '}
-                      {claimStatus.data.reason}
+                      {claimStatus.data.reason || 'No reason provided'}
                     </div>
                     {claimStatus.data.arbitrationRequired && (
                       <Alert>
                         <AlertDescription>
-                          This claim requires arbitration. Current votes: {claimStatus.data.votes.length}
+                          This claim requires arbitration. Current votes: {Array.isArray(claimStatus.data.votes) ? claimStatus.data.votes.length : 0}
                         </AlertDescription>
                       </Alert>
                     )}
                   </div>
+                </div>
+              ) : claimStatus?.isLoading ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin h-6 w-6 border-2 border-primary rounded-full border-t-transparent mx-auto"></div>
+                  <p className="mt-2 text-muted-foreground">Loading claim details...</p>
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground">
@@ -218,7 +241,12 @@ export function ClaimsManager() {
                 placeholder="Enter claim ID to check status"
                 onChange={(e) => {
                   try {
-                    setSelectedClaim(new PublicKey(e.target.value));
+                    const value = e.target.value.trim();
+                    if (value) {
+                      setSelectedClaim(new PublicKey(value));
+                    } else {
+                      setSelectedClaim(null);
+                    }
                   } catch {
                     setSelectedClaim(null);
                   }
@@ -238,7 +266,7 @@ export function ClaimsManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {selectedClaim && claimStatus.data?.arbitrationRequired ? (
+                {selectedClaim && claimStatus?.data?.arbitrationRequired ? (
                   <div className="space-y-4">
                     <div className="grid gap-2">
                       <h3 className="font-medium">Cast Your Vote</h3>
@@ -249,52 +277,28 @@ export function ClaimsManager() {
                       <div className="flex gap-2">
                         <Button
                           onClick={() => {
-                            const comments = (document.getElementById('arbitration-comments') as HTMLTextAreaElement).value;
-                            handleVote(selectedClaim, true, comments);
+                            const commentsEl = document.getElementById('arbitration-comments') as HTMLTextAreaElement;
+                            handleVote(selectedClaim, true, commentsEl?.value || '');
                           }}
-                          variant="default"
+                          className="flex-1 bg-green-500 hover:bg-green-600"
                         >
                           Approve Claim
                         </Button>
                         <Button
                           onClick={() => {
-                            const comments = (document.getElementById('arbitration-comments') as HTMLTextAreaElement).value;
-                            handleVote(selectedClaim, false, comments);
+                            const commentsEl = document.getElementById('arbitration-comments') as HTMLTextAreaElement;
+                            handleVote(selectedClaim, false, commentsEl?.value || '');
                           }}
-                          variant="destructive"
+                          className="flex-1 bg-red-500 hover:bg-red-600"
                         >
                           Reject Claim
                         </Button>
                       </div>
                     </div>
-
-                    <div>
-                      <h3 className="font-medium mb-2">Previous Votes</h3>
-                      <div className="space-y-2">
-                        {claimStatus.data.votes.map((vote, index) => (
-                          <div
-                            key={index}
-                            className="p-2 border rounded"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium">
-                                Arbitrator #{vote.arbitrator.toString().slice(0, 6)}
-                              </span>
-                              <Badge className={vote.approved ? 'bg-green-500' : 'bg-red-500'}>
-                                {vote.approved ? 'Approved' : 'Rejected'}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {vote.comments}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 ) : (
                   <div className="text-center text-muted-foreground">
-                    No claims currently require arbitration
+                    No claim selected or the selected claim does not require arbitration
                   </div>
                 )}
               </CardContent>

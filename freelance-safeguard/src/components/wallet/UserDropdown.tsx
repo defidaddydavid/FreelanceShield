@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL, Connection } from "@solana/web3.js";
+import React, { useState, useEffect, useCallback } from "react";
+import { LAMPORTS_PER_SOL, Connection, Commitment } from "@solana/web3.js";
 import { 
   Wallet, 
   LogOut, 
@@ -12,7 +11,9 @@ import {
   Settings,
   ExternalLink,
   Copy,
-  Check
+  Check,
+  Moon,
+  Sun
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,41 +31,65 @@ import { Avatar } from "@/components/ui/avatar";
 import { useSolanaTheme } from "@/contexts/SolanaThemeProvider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSafeWallet } from "@/hooks/useSafeWallet";
+import { formatSolanaErrorMessage, trackSolanaError } from "@/utils/errorHandling";
+import { useWallet } from "@solana/wallet-adapter-react";
 
-function UserDropdown() {
-  const wallet = useSafeWallet();
-  
-  // Now safe to use wallet properties
-  return (
-    <div>
-      {wallet.connected ? (
-        <div>Connected: {wallet.publicKey?.toString()}</div>
-      ) : (
-        <div>Not connected</div>
-      )}
-    </div>
-  );
-}
-// Define menu item styling
+// Define menu item styling with neon accents for retro-futuristic look
 const menuItemClasses = cn(
-  "flex items-center gap-2 px-2 py-2 rounded-md",
-  "text-sm font-medium",
-  "focus:bg-shield-purple/10 dark:focus:bg-shield-blue/20",
+  "flex items-center gap-2 px-3 py-2.5 rounded-md",
+  "text-sm font-medium font-sans",
+  "hover:bg-gradient-to-r hover:from-pink-500/10 hover:to-purple-500/10",
+  "focus:bg-shield-purple/15 dark:focus:bg-shield-blue/25",
   "cursor-pointer transition-colors"
+);
+
+// Retro-future styled button for balance display
+const BalanceDisplayButton = ({ balance, isLoading, onClick }: { 
+  balance: number, 
+  isLoading: boolean, 
+  onClick: () => void 
+}) => (
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={onClick}
+    className={cn(
+      "h-9 gap-2 font-mono bg-black/5 dark:bg-white/5",
+      "border-dashed border-pink-500/30 dark:border-blue-400/30",
+      "hover:border-pink-500/50 dark:hover:border-blue-400/50",
+      "transition-all duration-200"
+    )}
+    disabled={isLoading}
+  >
+    {isLoading ? (
+      <Loader2 className="h-4 w-4 animate-spin text-pink-500 dark:text-blue-400" />
+    ) : (
+      <Coins className="h-4 w-4 text-pink-500 dark:text-blue-400" />
+    )}
+    <span className={cn(
+      "font-bold",
+      "bg-clip-text text-transparent bg-gradient-to-r",
+      "from-pink-500 to-purple-600 dark:from-blue-400 dark:to-teal-300"
+    )}>
+      {balance.toFixed(4)} SOL
+    </span>
+  </Button>
 );
 
 /**
  * UserDropdown Component
  * 
  * A dropdown menu component for Solana wallet users that displays wallet information,
- * balance, and provides navigation options.
+ * balance, and provides navigation options with a retro-futuristic design.
  */
 const UserDropdown = () => {
   // Theme context
-  const { isDark } = useSolanaTheme();
+  const { isDark, setTheme } = useSolanaTheme();
   
-  // Wallet connection state from Solana wallet adapter
-  const { publicKey, disconnect, connected, wallet } = useWallet();
+  // Enhanced safe wallet access
+  const safeWallet = useSafeWallet();
+  // Direct wallet access for disconnection
+  const { disconnect } = useWallet();
   
   // Component state
   const [balance, setBalance] = useState<number>(0);
@@ -80,7 +105,7 @@ const UserDropdown = () => {
   // Create a Solana connection to the configured network
   const connection = new Connection(
     NETWORK_CONFIG.endpoint, 
-    { commitment: NETWORK_CONFIG.connectionConfig.commitment }
+    { commitment: NETWORK_CONFIG.connectionConfig.commitment as Commitment }
   );
 
   /**
@@ -93,424 +118,297 @@ const UserDropdown = () => {
   };
 
   // Get shortened address if publicKey exists
-  const truncatedAddress = publicKey ? shortenAddress(publicKey.toBase58()) : '';
-  const fullAddress = publicKey ? publicKey.toBase58() : '';
+  const truncatedAddress = safeWallet.publicKey ? shortenAddress(safeWallet.publicKey.toBase58()) : '';
+  const fullAddress = safeWallet.publicKey ? safeWallet.publicKey.toBase58() : '';
 
-  // Effect to fetch balance when wallet connects and set up refresh interval
-  useEffect(() => {
-    if (connected && publicKey) {
-      console.log('Wallet connected:', publicKey.toBase58());
-      fetchBalance();
-      fetchSolPrice();
-
-      // Set up an interval to refresh the balance every 30 seconds
-      const intervalId = setInterval(() => {
-        fetchBalance();
-      }, 30000);
-
-      // Set up an interval to refresh the SOL price every 5 minutes
-      const priceIntervalId = setInterval(() => {
-        fetchSolPrice();
-      }, 300000);
-
-      // Clean up intervals on component unmount or wallet disconnect
-      return () => {
-        clearInterval(intervalId);
-        clearInterval(priceIntervalId);
-      };
-    } else {
-      console.log('Wallet disconnected');
+  /**
+   * Fetch the SOL balance of the connected wallet
+   */
+  const fetchBalance = useCallback(async () => {
+    if (!safeWallet.connected || !safeWallet.publicKey) {
+      setBalance(0);
       setNetworkStatus('disconnected');
-    }
-  }, [connected, publicKey]);
-
-  /**
-   * Fetches the current SOL price in USD
-   */
-  const fetchSolPrice = async () => {
-    try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
-      const data = await response.json();
-      if (data && data.solana && data.solana.usd) {
-        setSolPrice(data.solana.usd);
-        // Update USD value if we have balance
-        if (balance > 0) {
-          setUsdValue(balance * data.solana.usd);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching SOL price:', error);
-    }
-  };
-
-  /**
-   * Fetches the current SOL balance for the connected wallet
-   */
-  const fetchBalance = async () => {
-    if (!publicKey || !connected) return;
-
-    setIsLoading(true);
-    try {
-      const bal = await connection.getBalance(publicKey);
-      const solBalance = bal / LAMPORTS_PER_SOL;
-      setBalance(solBalance);
-      
-      // Update USD value if we have SOL price
-      if (solPrice) {
-        setUsdValue(solBalance * solPrice);
-      }
-      
-      setLastRefreshed(new Date());
-      setNetworkStatus('connected');
-    } catch (error) {
-      console.error('Error fetching balance:', error);
-      toast.error('Failed to fetch wallet balance');
-      setNetworkStatus('error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Copies wallet address to clipboard
-   */
-  const copyAddress = () => {
-    if (!publicKey) return;
-    
-    navigator.clipboard.writeText(publicKey.toBase58())
-      .then(() => {
-        setIsCopied(true);
-        toast.success('Address copied to clipboard');
-        setTimeout(() => setIsCopied(false), 2000);
-      })
-      .catch(err => {
-        console.error('Failed to copy address:', err);
-        toast.error('Failed to copy address');
-      });
-  };
-
-  /**
-   * Opens the wallet address in Solana Explorer
-   */
-  const viewInExplorer = () => {
-    if (!publicKey) return;
-    
-    const explorerUrl = `https://${NETWORK_CONFIG.isTestnet ? 'explorer.solana.com' : 'solscan.io'}/address/${publicKey.toBase58()}${NETWORK_CONFIG.isTestnet ? '?cluster=devnet' : ''}`;
-    window.open(explorerUrl, '_blank');
-  };
-
-  /**
-   * Handles wallet disconnection with proper state management
-   */
-  const handleDisconnect = async () => {
-    try {
-      setIsLoading(true);
-      await disconnect();
-      toast.success('Wallet Disconnected');
-      navigate('/'); // Redirect to home page on disconnect
-    } catch (error) {
-      console.error('Error disconnecting wallet:', error);
-      toast.error('Failed to disconnect wallet');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Navigates to the dashboard page
-   */
-  const handleDashboardClick = () => {
-    navigate('/dashboard');
-  };
-
-  /**
-   * Navigates to the staking page
-   */
-  const handleStakingClick = () => {
-    navigate('/staking');
-  };
-
-  /**
-   * Requests an airdrop of 1 SOL (only available on testnet)
-   */
-  const handleRequestAirdrop = async () => {
-    if (!publicKey || !connected) {
-      toast.error('Please connect your wallet first');
       return;
     }
 
     setIsLoading(true);
+    
     try {
-      const signature = await connection.requestAirdrop(publicKey, 1 * LAMPORTS_PER_SOL);
-      await connection.confirmTransaction(signature);
-      toast.success('Airdrop successful! 1 SOL received');
-      fetchBalance();
-    } catch (error) {
-      console.error('Error requesting airdrop:', error);
-      toast.error('Failed to request airdrop');
+      // Use the enhanced getSolBalance method from our hook
+      const solBalance = await safeWallet.getSolBalance(connection);
+      setBalance(solBalance);
+      setLastRefreshed(new Date());
+      setNetworkStatus('connected');
+      
+      // Attempt to get SOL price in USD
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+        const data = await response.json();
+        if (data && data.solana && data.solana.usd) {
+          setSolPrice(data.solana.usd);
+          setUsdValue(solBalance * data.solana.usd);
+        }
+      } catch (priceErr) {
+        console.warn("Failed to fetch SOL price:", priceErr);
+      }
+    } catch (err) {
+      console.error("Error fetching balance:", err);
+      trackSolanaError(err, "fetchBalance");
+      setNetworkStatus('error');
+      toast.error("Failed to fetch balance", {
+        description: formatSolanaErrorMessage(err),
+      });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [connection, safeWallet]);
 
-  // If not connected, return null (could be replaced with a connect button if needed)
-  if (!connected || !publicKey) {
+  /**
+   * Copy wallet address to clipboard
+   */
+  const copyAddress = useCallback(() => {
+    if (!fullAddress) return;
+
+    navigator.clipboard.writeText(fullAddress).then(
+      () => {
+        setIsCopied(true);
+        toast.success("Address copied to clipboard");
+        
+        // Reset copied state after animation
+        setTimeout(() => {
+          setIsCopied(false);
+        }, 2000);
+      },
+      (err) => {
+        console.error("Failed to copy address:", err);
+        toast.error("Failed to copy address");
+      }
+    );
+  }, [fullAddress]);
+
+  /**
+   * Handle wallet disconnect with confirmation
+   */
+  const handleDisconnect = useCallback(async () => {
+    try {
+      if (disconnect) {
+        await disconnect();
+        toast.success("Wallet disconnected");
+        setBalance(0);
+        setNetworkStatus('disconnected');
+      }
+    } catch (err) {
+      console.error("Error disconnecting wallet:", err);
+      toast.error("Failed to disconnect wallet");
+    }
+  }, [disconnect]);
+
+  /**
+   * Toggle theme between light and dark mode
+   */
+  const toggleTheme = useCallback(() => {
+    setTheme(isDark ? 'light' : 'dark');
+    toast.success(`Switched to ${isDark ? 'light' : 'dark'} mode`);
+  }, [isDark, setTheme]);
+
+  // Effect to fetch balance when wallet connects and set up refresh interval
+  useEffect(() => {
+    // Fetch balance initially
+    if (safeWallet.connected && safeWallet.publicKey) {
+      fetchBalance();
+    }
+
+    // Set up refresh interval (every 30 seconds)
+    const interval = setInterval(() => {
+      if (safeWallet.connected && safeWallet.publicKey) {
+        fetchBalance();
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchBalance, safeWallet.connected, safeWallet.publicKey]);
+
+  // Return loading skeleton if wallet is in connecting state
+  if (safeWallet.connecting) {
+    return (
+      <div className="flex items-center">
+        <Button variant="ghost" size="sm" disabled className="gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" /> 
+          <span>Connecting...</span>
+        </Button>
+      </div>
+    );
+  }
+
+  // Return disconnect button if wallet is in disconnecting state
+  if (safeWallet.disconnecting) {
+    return (
+      <div className="flex items-center">
+        <Button variant="ghost" size="sm" disabled className="gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Disconnecting...</span>
+        </Button>
+      </div>
+    );
+  }
+
+  // If not connected, return null
+  if (!safeWallet.connected || !safeWallet.publicKey) {
     return null;
   }
 
-  // Format the last refreshed time
-  const formattedLastRefreshed = lastRefreshed 
-    ? lastRefreshed.toLocaleTimeString() 
-    : 'Never';
+  // Determine if we're on testnet based on endpoint or env var
+  const isTestnet = NETWORK_CONFIG.endpoint.includes('devnet') || 
+                    NETWORK_CONFIG.endpoint.includes('testnet') || 
+                    import.meta.env.VITE_SOLANA_NETWORK !== 'mainnet-beta';
+                    
+  // Get network name for display
+  const networkName = isTestnet ? 'Devnet' : 'Mainnet';
 
+  // Main dropdown component when connected
   return (
-    <TooltipProvider>
+    <div className="flex items-center gap-2">
+      {/* Balance Display with Refresh */}
+      <BalanceDisplayButton 
+        balance={balance} 
+        isLoading={isLoading} 
+        onClick={fetchBalance} 
+      />
+
+      {/* User Dropdown Menu */}
       <DropdownMenu>
-        {/* Dropdown Trigger Button */}
-        <DropdownMenuTrigger asChild>
-          <button className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-lg transition-colors",
-            "hover:bg-shield-purple/10 dark:hover:bg-shield-blue/20",
-            "focus:outline-none focus:ring-2",
-            isDark 
-              ? "focus:ring-shield-blue/50" 
-              : "focus:ring-shield-purple/50",
-            isLoading && "opacity-70 cursor-wait"
-          )}>
-            {isLoading ? (
-              <Loader2 className={cn(
-                "h-4 w-4 animate-spin",
-                isDark ? "text-shield-blue" : "text-shield-purple"
-              )} />
-            ) : (
-              <Avatar 
-                size="sm" 
-                walletAddress={publicKey.toBase58()}
-                className={cn(
-                  "border-2",
-                  isDark ? "border-shield-blue" : "border-shield-purple"
-                )}
-              />
-            )}
-            <span className={cn(
-              "font-medium",
-              isDark ? "text-shield-blue" : "text-shield-purple"
-            )}>
-              {truncatedAddress}
-            </span>
-          </button>
-        </DropdownMenuTrigger>
-        
-        {/* Dropdown Content */}
-        <DropdownMenuContent 
-          className={cn(
-            "w-64 p-1 rounded-lg",
-            "bg-white dark:bg-gray-900",
-            "border",
-            isDark 
-              ? "border-shield-blue/20" 
-              : "border-shield-purple/20",
-            "shadow-lg"
-          )}
-        >
-          {/* Wallet Information Header */}
-          <div className="px-3 py-2 mb-1">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className={cn(
-                  "text-sm font-medium",
-                  isDark ? "text-shield-blue" : "text-shield-purple"
-                )}>
-                  {wallet?.adapter.name || 'Wallet'}
-                </span>
-                <div className={cn(
-                  "px-1.5 py-0.5 text-xs rounded-full",
-                  isDark 
-                    ? "bg-shield-blue/10 text-shield-blue" 
-                    : "bg-shield-purple/10 text-shield-purple"
-                )}>
-                  {NETWORK_CONFIG.isTestnet ? 'Testnet' : 'Mainnet'}
-                </div>
-              </div>
-              <div className="flex gap-1">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={copyAddress} 
-                      className={cn(
-                        "p-1 rounded-md transition-colors",
-                        isDark 
-                          ? "hover:bg-gray-800 text-gray-400 hover:text-gray-200" 
-                          : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-                      )}
-                      aria-label="Copy address"
-                    >
-                      {isCopied ? (
-                        <Check className="h-3.5 w-3.5 text-green-500" />
-                      ) : (
-                        <Copy className="h-3.5 w-3.5" />
-                      )}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Copy address</p>
-                  </TooltipContent>
-                </Tooltip>
-                
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={viewInExplorer} 
-                      className={cn(
-                        "p-1 rounded-md transition-colors",
-                        isDark 
-                          ? "hover:bg-gray-800 text-gray-400 hover:text-gray-200" 
-                          : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-                      )}
-                      aria-label="View in explorer"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>View in explorer</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className={cn(
+                    "h-9 w-9 rounded-full border-2",
+                    "hover:border-pink-500 dark:hover:border-blue-400",
+                    "transition-colors duration-200",
+                    "bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-950 dark:to-indigo-950"
+                  )}
+                >
+                  <Avatar className="h-7 w-7 bg-gradient-to-r from-purple-500 to-pink-600 dark:from-blue-600 dark:to-indigo-800">
+                    <User className="h-4 w-4 text-white" />
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p className="font-mono text-xs">
+                {truncatedAddress}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <DropdownMenuContent align="end" className="w-56 p-2 border border-pink-300/20 dark:border-blue-500/20">
+          {/* Header */}
+          <div className="px-2 py-1.5 mb-1">
+            <p className="font-heading font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-700 dark:from-blue-400 dark:to-indigo-300">
+              {safeWallet.walletName}
+            </p>
             
-            {/* Address Display */}
-            <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 font-mono">
-              {fullAddress}
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                {truncatedAddress}
+              </span>
+              <button 
+                onClick={copyAddress} 
+                className="text-pink-500 dark:text-blue-400 hover:opacity-80"
+              >
+                {isCopied ? (
+                  <Check className="h-3.5 w-3.5" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+              </button>
             </div>
           </div>
-          
-          <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-          
-          {/* Balance Information Section */}
-          <div className="px-3 py-2 mb-1">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Balance</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button 
-                    onClick={fetchBalance} 
-                    className={cn(
-                      "p-1 rounded-md transition-colors",
-                      isDark 
-                        ? "hover:bg-gray-800 text-shield-blue hover:text-shield-blue" 
-                        : "hover:bg-gray-100 text-shield-purple hover:text-shield-purple"
-                    )}
-                    disabled={isLoading}
-                    aria-label="Refresh balance"
-                  >
-                    <RefreshCw className={cn(
-                      "h-3.5 w-3.5",
-                      isLoading && "animate-spin"
-                    )} />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Refresh balance</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            
-            {/* SOL Balance */}
-            <div className="flex items-center gap-1 mt-1">
-              <Coins className={cn(
-                "h-4 w-4",
-                isDark ? "text-shield-blue" : "text-shield-purple"
-              )} />
-              <span className="font-medium text-base">
+
+          <DropdownMenuSeparator className="bg-gradient-to-r from-transparent via-pink-300/20 dark:via-blue-500/20 to-transparent my-1" />
+
+          {/* Wallet Details */}
+          <div className="px-2 py-1.5 mb-1">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600 dark:text-gray-300">Balance:</span>
+              <span className="font-mono font-bold text-sm">
                 {balance.toFixed(4)} SOL
               </span>
             </div>
             
-            {/* USD Value */}
             {usdValue !== null && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                ≈ ${usdValue.toFixed(2)} USD
-                {solPrice && <span className="ml-1">@ ${solPrice.toFixed(2)}</span>}
+              <div className="flex justify-between items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <span>USD Value:</span>
+                <span>${usdValue.toFixed(2)}</span>
               </div>
             )}
             
-            {/* Network Status Indicator */}
-            <div className="text-xs text-gray-400 mt-2 flex items-center justify-between">
-              <div className="flex items-center">
-                <span className={cn(
-                  "inline-block w-2 h-2 rounded-full mr-1",
-                  networkStatus === 'connected' && "bg-green-500",
-                  networkStatus === 'disconnected' && "bg-gray-500",
-                  networkStatus === 'error' && "bg-red-500"
-                )}></span>
-                {networkStatus === 'connected' ? 'Connected' : 
-                 networkStatus === 'error' ? 'Connection Error' : 'Disconnected'}
+            <div className="flex justify-between items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <span>Network:</span>
+              <div className="flex items-center gap-1">
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  networkStatus === 'connected' ? 'bg-green-400' : 
+                  networkStatus === 'error' ? 'bg-red-400' : 'bg-yellow-400'
+                )} />
+                <span>{networkName}</span>
               </div>
-              {lastRefreshed && (
-                <span className="text-xs text-gray-400">
-                  Updated: {formattedLastRefreshed}
-                </span>
-              )}
+            </div>
+            
+            <div className="flex justify-between items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <span>Last updated:</span>
+              <span>{lastRefreshed ? lastRefreshed.toLocaleTimeString() : 'Never'}</span>
             </div>
           </div>
+
+          <DropdownMenuSeparator className="bg-gradient-to-r from-transparent via-pink-300/20 dark:via-blue-500/20 to-transparent my-1" />
+
+          {/* Menu Actions */}
+          <DropdownMenuItem className={menuItemClasses} onClick={() => navigate('/profile')}>
+            <User className="h-4 w-4 text-pink-500 dark:text-blue-400" />
+            <span>Profile</span>
+          </DropdownMenuItem>
           
-          <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-          
-          {/* Navigation Options */}
-          <DropdownMenuItem 
-            className={menuItemClasses}
-            onClick={handleDashboardClick}
-          >
-            <Shield className="h-4 w-4" />
-            Dashboard
+          <DropdownMenuItem className={menuItemClasses} onClick={() => navigate('/settings')}>
+            <Settings className="h-4 w-4 text-pink-500 dark:text-blue-400" />
+            <span>Settings</span>
           </DropdownMenuItem>
           
           <DropdownMenuItem 
-            className={menuItemClasses}
-            onClick={handleStakingClick}
+            onSelect={(e) => {
+              e.preventDefault();
+              toggleTheme();
+            }}
+            className="flex items-center gap-2 cursor-pointer"
           >
-            <Coins className="h-4 w-4" />
-            Staking
+            {isDark ? (
+              <Sun className="h-4 w-4 text-shield-blue" />
+            ) : (
+              <Moon className="h-4 w-4 text-shield-purple" />
+            )}
+            <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
           </DropdownMenuItem>
           
-          {/* Only show airdrop in development or testnet */}
-          {NETWORK_CONFIG.isTestnet && (
-            <DropdownMenuItem 
-              className={menuItemClasses}
-              onClick={handleRequestAirdrop}
-              disabled={isLoading}
-            >
-              <RefreshCw className="h-4 w-4" />
-              Request Airdrop
-            </DropdownMenuItem>
-          )}
-          
-          <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-          
-          {/* User Options */}
-          <DropdownMenuItem className={menuItemClasses}>
-            <User className="h-4 w-4" />
-            Profile
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem className={menuItemClasses}>
-            <Settings className="h-4 w-4" />
-            Settings
-          </DropdownMenuItem>
-          
-          {/* Disconnect Option */}
-          <DropdownMenuItem 
-            className={cn(menuItemClasses, "text-red-500 focus:text-red-500")}
-            onClick={handleDisconnect}
-            disabled={isLoading}
+          <DropdownMenuItem className={menuItemClasses} 
+            onClick={() => window.open(`https://explorer.solana.com/address/${fullAddress}${isTestnet ? `?cluster=${import.meta.env.VITE_SOLANA_NETWORK || 'devnet'}` : ''}`, '_blank', 'noopener,noreferrer')}
           >
-            <LogOut className="h-4 w-4" />
-            Disconnect
+            <ExternalLink className="h-4 w-4 text-pink-500 dark:text-blue-400" />
+            <span>View on Explorer</span>
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator className="bg-gradient-to-r from-transparent via-pink-300/20 dark:via-blue-500/20 to-transparent my-1" />
+          
+          <DropdownMenuItem className={menuItemClasses} onClick={handleDisconnect}>
+            <LogOut className="h-4 w-4 text-red-500" />
+            <span className="text-red-500">Disconnect</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </TooltipProvider>
+    </div>
   );
 };
 

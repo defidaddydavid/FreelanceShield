@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldCheckIcon, ClockIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+import { cn } from '@/lib/utils';
 
 interface InsuranceCardProps {
   title: string;
@@ -21,9 +22,9 @@ export const InsuranceCard: React.FC<InsuranceCardProps> = ({
   onClick,
 }) => {
   const statusColors = {
-    active: 'bg-green-500',
-    pending: 'bg-yellow-500',
-    expired: 'bg-red-500',
+    active: 'bg-shield-blue',
+    pending: 'bg-silver',
+    expired: 'bg-shield-purple',
   };
 
   const statusLabels = {
@@ -34,7 +35,7 @@ export const InsuranceCard: React.FC<InsuranceCardProps> = ({
 
   return (
     <div 
-      className="bg-gray-800 rounded-lg overflow-hidden shadow-lg border border-gray-700 hover:border-deep-purple transition-colors cursor-pointer"
+      className="bg-gray-800 rounded-lg overflow-hidden shadow-lg border border-gray-700 hover:border-shield-purple transition-colors cursor-pointer"
       onClick={onClick}
     >
       <div className="p-6">
@@ -50,13 +51,13 @@ export const InsuranceCard: React.FC<InsuranceCardProps> = ({
         
         <div className="grid grid-cols-3 gap-4">
           <div className="flex flex-col items-center p-3 bg-gray-700 rounded-lg">
-            <CurrencyDollarIcon className="w-6 h-6 text-electric-blue mb-2" />
+            <CurrencyDollarIcon className="w-6 h-6 text-shield-blue mb-2" />
             <span className="text-xs text-gray-400">Premium</span>
             <span className="text-sm font-brick font-medium text-white">{premium}</span>
           </div>
           
           <div className="flex flex-col items-center p-3 bg-gray-700 rounded-lg">
-            <ShieldCheckIcon className="w-6 h-6 text-deep-purple mb-2" />
+            <ShieldCheckIcon className="w-6 h-6 text-shield-purple mb-2" />
             <span className="text-xs text-gray-400">Coverage</span>
             <span className="text-sm font-brick font-medium text-white">{coverage}</span>
           </div>
@@ -70,11 +71,11 @@ export const InsuranceCard: React.FC<InsuranceCardProps> = ({
       </div>
       
       <div className="px-6 py-4 bg-gray-700 flex justify-between items-center">
-        <button className="px-4 py-2 bg-deep-purple hover:bg-deep-purple/80 text-white rounded-md transition-colors font-brick">
+        <button className="px-4 py-2 bg-shield-purple hover:bg-shield-purple/80 text-white rounded-md transition-colors font-brick">
           View Details
         </button>
         
-        <button className="px-4 py-2 border border-electric-blue text-electric-blue hover:bg-electric-blue/10 rounded-md transition-colors font-brick">
+        <button className="px-4 py-2 border border-shield-blue text-shield-blue hover:bg-shield-blue/10 rounded-md transition-colors font-brick">
           Renew
         </button>
       </div>

@@ -112,6 +112,32 @@ export default function Dashboard() {
     }
   }, [error]);
 
+  // Add network connection check
+  const [isOnline, setIsOnline] = useState(true);
+  
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isOnline) {
+      toast({
+        title: "Network connection lost",
+        description: "Please check your internet connection to access blockchain data",
+        variant: "destructive",
+      });
+    }
+  }, [isOnline]);
+
   const hasActivePolicies = policies && policies.length > 0;
   const activePolicy = hasActivePolicies ? policies[0] : null;
   const activeClaims = claims?.filter(claim => claim.status === ClaimStatus.PENDING) || [];
@@ -136,392 +162,508 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto py-6">
-        <div className="flex flex-col space-y-6">
-          {/* Header with wallet status */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
-              <p className="text-gray-400">
-                Manage your insurance policies and claims
+      <div className="container mx-auto py-6 px-4">
+        {/* Dashboard Header - Using brand colors */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-shield-purple to-shield-blue text-transparent bg-clip-text font-display">
+              Freelancer Dashboard
+            </h1>
+            <p className="text-gray-400 mt-1">
+              Secure your work with blockchain-backed insurance
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={handleRefresh} 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 text-shield-blue border-shield-blue/30 hover:bg-shield-blue/10 transition-all"
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing && "animate-spin"}`} />
+              {isRefreshing ? "Refreshing..." : "Refresh Data"}
+            </Button>
+            <Button 
+              onClick={() => navigate('/new-policy')} 
+              size="sm" 
+              className="bg-shield-purple hover:bg-shield-purple/90 text-white transition-all"
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Create Policy
+            </Button>
+          </div>
+        </div>
+
+        {/* No Wallet Connected State */}
+        {!connected && (
+          <Card className="border-0 bg-gray-900/80 shadow-lg overflow-hidden relative mb-8">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]"></div>
+            <CardContent className="p-8 text-center relative z-10">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-shield-purple/10 mb-4">
+                <FreelanceShieldLogo className="h-8 w-8" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Connect Your Wallet</h3>
+              <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                Connect your Solana wallet to access your dashboard, manage policies and claims, and interact with the FreelanceShield protocol.
               </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center gap-2">
-              <WalletStatus />
+              <WalletStatus refreshOnLoad />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Offline Warning */}
+        {!isOnline && (
+          <Alert className="mb-6 border-orange-500 bg-orange-500/10">
+            <AlertTriangle className="h-4 w-4 text-orange-500" />
+            <AlertTitle>Offline Mode</AlertTitle>
+            <AlertDescription>
+              You're currently offline. Some blockchain data may not be available until your connection is restored.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Error State */}
+        {error && connected && (
+          <Alert className="mb-6 border-shield-purple bg-shield-purple/10">
+            <AlertTriangle className="h-4 w-4 text-shield-purple" />
+            <AlertTitle>Connection Error</AlertTitle>
+            <AlertDescription>
+              {error}
               <Button 
-                variant="outline" 
-                onClick={handleRefresh}
-                disabled={isRefreshing || !connected}
-                className="bg-transparent border-electric-blue text-electric-blue hover:bg-electric-blue/10"
+                variant="link" 
+                onClick={handleRefresh} 
+                className="p-0 h-auto font-normal text-shield-blue"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                Refresh
+                Try refreshing
               </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Empty State - No Policies or Claims */}
+        {connected && !isLoading && !hasActivePolicies && !hasClaims && !error && (
+          <Card className="border-0 bg-gray-900/80 shadow-lg overflow-hidden relative mb-8">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]"></div>
+            <CardContent className="p-8 text-center relative z-10">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-shield-purple/10 mb-4">
+                <Shield className="h-8 w-8 text-shield-purple" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Get Started with FreelanceShield</h3>
+              <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                Create your first insurance policy to protect your freelance work from unexpected issues like non-payment, scope creep, and contract disputes.
+              </p>
               <Button 
                 onClick={() => navigate('/new-policy')}
-                disabled={!connected}
-                className="bg-deep-purple hover:bg-deep-purple/90 text-white"
+                className="bg-shield-purple hover:bg-shield-purple/90 text-white"
               >
-                Create Policy
+                Create Your First Policy
               </Button>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+        )}
 
-          {/* Status cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {/* Policy Status */}
-            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg hover:border-deep-purple/50 transition-all">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+        {/* Wallet Status Card */}
+        <div className="grid grid-cols-1 gap-6 mb-8">
+          <WalletStatus refreshOnLoad />
+        </div>
+
+        {/* Stats Overview Cards - Using brand colors */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Active Policies Card */}
+          <Card className="border-0 bg-gray-900/80 shadow-lg shadow-shield-purple/20 overflow-hidden relative">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]"></div>
+            <CardHeader className="pb-2 relative z-10">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-shield-purple" />
                   Active Policies
                 </CardTitle>
-                <Shield className="h-4 w-4 text-deep-purple" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {isLoading ? (
-                    <Skeleton className="h-8 w-16 bg-gray-700" />
-                  ) : (
-                    policies?.filter(p => p.status === PolicyStatus.ACTIVE).length || 0
-                  )}
+                <div className="h-6 w-6 rounded-full flex items-center justify-center bg-shield-purple/10">
+                  <span className="text-xs text-shield-purple">i</span>
                 </div>
-                <p className="text-xs text-gray-400">
-                  {hasActivePolicies ? 'Coverage active' : 'No active policies'}
-                </p>
-              </CardContent>
-            </Card>
+              </div>
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="flex items-baseline">
+                <div className="text-3xl font-bold text-white">
+                  {isLoading ? <Skeleton className="h-8 w-16" /> : policies?.length || 0}
+                </div>
+                <div className="text-sm text-gray-400 ml-2">
+                  {isLoading ? '' : 'policies'}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {policies?.length === 0 && !isLoading ? 'No active policies' : 
+                 policies?.length === 1 && !isLoading ? '1 active protection plan' : 
+                 !isLoading ? `${policies?.length} active protection plans` : ''}
+              </p>
+            </CardContent>
+          </Card>
 
-            {/* Claims Status */}
-            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg hover:border-deep-purple/50 transition-all">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+          {/* Pending Claims Card */}
+          <Card className="border-0 bg-gray-900/80 shadow-lg shadow-shield-blue/20 overflow-hidden relative">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]"></div>
+            <CardHeader className="pb-2 relative z-10">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-shield-blue" />
                   Pending Claims
                 </CardTitle>
-                <Clock className="h-4 w-4 text-electric-blue" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {isLoading ? (
-                    <Skeleton className="h-8 w-16 bg-gray-700" />
-                  ) : (
-                    activeClaims.length
-                  )}
+                <div className="h-6 w-6 rounded-full flex items-center justify-center bg-shield-blue/10">
+                  <span className="text-xs text-shield-blue">i</span>
                 </div>
-                <p className="text-xs text-gray-400">
-                  {activeClaims.length > 0 ? 'Claims awaiting review' : 'No pending claims'}
-                </p>
-              </CardContent>
-            </Card>
+              </div>
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="flex items-baseline">
+                <div className="text-3xl font-bold text-white">
+                  {isLoading ? <Skeleton className="h-8 w-16" /> : activeClaims?.length || 0}
+                </div>
+                <div className="text-sm text-gray-400 ml-2">
+                  {isLoading ? '' : 'claims'}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {activeClaims?.length === 0 && !isLoading ? 'No pending claims' : 
+                 activeClaims?.length === 1 && !isLoading ? '1 claim awaiting review' : 
+                 !isLoading ? `${activeClaims?.length} claims awaiting review` : ''}
+              </p>
+            </CardContent>
+          </Card>
 
-            {/* Total Coverage */}
-            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg hover:border-deep-purple/50 transition-all">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+          {/* Total Coverage Card */}
+          <Card className="border-0 bg-gray-900/80 shadow-lg shadow-silver/20 overflow-hidden relative">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]"></div>
+            <CardHeader className="pb-2 relative z-10">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-silver" />
                   Total Coverage
                 </CardTitle>
-                <DollarSign className="h-4 w-4 text-silver" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="h-6 w-6 rounded-full flex items-center justify-center bg-silver/10">
+                  <span className="text-xs text-silver">i</span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="flex items-baseline">
+                <div className="text-3xl font-bold text-white">
                   {isLoading ? (
-                    <Skeleton className="h-8 w-16 bg-gray-700" />
+                    <Skeleton className="h-8 w-24" />
                   ) : (
                     formatCurrency(riskPoolMetrics?.totalCoverage || 0)
                   )}
                 </div>
-                <p className="text-xs text-gray-400">
-                  Protected value
-                </p>
-              </CardContent>
-            </Card>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Protected value</p>
+            </CardContent>
+          </Card>
 
-            {/* Solvency Ratio */}
-            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg hover:border-deep-purple/50 transition-all">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+          {/* Solvency Ratio Card */}
+          <Card className="border-0 bg-gray-900/80 shadow-lg shadow-shield-purple/20 overflow-hidden relative">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]"></div>
+            <CardHeader className="pb-2 relative z-10">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-shield-purple" />
                   Solvency Ratio
                 </CardTitle>
-                <BarChart3 className="h-4 w-4 text-deep-purple" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="h-6 w-6 rounded-full flex items-center justify-center bg-shield-purple/10">
+                  <span className="text-xs text-shield-purple">i</span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="flex items-baseline">
+                <div className="text-3xl font-bold text-white">
                   {isLoading ? (
-                    <Skeleton className="h-8 w-16 bg-gray-700" />
+                    <Skeleton className="h-8 w-16" />
                   ) : (
                     `${Math.round((riskPoolMetrics?.solvencyRatio || 0) * 100)}%`
                   )}
                 </div>
-                <p className="text-xs text-gray-400">
-                  {solvencyStatus === 'excellent' && 'Excellent financial health'}
-                  {solvencyStatus === 'good' && 'Good financial health'}
-                  {solvencyStatus === 'moderate' && 'Moderate financial health'}
-                  {solvencyStatus === 'at-risk' && 'At risk - needs attention'}
-                  {solvencyStatus === 'unknown' && 'Calculating...'}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main content area */}
-          <div className="grid gap-6 md:grid-cols-7">
-            {/* Left column - 4/7 width */}
-            <div className="md:col-span-4 space-y-6">
-              <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
-                <CardHeader>
-                  <CardTitle>Your Insurance Policies</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Manage your active and pending insurance policies
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="space-y-4">
-                      <Skeleton className="h-[200px] w-full bg-gray-700" />
-                      <Skeleton className="h-[200px] w-full bg-gray-700" />
-                    </div>
-                  ) : !connected ? (
-                    <Alert className="bg-gray-700 border-deep-purple">
-                      <AlertTriangle className="h-4 w-4 text-deep-purple" />
-                      <AlertTitle>Wallet not connected</AlertTitle>
-                      <AlertDescription>
-                        Connect your Solana wallet to view your insurance policies
-                      </AlertDescription>
-                    </Alert>
-                  ) : hasActivePolicies ? (
-                    <div className="space-y-4">
-                      {policies.map((policy) => (
-                        <InsuranceCard
-                          key={policy.id}
-                          title={policy.name}
-                          description={policy.description}
-                          premium={formatCurrency(policy.premium)}
-                          coverage={formatCurrency(policy.coverageAmount)}
-                          duration={`${policy.durationDays} days`}
-                          status={policy.status === PolicyStatus.ACTIVE ? 'active' : policy.status === PolicyStatus.PENDING ? 'pending' : 'expired'}
-                          onClick={() => navigate(`/policies/${policy.id}`)}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Shield className="h-12 w-12 text-deep-purple mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-2">No Policies Found</h3>
-                      <p className="text-gray-400 mb-4">
-                        You don't have any insurance policies yet. Create your first policy to protect your freelance work.
-                      </p>
-                      <Button 
-                        onClick={() => navigate('/new-policy')}
-                        className="bg-deep-purple hover:bg-deep-purple/90 text-white"
-                      >
-                        Create Your First Policy
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-                {hasActivePolicies && (
-                  <CardFooter className="border-t border-gray-700 bg-gray-800/50">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => navigate('/policies')}
-                      className="w-full bg-transparent border-electric-blue text-electric-blue hover:bg-electric-blue/10"
-                    >
-                      View All Policies
-                    </Button>
-                  </CardFooter>
+              </div>
+              <p className="text-xs flex items-center gap-1 mt-1">
+                {solvencyStatus === 'excellent' && (
+                  <span className="text-shield-blue">Excellent financial health</span>
                 )}
-              </Card>
-
-              <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
-                <CardHeader>
-                  <CardTitle>Recent Claims</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Track the status of your recent insurance claims
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <Skeleton className="h-[200px] w-full bg-gray-700" />
-                  ) : !connected ? (
-                    <Alert className="bg-gray-700 border-deep-purple">
-                      <AlertTriangle className="h-4 w-4 text-deep-purple" />
-                      <AlertTitle>Wallet not connected</AlertTitle>
-                      <AlertDescription>
-                        Connect your Solana wallet to view your claims
-                      </AlertDescription>
-                    </Alert>
-                  ) : hasClaims ? (
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="border-gray-700 hover:bg-gray-700/50">
-                          <TableHead className="text-gray-400">Claim ID</TableHead>
-                          <TableHead className="text-gray-400">Amount</TableHead>
-                          <TableHead className="text-gray-400">Date</TableHead>
-                          <TableHead className="text-gray-400">Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {claims.slice(0, 5).map((claim) => (
-                          <TableRow 
-                            key={claim.id} 
-                            className="border-gray-700 hover:bg-gray-700/50 cursor-pointer"
-                            onClick={() => navigate(`/claims/${claim.id}`)}
-                          >
-                            <TableCell className="font-medium text-electric-blue">
-                              {claim.id.substring(0, 8)}...
-                            </TableCell>
-                            <TableCell>{formatCurrency(claim.amount)}</TableCell>
-                            <TableCell>{formatDate(claim.createdAt)}</TableCell>
-                            <TableCell>
-                              <Badge 
-                                className={
-                                  claim.status === ClaimStatus.APPROVED 
-                                    ? "bg-green-500/20 text-green-500 hover:bg-green-500/30" 
-                                    : claim.status === ClaimStatus.REJECTED
-                                    ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
-                                    : "bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30"
-                                }
-                              >
-                                {claim.status}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  ) : (
-                    <div className="text-center py-8">
-                      <FileText className="h-12 w-12 text-electric-blue mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-2">No Claims Filed</h3>
-                      <p className="text-gray-400 mb-4">
-                        You haven't filed any insurance claims yet. If you experience a covered loss, file a claim for review.
-                      </p>
-                      <Button 
-                        onClick={() => navigate('/new-claim')}
-                        disabled={!hasActivePolicies}
-                        className="bg-electric-blue hover:bg-electric-blue/90 text-white"
-                      >
-                        File a Claim
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-                {hasClaims && (
-                  <CardFooter className="border-t border-gray-700 bg-gray-800/50">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => navigate('/claims')}
-                      className="w-full bg-transparent border-electric-blue text-electric-blue hover:bg-electric-blue/10"
-                    >
-                      View All Claims
-                    </Button>
-                  </CardFooter>
+                {solvencyStatus === 'good' && (
+                  <span className="text-shield-blue">Good financial health</span>
                 )}
-              </Card>
-            </div>
+                {solvencyStatus === 'moderate' && (
+                  <span className="text-silver">Moderate financial health</span>
+                )}
+                {solvencyStatus === 'at-risk' && (
+                  <span className="text-shield-purple">At-risk financial health</span>
+                )}
+                {solvencyStatus === 'unknown' && (
+                  <span className="text-gray-400">Financial health unknown</span>
+                )}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Right column - 3/7 width */}
-            <div className="md:col-span-3 space-y-6">
-              <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
-                <CardHeader>
-                  <CardTitle>Risk Pool Health</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Current status of the FreelanceShield insurance pool
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <Skeleton className="h-[300px] w-full bg-gray-700" />
-                  ) : riskMetrics ? (
-                    <RiskAssessment metrics={riskMetrics} />
-                  ) : (
-                    <Alert className="bg-gray-700 border-deep-purple">
-                      <AlertTriangle className="h-4 w-4 text-deep-purple" />
-                      <AlertTitle>Data Unavailable</AlertTitle>
-                      <AlertDescription>
-                        Risk pool metrics are currently unavailable. Please try again later.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
-                <CardHeader>
-                  <CardTitle>Community Stats</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    FreelanceShield community activity
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+        {/* Main content area */}
+        <div className="grid gap-6 md:grid-cols-7">
+          {/* Left column - 4/7 width */}
+          <div className="md:col-span-4 space-y-6">
+            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
+              <CardHeader>
+                <CardTitle>Your Insurance Policies</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Manage your active and pending insurance policies
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Users className="h-5 w-5 text-deep-purple mr-2" />
-                        <span>Active Members</span>
-                      </div>
-                      <span className="font-bold">
-                        {isLoading ? (
-                          <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
-                        ) : (
-                          riskPoolMetrics?.activePolicies || 0
-                        )}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Shield className="h-5 w-5 text-electric-blue mr-2" />
-                        <span>Total Policies</span>
-                      </div>
-                      <span className="font-bold">
-                        {isLoading ? (
-                          <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
-                        ) : (
-                          riskPoolMetrics?.totalPolicies || 0
-                        )}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <FileText className="h-5 w-5 text-silver mr-2" />
-                        <span>Claims Filed</span>
-                      </div>
-                      <span className="font-bold">
-                        {isLoading ? (
-                          <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
-                        ) : (
-                          riskPoolMetrics?.claimCount || 0
-                        )}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
-                        <span>Claim Approval Rate</span>
-                      </div>
-                      <span className="font-bold">
-                        {isLoading ? (
-                          <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
-                        ) : (
-                          `${Math.round((riskPoolMetrics?.claimApprovalRate || 0) * 100)}%`
-                        )}
-                      </span>
-                    </div>
+                    <Skeleton className="h-[200px] w-full bg-gray-700" />
+                    <Skeleton className="h-[200px] w-full bg-gray-700" />
                   </div>
-                </CardContent>
+                ) : !connected ? (
+                  <Alert className="bg-gray-700 border-shield-purple">
+                    <AlertTriangle className="h-4 w-4 text-shield-purple" />
+                    <AlertTitle>Wallet not connected</AlertTitle>
+                    <AlertDescription>
+                      Connect your Solana wallet to view your insurance policies
+                    </AlertDescription>
+                  </Alert>
+                ) : hasActivePolicies ? (
+                  <div className="space-y-4">
+                    {policies.map((policy) => (
+                      <InsuranceCard
+                        key={policy.id}
+                        title={policy.name}
+                        description={policy.description}
+                        premium={formatCurrency(policy.premium)}
+                        coverage={formatCurrency(policy.coverageAmount)}
+                        duration={`${policy.durationDays} days`}
+                        status={policy.status === PolicyStatus.ACTIVE ? 'active' : policy.status === PolicyStatus.PENDING ? 'pending' : 'expired'}
+                        onClick={() => navigate(`/risk-analysis?policy=${policy.id}`)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Shield className="h-12 w-12 text-shield-purple mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2">No Policies Found</h3>
+                    <p className="text-gray-400 mb-4">
+                      You don't have any insurance policies yet. Create your first policy to protect your freelance work.
+                    </p>
+                    <Button 
+                      onClick={() => navigate('/new-policy')}
+                      className="bg-shield-purple hover:bg-shield-purple/90 text-white"
+                    >
+                      Create Your First Policy
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+              {hasActivePolicies && (
                 <CardFooter className="border-t border-gray-700 bg-gray-800/50">
                   <Button 
                     variant="outline" 
-                    onClick={() => navigate('/community')}
-                    className="w-full bg-transparent border-silver text-silver hover:bg-silver/10"
+                    onClick={() => navigate('/risk-analysis')}
+                    className="w-full bg-transparent border-shield-blue text-shield-blue hover:bg-shield-blue/10"
                   >
-                    View Community
+                    View All Policies
                   </Button>
                 </CardFooter>
-              </Card>
-            </div>
+              )}
+            </Card>
+
+            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
+              <CardHeader>
+                <CardTitle>Recent Claims</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Track the status of your recent insurance claims
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <Skeleton className="h-[200px] w-full bg-gray-700" />
+                ) : !connected ? (
+                  <Alert className="bg-gray-700 border-shield-purple">
+                    <AlertTriangle className="h-4 w-4 text-shield-purple" />
+                    <AlertTitle>Wallet not connected</AlertTitle>
+                    <AlertDescription>
+                      Connect your Solana wallet to view your claims
+                    </AlertDescription>
+                  </Alert>
+                ) : hasClaims ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-gray-700 hover:bg-gray-700/50">
+                        <TableHead className="text-gray-400">Claim ID</TableHead>
+                        <TableHead className="text-gray-400">Amount</TableHead>
+                        <TableHead className="text-gray-400">Date</TableHead>
+                        <TableHead className="text-gray-400">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {claims.slice(0, 5).map((claim) => (
+                        <TableRow 
+                          key={claim.id} 
+                          className="border-gray-700 hover:bg-gray-700/50 cursor-pointer"
+                          onClick={() => navigate(`/risk-analysis?claim=${claim.id}`)}
+                        >
+                          <TableCell className="font-medium text-shield-blue">
+                            {claim.id.substring(0, 8)}...
+                          </TableCell>
+                          <TableCell>{formatCurrency(claim.amount)}</TableCell>
+                          <TableCell>{formatDate(claim.createdAt)}</TableCell>
+                          <TableCell>
+                            <Badge 
+                              className={
+                                claim.status === ClaimStatus.APPROVED 
+                                  ? "bg-shield-blue/20 text-shield-blue hover:bg-shield-blue/30" 
+                                  : claim.status === ClaimStatus.REJECTED
+                                  ? "bg-shield-purple/20 text-shield-purple hover:bg-shield-purple/30"
+                                  : "bg-silver/20 text-silver hover:bg-silver/30"
+                              }
+                            >
+                              {claim.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 text-shield-blue mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2">No Claims Filed</h3>
+                    <p className="text-gray-400 mb-4">
+                      You haven't filed any insurance claims yet. If you experience a covered loss, file a claim for review.
+                    </p>
+                    <Button 
+                      onClick={() => navigate('/risk-analysis?tab=new-claim')}
+                      disabled={!hasActivePolicies}
+                      className="bg-shield-blue hover:bg-shield-blue/90 text-white"
+                    >
+                      File a Claim
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+              {hasClaims && (
+                <CardFooter className="border-t border-gray-700 bg-gray-800/50">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/risk-analysis')}
+                    className="w-full bg-transparent border-shield-blue text-shield-blue hover:bg-shield-blue/10"
+                  >
+                    View All Claims
+                  </Button>
+                </CardFooter>
+              )}
+            </Card>
+          </div>
+
+          {/* Right column - 3/7 width */}
+          <div className="md:col-span-3 space-y-6">
+            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
+              <CardHeader>
+                <CardTitle>Risk Pool Health</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Current status of the FreelanceShield insurance pool
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <Skeleton className="h-[300px] w-full bg-gray-700" />
+                ) : riskMetrics ? (
+                  <RiskAssessment metrics={riskMetrics} />
+                ) : (
+                  <Alert className="bg-gray-700 border-shield-purple">
+                    <AlertTriangle className="h-4 w-4 text-shield-purple" />
+                    <AlertTitle>Data Unavailable</AlertTitle>
+                    <AlertDescription>
+                      Risk pool metrics are currently unavailable. Please try again later.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-800 border-gray-700 text-white shadow-lg">
+              <CardHeader>
+                <CardTitle>Community Stats</CardTitle>
+                <CardDescription className="text-gray-400">
+                  FreelanceShield community activity
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Users className="h-5 w-5 text-shield-purple mr-2" />
+                      <span>Active Members</span>
+                    </div>
+                    <span className="font-bold">
+                      {isLoading ? (
+                        <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
+                      ) : (
+                        riskPoolMetrics?.activePolicies || 0
+                      )}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Shield className="h-5 w-5 text-shield-blue mr-2" />
+                      <span>Total Policies</span>
+                    </div>
+                    <span className="font-bold">
+                      {isLoading ? (
+                        <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
+                      ) : (
+                        riskPoolMetrics?.totalPolicies || 0
+                      )}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <FileText className="h-5 w-5 text-silver mr-2" />
+                      <span>Claims Filed</span>
+                    </div>
+                    <span className="font-bold">
+                      {isLoading ? (
+                        <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
+                      ) : (
+                        riskPoolMetrics?.claimCount || 0
+                      )}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <CheckCircle2 className="h-5 w-5 text-shield-blue mr-2" />
+                      <span>Claim Approval Rate</span>
+                    </div>
+                    <span className="font-bold">
+                      {isLoading ? (
+                        <Skeleton className="h-6 w-12 bg-gray-700 inline-block" />
+                      ) : (
+                        `${Math.round((riskPoolMetrics?.claimApprovalRate || 0) * 100)}%`
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="border-t border-gray-700 bg-gray-800/50">
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/community')}
+                  className="w-full bg-transparent border-silver text-silver hover:bg-silver/10"
+                >
+                  View Community
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </div>

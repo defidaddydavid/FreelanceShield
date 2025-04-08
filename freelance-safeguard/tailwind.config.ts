@@ -130,7 +130,7 @@ export default {
         background: {
           DEFAULT: 'hsl(var(--background))', // PRESERVED
           light: '#FFFFFF', // For light mode
-          dark: '#0f172a', // For dark mode
+          dark: '#0a0a0a', // Updated to a darker color for dark mode
         },
         foreground: {
           DEFAULT: 'hsl(var(--foreground))', // PRESERVED
