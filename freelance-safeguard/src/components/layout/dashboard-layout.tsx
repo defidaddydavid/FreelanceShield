@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FreelanceShieldLogo } from '../ui/freelance-shield-logo';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
 import { cn } from '@/lib/utils';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import Logo from '@/components/ui/logo';
 
 // Icons
 import { 
@@ -63,7 +63,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const [balance, setBalance] = useState<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { connected, publicKey, connection } = useWallet();
+  const { connected, publicKey } = useWallet();
+  const { connection } = useConnection();
   const { isDark, setTheme } = useSolanaTheme();
 
   // Fetch wallet balance when connected
@@ -100,17 +101,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     { 
       icon: <ShieldCheckIcon className="w-6 h-6" />, 
       label: 'Insurance', 
-      path: '/insurance' 
+      path: '/new-policy' 
     },
     { 
       icon: <CurrencyDollarIcon className="w-6 h-6" />, 
       label: 'Claims', 
-      path: '/claims' 
+      path: '/claims-system' 
     },
     { 
       icon: <DocumentTextIcon className="w-6 h-6" />, 
       label: 'Contracts', 
-      path: '/contracts' 
+      path: '/risk-analysis?tab=contracts' 
     },
     { 
       icon: <UserGroupIcon className="w-6 h-6" />, 
@@ -157,11 +158,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               ? "border-gray-700" 
               : "border-gray-200"
           )}>
-            <FreelanceShieldLogo className={cn(
-              isDark 
-                ? "text-shield-blue" 
-                : "text-shield-purple"
-            )} />
+            <Logo 
+              withText={false} 
+              size={32} 
+              className="cursor-pointer"
+              onClick={() => navigate('/')}
+            />
             <button 
               className={cn(
                 "p-1 rounded-md lg:hidden",

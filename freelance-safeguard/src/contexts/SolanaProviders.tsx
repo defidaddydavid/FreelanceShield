@@ -4,38 +4,46 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { 
   PhantomWalletAdapter,
   SolflareWalletAdapter,
-  TorusWalletAdapter,
   LedgerWalletAdapter,
   SlopeWalletAdapter,
-  CoinbaseWalletAdapter,
-  BraveWalletAdapter
-  // BackpackWalletAdapter is not exported from this package
+  TorusWalletAdapter
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 import { SolanaThemeProvider } from './SolanaThemeProvider';
-import { NETWORK_CONFIG } from '@/lib/solana/constants';
 
-// Import required CSS
+// Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-interface Props {
+interface SolanaProvidersProps {
   children: ReactNode;
 }
 
-export const SolanaProviders: FC<Props> = ({ children }) => {
-  // Set up network and endpoint
-  const network = NETWORK_CONFIG.network || 'devnet';
+export const SolanaProviders: FC<SolanaProvidersProps> = ({ children }) => {
+  // Set up network and wallet adapters
+  const network = import.meta.env.VITE_SOLANA_NETWORK || 'devnet';
   const endpoint = useMemo(() => {
-    return NETWORK_CONFIG.rpcEndpoint || clusterApiUrl(network);
+    return import.meta.env.VITE_SOLANA_RPC_URL || clusterApiUrl(network);
   }, [network]);
 
-  // Set up wallet adapters
-  const wallets = useMemo(() => [
-    new PhantomWalletAdapter(),
-    new SolflareWalletAdapter(),
-    new TorusWalletAdapter(),
-    new LedgerWalletAdapter()
-  ], []);
+  // Set up wallet adapters with error handling
+  const wallets = useMemo(() => {
+    try {
+      return [
+        new PhantomWalletAdapter(),
+        new SolflareWalletAdapter(),
+        new LedgerWalletAdapter(),
+        new SlopeWalletAdapter(),
+        new TorusWalletAdapter()
+      ];
+    } catch (error) {
+      console.error('Error initializing wallet adapters:', error);
+      // Return at least the most common adapters
+      return [
+        new PhantomWalletAdapter(),
+        new SolflareWalletAdapter()
+      ];
+    }
+  }, []);
 
   return (
     <ConnectionProvider endpoint={endpoint} config={{ commitment: 'confirmed' }}>
@@ -49,3 +57,6 @@ export const SolanaProviders: FC<Props> = ({ children }) => {
     </ConnectionProvider>
   );
 };
+
+// Export the useSolanaTheme hook for easy access
+export { useSolanaTheme } from './SolanaThemeProvider';

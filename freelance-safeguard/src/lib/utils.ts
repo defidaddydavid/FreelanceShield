@@ -28,6 +28,11 @@ export function formatCurrency(amount: number, currency: string = "SOL", decimal
   return `${amount.toFixed(decimals)} ${currency}`;
 }
 
+// Format SOL currency values with proper symbol
+export function formatSOL(amount: number, decimals: number = 4): string {
+  return `${amount.toFixed(decimals)} SOL`;
+}
+
 // Format date to readable string
 export function formatDate(date: Date | number): string {
   const d = typeof date === 'number' ? new Date(date) : date;

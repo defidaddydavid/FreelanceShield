@@ -381,39 +381,7 @@ export class FreelanceInsuranceSDK {
       return policies;
     } catch (error) {
       console.error("Error fetching policies:", error);
-      
-      // For development purposes, return some sample policies
-      // This allows the UI to function while we're implementing the real blockchain integration
-      return [
-        {
-          policyId: "policy1",
-          owner: userPublicKey.toString(),
-          coverageAmount: 5000,
-          premiumAmount: 250,
-          startTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          expiryTime: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          jobType: "web_development",
-          industry: "technology",
-          status: PolicyStatus.ACTIVE,
-          projectName: "E-commerce Website",
-          clientName: "TechRetail Inc.",
-          description: "Development of a full-featured e-commerce platform with payment integration"
-        },
-        {
-          policyId: "policy2",
-          owner: userPublicKey.toString(),
-          coverageAmount: 2500,
-          premiumAmount: 125,
-          startTime: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-          expiryTime: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          jobType: "design",
-          industry: "entertainment",
-          status: PolicyStatus.EXPIRED,
-          projectName: "Brand Identity Design",
-          clientName: "Creative Studios",
-          description: "Complete brand identity package including logo, color scheme, and style guide"
-        }
-      ];
+      throw new Error(`Failed to fetch policies: ${error.message}`);
     }
   }
 
@@ -429,7 +397,7 @@ export class FreelanceInsuranceSDK {
         filters: [
           {
             memcmp: {
-              offset: 8, // After the account discriminator
+              offset: 40, // After the account discriminator and policy PDA
               bytes: userPublicKey.toBase58() // Owner's public key
             }
           }
@@ -443,27 +411,28 @@ export class FreelanceInsuranceSDK {
         const data = account.account.data;
         
         // Parse the binary data based on the Anchor account structure
-        // This matches the Claim struct in the Solana program
         const policyPDA = new PublicKey(data.slice(8, 40));
         const owner = new PublicKey(data.slice(40, 72));
         const amount = Number(data.readBigUInt64LE(72));
         const submissionTime = data.readBigInt64LE(80);
-        const statusValue = data.readUInt8(88);
+        const processingTime = data.readBigInt64LE(88);
+        const statusValue = data.readUInt8(96);
         
         // Map status value to ClaimStatus enum
         let status: ClaimStatus;
         switch (statusValue) {
           case 0: status = ClaimStatus.PENDING; break;
-          case 1: status = ClaimStatus.PROCESSING; break;
-          case 2: status = ClaimStatus.APPROVED; break;
-          case 3: status = ClaimStatus.REJECTED; break;
-          case 4: status = ClaimStatus.ARBITRATION; break;
-          case 5: status = ClaimStatus.PAID; break;
+          case 1: status = ClaimStatus.APPROVED; break;
+          case 2: status = ClaimStatus.REJECTED; break;
+          case 3: status = ClaimStatus.PAID; break;
           default: status = ClaimStatus.PENDING;
         }
         
+        // Read risk score
+        const riskScore = data.readFloatLE(97);
+        
         // Read string fields with their length prefixes
-        let offset = 89;
+        let offset = 101;
         
         // Read evidence_type
         const evidenceTypeLen = data.readUInt32LE(offset);
@@ -472,91 +441,57 @@ export class FreelanceInsuranceSDK {
         offset += evidenceTypeLen;
         
         // Read evidence_description
-        const evidenceDescLen = data.readUInt32LE(offset);
+        const evidenceDescriptionLen = data.readUInt32LE(offset);
         offset += 4;
-        const evidenceDescription = data.slice(offset, offset + evidenceDescLen).toString();
-        offset += evidenceDescLen;
+        const evidenceDescription = data.slice(offset, offset + evidenceDescriptionLen).toString();
+        offset += evidenceDescriptionLen;
         
-        // Read evidence_attachments (array of strings)
-        const attachmentsCount = data.readUInt32LE(offset);
-        offset += 4;
+        // Read evidence_attachments as array of strings
+        const attachmentsCount = data.readUInt8(offset);
+        offset += 1;
         
         const evidenceAttachments: string[] = [];
         for (let i = 0; i < attachmentsCount; i++) {
           const attachmentLen = data.readUInt32LE(offset);
           offset += 4;
-          if (attachmentLen > 0) {
-            const attachment = data.slice(offset, offset + attachmentLen).toString();
-            evidenceAttachments.push(attachment);
-            offset += attachmentLen;
-          }
+          const attachment = data.slice(offset, offset + attachmentLen).toString();
+          offset += attachmentLen;
+          evidenceAttachments.push(attachment);
         }
         
-        // Read risk_score if it exists
-        let riskScore = 50; // Default value
-        if (offset < data.length) {
-          riskScore = data.readUInt8(offset);
-          offset += 1;
-        }
+        // Read risk_factors as array of strings
+        const riskFactorsCount = data.readUInt8(offset);
+        offset += 1;
         
-        // Create a basic risk evaluation
-        const riskEvaluation: RiskEvaluation = {
-          score: riskScore,
-          factors: ["Amount within reasonable range", "Policy active at time of claim"]
-        };
+        const riskFactors: string[] = [];
+        for (let i = 0; i < riskFactorsCount; i++) {
+          const factorLen = data.readUInt32LE(offset);
+          offset += 4;
+          const factor = data.slice(offset, offset + factorLen).toString();
+          offset += factorLen;
+          riskFactors.push(factor);
+        }
         
         return {
-          claimId: account.pubkey.toString(),
+          id: account.pubkey.toString(),
           policyId: policyPDA.toString(),
           owner: owner.toString(),
           amount,
-          submissionTime: new Date(Number(submissionTime) * 1000).toISOString(),
+          createdAt: new Date(Number(submissionTime) * 1000).toISOString(),
+          processedAt: processingTime > 0n ? new Date(Number(processingTime) * 1000).toISOString() : null,
           status,
           evidenceType,
           evidenceDescription,
           evidenceAttachments,
-          riskEvaluation
+          riskScore,
+          riskFactors
         };
       });
       
       return claims;
     } catch (error) {
       console.error("Error fetching claims:", error);
-      
-      // For development purposes, return some sample claims
-      // This allows the UI to function while we're implementing the real blockchain integration
-      return [
-        {
-          claimId: "claim1",
-          policyId: "policy1",
-          owner: userPublicKey.toString(),
-          amount: 1500,
-          submissionTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          status: ClaimStatus.PENDING,
-          evidenceType: "Contract Breach",
-          evidenceDescription: "Client failed to pay milestone after work was delivered and approved",
-          evidenceAttachments: ["contract.pdf", "email_thread.pdf"],
-          riskEvaluation: {
-            score: 35,
-            factors: ["Amount within reasonable range", "Policy active at time of claim"]
-          }
-        },
-        {
-          claimId: "claim2",
-          policyId: "policy1",
-          owner: userPublicKey.toString(),
-          amount: 750,
-          submissionTime: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-          status: ClaimStatus.APPROVED,
-          evidenceType: "Scope Creep",
-          evidenceDescription: "Client demanded additional features outside of contract scope",
-          evidenceAttachments: ["original_requirements.pdf", "change_requests.pdf"],
-          riskEvaluation: {
-            score: 25,
-            factors: ["Well-documented evidence", "Clear contract terms"]
-          }
-        }
-      ];
+      throw new Error(`Failed to fetch claims: ${error.message}`);
     }
   }
 
@@ -567,81 +502,32 @@ export class FreelanceInsuranceSDK {
     try {
       console.log("Fetching risk pool metrics");
       
-      // Get the risk pool account
-      const riskPoolAccount = await this.connection.getAccountInfo(RISK_POOL_PROGRAM_ID);
+      // Get the risk pool metrics account for the risk pool program
+      const [metricsAccount] = await PublicKey.findProgramAddress(
+        [Buffer.from("metrics")],
+        RISK_POOL_PROGRAM_ID
+      );
       
-      if (!riskPoolAccount) {
-        throw new Error("Risk pool account not found");
+      const accountInfo = await this.connection.getAccountInfo(metricsAccount);
+      
+      if (!accountInfo) {
+        throw new Error("Risk pool metrics account not found");
       }
       
-      // Parse the account data (this would be based on your actual account structure)
-      // This is a simplified example - you would need to adjust based on your actual data layout
-      const data = riskPoolAccount.data;
+      const data = accountInfo.data;
       
-      // For a real implementation, you would parse the binary data here
-      // This is just a placeholder for demonstration
-      
-      // Query additional metrics from the blockchain
-      const policyAccounts = await this.connection.getProgramAccounts(INSURANCE_PROGRAM_ID);
-      const claimAccounts = await this.connection.getProgramAccounts(CLAIMS_PROCESSOR_PROGRAM_ID);
-      
-      const totalPolicies = policyAccounts.length;
-      const totalClaims = claimAccounts.length;
-      
-      // Calculate active policies (those that haven't expired)
-      const now = Math.floor(Date.now() / 1000);
-      const activePolicies = policyAccounts.filter(account => {
-        // This assumes the expiry time is at a specific offset in the account data
-        // You would need to adjust based on your actual data layout
-        const expiryTime = account.account.data.readUInt32LE(60);
-        return now < expiryTime;
-      }).length;
-      
-      // Calculate total coverage and premiums
-      let totalCoverage = 0;
-      let totalPremiums = 0;
-      
-      policyAccounts.forEach(account => {
-        // This assumes the coverage and premium amounts are at specific offsets in the account data
-        // You would need to adjust based on your actual data layout
-        const coverageAmount = Number(account.account.data.readBigUInt64LE(40));
-        const premiumAmount = Number(account.account.data.readBigUInt64LE(48));
-        
-        totalCoverage += coverageAmount;
-        totalPremiums += premiumAmount;
-      });
-      
-      // Calculate approved claims
-      const approvedClaims = claimAccounts.filter(account => {
-        // This assumes the status is at a specific offset in the account data
-        // You would need to adjust based on your actual data layout
-        const statusCode = account.account.data.readUInt8(84);
-        return statusCode === 2; // Approved status
-      });
-      
-      // Calculate total claims paid
-      let totalClaimsPaid = 0;
-      
-      approvedClaims.forEach(account => {
-        // This assumes the claim amount is at a specific offset in the account data
-        // You would need to adjust based on your actual data layout
-        const amount = Number(account.account.data.readBigUInt64LE(72));
-        totalClaimsPaid += amount;
-      });
-      
-      // Calculate claim approval rate
-      const claimApprovalRate = totalClaims > 0 ? approvedClaims.length / totalClaims : 0;
-      
-      // Calculate pool balance (this would typically come from the risk pool account)
-      // For demonstration, we'll use a formula based on premiums and claims
-      const poolBalance = totalPremiums - totalClaimsPaid;
-      
-      // Calculate solvency ratio
-      const solvencyRatio = totalCoverage > 0 ? poolBalance / totalCoverage : 1;
-      
-      // Calculate averages
-      const averagePremium = totalPolicies > 0 ? totalPremiums / totalPolicies : 0;
-      const averageCoverage = totalPolicies > 0 ? totalCoverage / totalPolicies : 0;
+      // Parse the binary data based on the Anchor account structure
+      const totalPolicies = Number(data.readBigUInt64LE(8));
+      const activePolicies = Number(data.readBigUInt64LE(16));
+      const totalCoverage = Number(data.readBigUInt64LE(24));
+      const poolBalance = Number(data.readBigUInt64LE(32));
+      const totalPremiums = Number(data.readBigUInt64LE(40));
+      const totalClaims = Number(data.readBigUInt64LE(48));
+      const claimCount = Number(data.readBigUInt64LE(56));
+      const claimApprovalRate = data.readFloatLE(64);
+      const solvencyRatio = data.readFloatLE(68);
+      const averagePremium = Number(data.readBigUInt64LE(72));
+      const averageCoverage = Number(data.readBigUInt64LE(80));
       
       return {
         totalPolicies,
@@ -649,31 +535,17 @@ export class FreelanceInsuranceSDK {
         totalCoverage,
         poolBalance,
         totalPremiums,
-        totalClaims: totalClaimsPaid,
-        claimCount: totalClaims,
+        totalClaims,
+        claimCount,
         claimApprovalRate,
         solvencyRatio,
         averagePremium,
-        averageCoverage
+        averageCoverage,
+        lastUpdated: new Date().toISOString()
       };
     } catch (error) {
       console.error("Error fetching risk pool metrics:", error);
-      
-      // For development purposes, return some sample metrics
-      // This allows the UI to function while we're implementing the real blockchain integration
-      return {
-        totalPolicies: 24,
-        activePolicies: 18,
-        totalCoverage: 120000,
-        poolBalance: 12500,
-        totalPremiums: 15000,
-        totalClaims: 2500,
-        claimCount: 5,
-        claimApprovalRate: 0.8,
-        solvencyRatio: 0.65,
-        averagePremium: 625,
-        averageCoverage: 5000
-      };
+      throw new Error(`Failed to fetch risk pool metrics: ${error.message}`);
     }
   }
 

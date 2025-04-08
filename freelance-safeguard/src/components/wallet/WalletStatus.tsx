@@ -162,7 +162,7 @@ export function WalletStatus({ refreshOnLoad = false }: WalletStatusProps) {
           )}
         </div>
         <CardDescription>
-          {NETWORK_CONFIG.network.charAt(0).toUpperCase() + NETWORK_CONFIG.network.slice(1)} Network • {lastRefreshed ? getRefreshTime() : 'Not connected'}
+          {(NETWORK_CONFIG.network ? (NETWORK_CONFIG.network.charAt(0).toUpperCase() + NETWORK_CONFIG.network.slice(1)) : 'Devnet')} Network • {lastRefreshed ? getRefreshTime() : 'Not connected'}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-4">
@@ -171,7 +171,9 @@ export function WalletStatus({ refreshOnLoad = false }: WalletStatusProps) {
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <Wallet className="h-4 w-4 mr-2 text-blue-500" />
-                <span className="text-sm font-medium text-muted-foreground">Address:</span>
+                <span className="text-sm font-medium text-muted-foreground">
+                  Address:
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <code className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-xs font-mono">

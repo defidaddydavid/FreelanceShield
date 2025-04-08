@@ -1,23 +1,30 @@
 import { FC, ReactNode, createContext, useContext, useEffect, useState } from 'react';
-import { useTheme } from 'next-themes'; // Assuming you're using next-themes for theme management
+import { useTheme } from 'next-themes';
+import { applyThemeClass, getCurrentTheme } from '@/utils/theme-utils';
 
 // Define theme types
-type SolanaTheme = 'light' | 'dark' | 'system';
+type SolanaTheme = 'light' | 'dark';
 
 // Create context with default values
 interface SolanaThemeContextType {
   theme: SolanaTheme;
   setTheme: (theme: SolanaTheme) => void;
   isDark: boolean;
+  toggleTheme: () => void;
+  themeReady: boolean;
   // Add Solana UI specific theme utilities
   getSolanaColor: (lightColor: string, darkColor: string) => string;
+  getPrimaryColor: () => string;
 }
 
 const SolanaThemeContext = createContext<SolanaThemeContextType>({
-  theme: 'system',
+  theme: 'dark',
   setTheme: () => {},
-  isDark: false,
+  isDark: true,
+  toggleTheme: () => {},
+  themeReady: false,
   getSolanaColor: () => '',
+  getPrimaryColor: () => '',
 });
 
 // Hook to use the Solana theme context
@@ -28,38 +35,65 @@ interface Props {
 }
 
 export const SolanaThemeProvider: FC<Props> = ({ children }) => {
-  // Use your existing theme system (this example uses next-themes)
-  const { theme: nextTheme, setTheme: setNextTheme, resolvedTheme } = useTheme();
-  const [isDark, setIsDark] = useState(false);
+  // Use the theme system (next-themes)
+  const { setTheme: setNextTheme } = useTheme();
+  const [theme, setThemeState] = useState<SolanaTheme>('dark');
+  const [isDark, setIsDark] = useState(true); // Default to dark mode
+  const [themeReady, setThemeReady] = useState(false);
   
-  // Map your theme system to Solana theme
-  const theme = (nextTheme as SolanaTheme) || 'system';
-  
-  // Update isDark state when theme changes
+  // Handle SSR by waiting for theme to be available
   useEffect(() => {
-    setIsDark(resolvedTheme === 'dark');
-  }, [resolvedTheme]);
+    // Only set themeReady in browser environment to avoid SSR issues
+    if (typeof window !== 'undefined') {
+      // Initialize theme
+      const currentTheme = getCurrentTheme();
+      setThemeState(currentTheme);
+      setIsDark(currentTheme === 'dark');
+      setNextTheme(currentTheme);
+      setThemeReady(true);
+    }
+  }, [setNextTheme]);
   
-  // Function to set theme that works with your existing theme system
+  // Function to set theme with localStorage persistence
   const setTheme = (newTheme: SolanaTheme) => {
+    setThemeState(newTheme);
     setNextTheme(newTheme);
+    applyThemeClass(newTheme);
+    
+    // Apply the theme immediately to avoid flicker
+    setIsDark(newTheme === 'dark');
   };
   
-  // Utility function to get the right color based on current theme
-  const getSolanaColor = (lightColor: string, darkColor: string): string => {
+  // Toggle between light and dark themes
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+  };
+  
+  // Get color based on current theme
+  const getSolanaColor = (lightColor: string, darkColor: string) => {
+    // If we want to use shield-purple as our primary accent color,
+    // we can still provide this utility for cases where we need different colors
     return isDark ? darkColor : lightColor;
   };
   
-  // Create the context value
-  const contextValue: SolanaThemeContextType = {
-    theme,
-    setTheme,
-    isDark,
-    getSolanaColor,
+  // Get primary brand color - consistently returns purple for brand elements
+  const getPrimaryColor = () => {
+    return 'text-shield-purple';
   };
   
   return (
-    <SolanaThemeContext.Provider value={contextValue}>
+    <SolanaThemeContext.Provider 
+      value={{ 
+        theme, 
+        setTheme, 
+        isDark, 
+        toggleTheme, 
+        themeReady,
+        getSolanaColor,
+        getPrimaryColor
+      }}
+    >
       {children}
     </SolanaThemeContext.Provider>
   );

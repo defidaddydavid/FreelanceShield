@@ -36,10 +36,13 @@ export function useInsuranceOperations() {
         return result || [];
       } catch (err) {
         console.error('Error fetching policies:', err);
-        throw new Error('Failed to fetch policies');
+        setError(`Failed to fetch policies: ${err.message}`);
+        return []; // Return empty array instead of throwing to prevent UI breakage
       }
     },
     enabled: !!publicKey,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   // Fetch user's claims
@@ -58,10 +61,13 @@ export function useInsuranceOperations() {
         return result || [];
       } catch (err) {
         console.error('Error fetching claims:', err);
-        throw new Error('Failed to fetch claims');
+        setError(`Failed to fetch claims: ${err.message}`);
+        return []; // Return empty array instead of throwing to prevent UI breakage
       }
     },
     enabled: !!publicKey,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   // Fetch risk pool metrics
@@ -78,9 +84,12 @@ export function useInsuranceOperations() {
         return result;
       } catch (err) {
         console.error('Error fetching risk pool metrics:', err);
-        throw new Error('Failed to fetch risk pool metrics');
+        setError(`Failed to fetch risk pool metrics: ${err.message}`);
+        throw err;
       }
     },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   // Create policy mutation
@@ -258,23 +267,32 @@ export function useInsuranceOperations() {
 
   // Refresh all data
   const refreshData = useCallback(async () => {
-    if (!publicKey) return;
-    
     setIsLoading(true);
+    setError(null);
+    
     try {
-      await Promise.all([
+      await Promise.allSettled([
         refetchPolicies(),
         refetchClaims(),
         refetchMetrics()
       ]);
-      toast.success('Data refreshed successfully');
+      
+      // Check if any promises were rejected and set an appropriate error
+      const errors = [];
+      if (policiesError) errors.push(`Policies: ${policiesError}`);
+      if (claimsError) errors.push(`Claims: ${claimsError}`);
+      if (metricsError) errors.push(`Metrics: ${metricsError}`);
+      
+      if (errors.length > 0) {
+        setError(`Some data could not be refreshed: ${errors.join(', ')}`);
+      }
     } catch (err) {
       console.error('Error refreshing data:', err);
-      toast.error('Failed to refresh data');
+      setError(`Failed to refresh data: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
-  }, [publicKey, refetchPolicies, refetchClaims, refetchMetrics]);
+  }, [refetchPolicies, refetchClaims, refetchMetrics, policiesError, claimsError, metricsError]);
 
   return {
     // Data
