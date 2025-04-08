@@ -11,9 +11,13 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: 'dist',
     rollupOptions: {
       input: {
         main: 'landing.html',
+      },
+      output: {
+        manualChunks: undefined,
       },
     },
   },
