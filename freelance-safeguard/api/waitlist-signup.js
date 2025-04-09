@@ -23,7 +23,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 
 // PostgreSQL direct connection (for database operations that need it)
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres.ymsimbeqrvupvmujzrrd:[yNzAj26u8tFhYXEl]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres.ymsimbeqrvupvmujzrrd:[PASSWORD]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres';
 
 // Initialize PostgreSQL pool for direct database operations if needed
 const pool = new Pool({
