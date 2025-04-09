@@ -2,34 +2,60 @@
 // This will be deployed to Vercel alongside the frontend application
 
 const nodemailer = require('nodemailer');
+const { createClient } = require('@supabase/supabase-js');
+const { Pool } = require('pg');
 
 // Load environment variables for Zoho Mail configuration
 const ZOHO_USER = process.env.ZOHO_USER || 'get@freelanceshield.xyz';
-const ZOHO_SMTP_HOST = 'smtp.zoho.eu'; // European Zoho Mail server
-const ZOHO_SMTP_PORT = 465; // Using SSL port
-const ZOHO_PASSWORD = process.env.ZOHO_PASSWORD;
+const ZOHO_PASS = process.env.ZOHO_PASS || '';
+const ZOHO_HOST = 'smtp.zoho.com';
 const ZOHO_USE_SSL = true; // Using SSL (port 465)
+
+// Supabase configuration
+// Using the Transaction pooler connection for serverless functions
+const supabaseUrl = process.env.SUPABASE_URL || 'https://ymsimbeqrvupvmujzrrd.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+  }
+});
+
+// PostgreSQL direct connection (for database operations that need it)
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres.ymsimbeqrvupvmujzrrd:[yNzAj26u8tFhYXEl]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres';
+
+// Initialize PostgreSQL pool for direct database operations if needed
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+// Add debugging for environment variables
+console.log('API environment check:');
+console.log('- ZOHO_USER configured:', !!process.env.ZOHO_USER);
+console.log('- ZOHO_PASS configured:', !!process.env.ZOHO_PASS);
+console.log('- SUPABASE_URL configured:', !!process.env.SUPABASE_URL);
+console.log('- SUPABASE_ANON_KEY configured:', !!process.env.SUPABASE_ANON_KEY);
+console.log('- SUPABASE_SERVICE_ROLE_KEY configured:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+console.log('- DATABASE_URL configured:', !!process.env.DATABASE_URL);
 
 // Google Form URL for more detailed information
 const WAITLIST_FORM_URL = "https://forms.gle/qZjpDon9kGKqDBJr5";
 
-// In-memory store (for development only)
-// In production, this would use a database like Supabase, MongoDB, etc.
-const subscribers = new Map();
-
-// Email HTML template
+// Email HTML template with retro-futuristic design matching FreelanceShield's branding
 function getEmailTemplate(email) {
   return `
     <div style="font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0a0a18; color: #ffffff; border-radius: 8px; border: 1px solid #9945FF;">
-      <h1 style="font-family: 'NT Brick Sans', Arial, sans-serif; color: #9945FF; font-size: 24px; margin-bottom: 20px; letter-spacing: 0.5px;">Welcome to FreelanceShield!</h1>
+      <h1 style="font-family: 'NT Brick Sans', Arial, sans-serif; color: #9945FF; font-size: 28px; margin-bottom: 20px; letter-spacing: 0.5px; text-transform: uppercase;">Welcome to FreelanceShield!</h1>
       
       <p style="margin-bottom: 15px; line-height: 1.5;">Thank you for joining our waitlist. We're building the future of freelance protection on Solana, and we're excited to have you on board!</p>
       
       <div style="background: linear-gradient(rgba(153, 69, 255, 0.1), rgba(0, 255, 255, 0.1)); padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 3px solid #00FFFF;">
-        <p style="margin: 0; color: #00FFFF;">To help us tailor FreelanceShield to your needs, please complete our brief survey:</p>
+        <p style="margin: 0; color: #00FFFF; font-weight: bold;">To help us tailor FreelanceShield to your needs, please complete our brief survey:</p>
       </div>
       
-      <a href="${WAITLIST_FORM_URL}" style="display: inline-block; background: linear-gradient(to right, #9945FF, #14F195); color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 15px 0;">Complete Our Survey</a>
+      <a href="${WAITLIST_FORM_URL}" style="display: inline-block; background: linear-gradient(to right, #9945FF, #14F195); color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px;">Complete Our Survey</a>
       
       <p style="margin-top: 20px; line-height: 1.5;">The survey will help us understand your specific needs as a freelancer and how we can better protect your work and income.</p>
       
@@ -45,37 +71,115 @@ function getEmailTemplate(email) {
 
 // Send email function
 async function sendEmail(to, subject, html) {
-  // Check if ZOHO_PASSWORD is available
-  if (!ZOHO_PASSWORD) {
-    console.warn('ZOHO_PASSWORD environment variable not set. Email sending is disabled.');
-    return false;
+  // Check if ZOHO_PASS is available
+  if (!ZOHO_PASS) {
+    console.error('ZOHO_PASS environment variable not set. Email sending is disabled.');
+    return { success: false, error: 'Email credentials not configured' };
   }
 
   try {
-    // Create a transporter with Zoho Mail Europe settings
+    console.log(`Attempting to send email to ${to} via Zoho Mail`);
+    
+    // Create a transporter with Zoho Mail settings
     const transporter = nodemailer.createTransport({
-      host: ZOHO_SMTP_HOST,
-      port: ZOHO_SMTP_PORT,
+      host: ZOHO_HOST,
+      port: 465,
       secure: ZOHO_USE_SSL, // true for 465 (SSL), false for 587 (TLS)
       auth: {
         user: ZOHO_USER,
-        pass: ZOHO_PASSWORD
-      }
+        pass: ZOHO_PASS
+      },
+      tls: {
+        // Do not fail on invalid certs
+        rejectUnauthorized: false
+      },
+      debug: true, // Enable debug output
+      logger: true  // Log information about the mail
     });
+    
+    // Verify transport configuration
+    try {
+      const verification = await transporter.verify();
+      console.log('Transporter verification successful:', verification);
+    } catch (verifyError) {
+      console.error('Transporter verification failed:', verifyError);
+      return { success: false, error: `SMTP verification failed: ${verifyError.message}` };
+    }
 
     // Send the email
     const info = await transporter.sendMail({
-      from: `"FreelanceShield Team" <${ZOHO_USER}>`,
+      from: `"FreelanceShield" <${ZOHO_USER}>`,
       to,
       subject,
-      html
+      html,
+      headers: {
+        'X-Priority': '1', // High priority
+        'X-MSMail-Priority': 'High',
+        'Importance': 'High'
+      }
     });
 
-    console.log('Email sent: %s', info.messageId);
-    return true;
+    console.log('Email sent successfully: %s', info.messageId);
+    return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('Error sending email:', error);
-    return false;
+    console.error('Error details:', JSON.stringify({
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      command: error.command
+    }, null, 2));
+    return { success: false, error: error.message };
+  }
+}
+
+// Log waitlist signup to database
+async function logWaitlistSignup(email) {
+  try {
+    // First check if email already exists
+    const { data: existingData, error: existingError } = await supabase
+      .from('waitlist')
+      .select('email')
+      .eq('email', email)
+      .single();
+    
+    if (existingData) {
+      console.log(`Email ${email} already exists in waitlist`);
+      return { success: true, duplicate: true };
+    }
+    
+    if (existingError && existingError.code !== 'PGRST116') {
+      // PGRST116 means no rows returned, which is expected if email doesn't exist
+      console.error('Error checking for existing email:', existingError);
+    }
+
+    // Store the email in Supabase
+    const { data, error } = await supabase
+      .from('waitlist')
+      .insert([
+        { 
+          email,
+          created_at: new Date().toISOString(),
+          source: 'website'
+        }
+      ])
+      .select();
+
+    if (error) {
+      // Check if it's a duplicate email error (unique constraint violation)
+      if (error.code === '23505') {
+        console.log(`Email ${email} already exists in waitlist (constraint violation)`);
+        return { success: true, duplicate: true };
+      }
+      
+      console.error('Supabase insert error:', error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Database error:', error);
+    return { success: false, error };
   }
 }
 
@@ -84,7 +188,7 @@ module.exports = async (req, res) => {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   // Handle OPTIONS request (preflight)
   if (req.method === 'OPTIONS') {
@@ -111,35 +215,39 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Check if email already exists
-    if (subscribers.has(email)) {
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Email already registered' 
+    // Log to database
+    const dbResult = await logWaitlistSignup(email);
+    
+    if (!dbResult.success && !dbResult.duplicate) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to store email in database'
       });
     }
 
-    // Store the email (in a real implementation, this would be in a database)
-    subscribers.set(email, {
-      email,
-      timestamp: new Date()
-    });
+    // Don't send duplicate emails if already in waitlist
+    if (dbResult.duplicate) {
+      return res.status(200).json({ 
+        success: true, 
+        message: 'You are already on our waitlist! We\'ll be in touch soon.'
+      });
+    }
 
     // Send thank you email with Google Form link
     const htmlContent = getEmailTemplate(email);
-    const emailSent = await sendEmail(
+    const emailResult = await sendEmail(
       email,
       'Welcome to FreelanceShield Waitlist',
       htmlContent
     );
 
-    console.log(`Added to waitlist: ${email} - Email sent: ${emailSent}`);
+    console.log(`Added to waitlist: ${email} - Email sent: ${emailResult.success}`);
     
     return res.status(200).json({ 
       success: true, 
-      message: emailSent 
+      message: emailResult.success 
         ? 'Thank you for joining our waitlist! Check your email for additional information.' 
-        : 'Successfully added to waitlist, but there was an issue sending the confirmation email.'
+        : 'Successfully added to waitlist, but there was an issue sending the confirmation email. Please check your spam folder.'
     });
   } catch (error) {
     console.error('Error adding to waitlist:', error);
