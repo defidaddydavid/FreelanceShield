@@ -136,12 +136,21 @@ async function sendEmail(to, subject, html) {
 // Log waitlist signup to database
 async function logWaitlistSignup(email) {
   try {
+    console.log(`Attempting to log email to waitlist: ${email}`);
+    console.log(`Using Supabase URL: ${supabaseUrl}`);
+    console.log(`Supabase key configured: ${!!supabaseKey}`);
+    
     // First check if email already exists
+    console.log('Checking if email already exists...');
     const { data: existingData, error: existingError } = await supabase
       .from('waitlist')
       .select('email')
       .eq('email', email)
       .single();
+    
+    if (existingError) {
+      console.log('Error response from existing email check:', JSON.stringify(existingError, null, 2));
+    }
     
     if (existingData) {
       console.log(`Email ${email} already exists in waitlist`);
@@ -154,6 +163,7 @@ async function logWaitlistSignup(email) {
     }
 
     // Store the email in Supabase
+    console.log('Inserting email into waitlist table...');
     const { data, error } = await supabase
       .from('waitlist')
       .insert([
@@ -172,10 +182,11 @@ async function logWaitlistSignup(email) {
         return { success: true, duplicate: true };
       }
       
-      console.error('Supabase insert error:', error);
+      console.error('Supabase insert error:', JSON.stringify(error, null, 2));
       return { success: false, error };
     }
 
+    console.log('Successfully inserted email into waitlist:', JSON.stringify(data, null, 2));
     return { success: true, data };
   } catch (error) {
     console.error('Database error:', error);
@@ -204,24 +215,33 @@ module.exports = async (req, res) => {
   }
 
   try {
+    console.log('Received waitlist signup request');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    
     // Get email from request body
     const { email } = req.body;
 
     // Basic validation
     if (!email || !email.includes('@')) {
+      console.log('Invalid email provided:', email);
       return res.status(400).json({ 
         success: false, 
         message: 'Invalid email address' 
       });
     }
 
+    console.log('Valid email received, proceeding with database insertion');
+    
     // Log to database
     const dbResult = await logWaitlistSignup(email);
     
-    if (!dbResult.success && !dbResult.duplicate) {
+    console.log('Database result:', JSON.stringify(dbResult, null, 2));
+    
+    if (!dbResult.success && dbResult.error) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to store email in database'
+        message: 'Failed to store email in database',
+        error: dbResult.error
       });
     }
 
@@ -253,7 +273,8 @@ module.exports = async (req, res) => {
     console.error('Error adding to waitlist:', error);
     return res.status(500).json({ 
       success: false, 
-      message: 'Failed to add to waitlist. Please try again later.' 
+      message: 'Failed to add to waitlist. Please try again later.',
+      error: error.message
     });
   }
 };
