@@ -1,0 +1,9 @@
+{
+  "name": "freelanceshield-api",
+  "version": "1.0.0",
+  "description": "API endpoints for FreelanceShield",
+  "main": "waitlist-signup.js",
+  "dependencies": {
+    "nodemailer": "^6.9.9"
+  }
+}

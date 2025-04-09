@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Shield, Terminal, ExternalLink, ChevronRight, Code, ArrowRight } from 'lucide-react';
+import { Shield, Terminal, ExternalLink, ChevronRight, Code, ArrowRight, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/logo';
 import { useNavigate } from 'react-router-dom';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
+import { addToWaitlist, WAITLIST_FORM_URL } from '@/api/waitlist';
 
 // Feature cards for main functionality showcase
 const features = [
@@ -133,6 +135,8 @@ export default function ComingSoonPage() {
   const [currentTerminalTextIndex, setCurrentTerminalTextIndex] = useState(0);
   const [showTerminalCursor, setShowTerminalCursor] = useState(true);
   const [isDevMode, setIsDevMode] = useState(false);
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { isDark } = useSolanaTheme();
   
@@ -174,10 +178,31 @@ export default function ComingSoonPage() {
     };
   }, []);
 
-  const handleJoinWaitlist = () => {
-    // Open Google Form in a new tab
-    window.open(WAITLIST_FORM_URL, '_blank');
-    toast.success('Waitlist form opened in a new tab');
+  const handleJoinWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const response = await addToWaitlist(email);
+      
+      if (response.success) {
+        toast.success(response.message);
+        setEmail(''); // Clear the form
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      console.error('Error joining waitlist:', error);
+      toast.error('Failed to join waitlist. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDevBypass = () => {
@@ -348,7 +373,7 @@ export default function ComingSoonPage() {
           </div>
         </motion.div>
 
-        {/* Google Form waitlist button */}
+        {/* Email waitlist form */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -369,15 +394,35 @@ export default function ComingSoonPage() {
               <h3 className="text-base md:text-lg font-heading text-white mb-1 font-bold">Join Our Waitlist</h3>
               <p className="text-gray-300 mb-4 text-xs md:text-sm">Be the first to know when FreelanceShield launches.</p>
               
-              <Button
-                onClick={handleJoinWaitlist}
-                className="bg-gradient-to-r from-[#9945FF] to-[#00FFFF] hover:opacity-90 text-white font-medium py-2 md:py-3 px-4 md:px-6 rounded-md w-full max-w-xs transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(153,69,255,0.2)]"
-              >
-                <span className="flex items-center justify-center text-sm md:text-base">
-                  Join Waitlist
-                  <ExternalLink className="w-3 md:w-4 h-3 md:h-4 ml-2" />
-                </span>
-              </Button>
+              <form onSubmit={handleJoinWaitlist} className="w-full">
+                <div className="flex flex-col space-y-3 w-full">
+                  <div className="relative">
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="w-full bg-black/50 border border-[#9945FF]/20 text-white placeholder:text-gray-500 py-2 px-3 rounded-md focus:ring-2 focus:ring-[#00FFFF]/50 focus:border-transparent"
+                      required
+                    />
+                    <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
+                  </div>
+                  
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-gradient-to-r from-[#9945FF] to-[#00FFFF] hover:opacity-90 text-white font-medium py-2 md:py-3 px-4 md:px-6 rounded-md w-full max-w-none transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(153,69,255,0.2)]"
+                  >
+                    <span className="flex items-center justify-center text-sm md:text-base">
+                      {isSubmitting ? 'Submitting...' : 'Join Waitlist'}
+                      {!isSubmitting && <ArrowRight className="w-3 md:w-4 h-3 md:h-4 ml-2" />}
+                    </span>
+                  </Button>
+                </div>
+                <div className="mt-3 text-xs text-gray-500">
+                  We'll send you a follow-up with our detailed survey
+                </div>
+              </form>
             </div>
           </div>
         </motion.div>
