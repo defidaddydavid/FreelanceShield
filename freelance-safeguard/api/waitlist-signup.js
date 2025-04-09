@@ -6,7 +6,7 @@ const { createClient } = require('@supabase/supabase-js');
 const { Pool } = require('pg');
 
 // Load environment variables for Zoho Mail configuration
-const ZOHO_USER = process.env.ZOHO_USER || 'get@freelanceshield.xyz';
+const ZOHO_USER = process.env.ZOHO_USER || 'david@freelanceshield.xyz';
 const ZOHO_PASS = process.env.ZOHO_PASS || '';
 const ZOHO_HOST = 'smtp.zoho.com';
 const ZOHO_USE_SSL = true; // Using SSL (port 465)
@@ -21,6 +21,16 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
     autoRefreshToken: false,
   }
 });
+
+// Create a separate admin client with service role for operations that need it
+const adminSupabase = process.env.SUPABASE_SERVICE_ROLE_KEY 
+  ? createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      }
+    })
+  : supabase;
 
 // PostgreSQL direct connection (for database operations that need it)
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres.ymsimbeqrvupvmujzrrd:[PASSWORD]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres';
@@ -139,10 +149,11 @@ async function logWaitlistSignup(email) {
     console.log(`Attempting to log email to waitlist: ${email}`);
     console.log(`Using Supabase URL: ${supabaseUrl}`);
     console.log(`Supabase key configured: ${!!supabaseKey}`);
+    console.log(`Service role key configured: ${!!process.env.SUPABASE_SERVICE_ROLE_KEY}`);
     
     // First check if email already exists
     console.log('Checking if email already exists...');
-    const { data: existingData, error: existingError } = await supabase
+    const { data: existingData, error: existingError } = await adminSupabase
       .from('waitlist')
       .select('email')
       .eq('email', email)
@@ -150,6 +161,11 @@ async function logWaitlistSignup(email) {
     
     if (existingError) {
       console.log('Error response from existing email check:', JSON.stringify(existingError, null, 2));
+      
+      // Check if it's an RLS policy error
+      if (existingError.code === 'PGRST301') {
+        console.error('Row Level Security policy error. Make sure your RLS policies allow this operation.');
+      }
     }
     
     if (existingData) {
@@ -164,7 +180,9 @@ async function logWaitlistSignup(email) {
 
     // Store the email in Supabase
     console.log('Inserting email into waitlist table...');
-    const { data, error } = await supabase
+    console.log('Using service role client:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    
+    const { data, error } = await adminSupabase
       .from('waitlist')
       .insert([
         { 
@@ -180,6 +198,11 @@ async function logWaitlistSignup(email) {
       if (error.code === '23505') {
         console.log(`Email ${email} already exists in waitlist (constraint violation)`);
         return { success: true, duplicate: true };
+      }
+      
+      // Check if it's an RLS policy error
+      if (error.code === 'PGRST301') {
+        console.error('Row Level Security policy error. Make sure your RLS policies allow this operation.');
       }
       
       console.error('Supabase insert error:', JSON.stringify(error, null, 2));
