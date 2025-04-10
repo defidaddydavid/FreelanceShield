@@ -8,7 +8,7 @@
     "dev:debug": "vite --debug",
     "dev:simple": "vite --force",
     "dev:landing": "vite --config vite.config.landing.ts",
-    "build": "vite build",
+    "build": "vite build --config vite.config.landing.ts",
     "build:dev": "vite build --mode development",
     "build:landing": "vite build --config vite.config.landing.ts",
     "vercel-build": "node vercel-build-script.js",
