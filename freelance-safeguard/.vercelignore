@@ -1,0 +1,27 @@
+# Node modules
+node_modules
+
+# Development files
+.git
+.github
+.vscode
+.idea
+.DS_Store
+
+# Test files
+test
+tests
+__tests__
+coverage
+vitest.config.ts
+
+# Source files (since we're deploying the built files)
+src
+
+# Config files
+tsconfig.json
+.eslintrc
+.prettierrc
+
+# Backup files
+*.backup
