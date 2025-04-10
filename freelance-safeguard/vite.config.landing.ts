@@ -14,7 +14,7 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       input: {
-        main: 'index.html',
+        main: 'landing.html',
       },
       output: {
         manualChunks: undefined,

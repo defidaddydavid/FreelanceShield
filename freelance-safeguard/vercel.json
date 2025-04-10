@@ -1,15 +1,12 @@
 {
   "version": 2,
-  "buildCommand": "npm run build:landing",
+  "buildCommand": "bash ./vercel-build.sh",
   "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": null,
-  "functions": {
-    "api/*.js": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
