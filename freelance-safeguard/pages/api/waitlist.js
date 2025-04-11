@@ -8,6 +8,8 @@ const nodemailer = require('nodemailer');
 console.log('Available environment variables:', {
   STORAGE_SUPABASE_URL: !!process.env.STORAGE_SUPABASE_URL,
   STORAGE_SUPABASE_SERVICE_ROLE_KEY: !!process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY,
+  SUPABASE_URL: !!process.env.SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
   ZOHO_HOST: !!process.env.ZOHO_HOST,
   ZOHO_PORT: !!process.env.ZOHO_PORT,
   ZOHO_USER: !!process.env.ZOHO_USER,
@@ -15,9 +17,9 @@ console.log('Available environment variables:', {
   NODE_ENV: process.env.NODE_ENV
 });
 
-// Supabase configuration
-const supabaseUrl = process.env.STORAGE_SUPABASE_URL || 'https://ymsimbeqrvupvmujzrrd.supabase.co';
-const supabaseKey = process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY;
+// Supabase configuration - check both naming conventions
+const supabaseUrl = process.env.STORAGE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://ymsimbeqrvupvmujzrrd.supabase.co';
+const supabaseKey = process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Email configuration for domain-based email address
 const emailConfig = {
@@ -38,9 +40,25 @@ const emailConfig = {
 let supabase = null;
 function getSupabase() {
   if (!supabase) {
-    supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    });
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Supabase configuration missing:', { 
+        hasUrl: !!supabaseUrl, 
+        hasKey: !!supabaseKey,
+        url: supabaseUrl ? supabaseUrl.substring(0, 15) + '...' : 'missing'
+      });
+      return null;
+    }
+    
+    try {
+      console.log('Initializing Supabase client with URL:', supabaseUrl.substring(0, 20) + '...');
+      supabase = createClient(supabaseUrl, supabaseKey, {
+        auth: { autoRefreshToken: false, persistSession: false }
+      });
+      console.log('Supabase client initialized successfully');
+    } catch (error) {
+      console.error('Error initializing Supabase client:', error);
+      return null;
+    }
   }
   return supabase;
 }
@@ -73,7 +91,7 @@ function generateEmail(email) {
     <p>Best regards,<br>The FreelanceShield Team</p>
   </div>
   <div class="footer">
-    <p>© 2025 FreelanceShield. All rights reserved.</p>
+    <p> 2025 FreelanceShield. All rights reserved.</p>
     <p>You're receiving this email because you signed up for the FreelanceShield waitlist.</p>
   </div>
 </body>
@@ -85,8 +103,8 @@ function generateEmail(email) {
 module.exports = async (req, res) => {
   // Log environment variables (without sensitive values)
   console.log('Environment Variables Status:', {
-    hasSupabaseUrl: !!process.env.STORAGE_SUPABASE_URL,
-    hasSupabaseKey: !!process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY,
+    hasSupabaseUrl: !!process.env.STORAGE_SUPABASE_URL || !!process.env.SUPABASE_URL,
+    hasSupabaseKey: !!process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY || !!process.env.SUPABASE_SERVICE_ROLE_KEY,
     hasZohoHost: !!process.env.ZOHO_HOST,
     hasZohoPort: !!process.env.ZOHO_PORT,
     hasZohoUser: !!process.env.ZOHO_USER,
@@ -156,16 +174,40 @@ module.exports = async (req, res) => {
       
       console.log('Saving to database:', waitlistEntry);
       
-      const { error: insertError } = await supabase
-        .from('waitlist')
-        .insert([waitlistEntry]);
-      
-      if (insertError) {
-        console.error('Error saving to database:', insertError);
-        return res.status(500).json({ success: false, message: 'Failed to save to database', error: insertError.message });
+      try {
+        // Log the table we're trying to insert into
+        console.log('Attempting to insert into table: waitlist');
+        
+        const { data, error: insertError } = await supabase
+          .from('waitlist')
+          .insert([waitlistEntry])
+          .select();
+        
+        if (insertError) {
+          console.error('Error saving to database:', insertError);
+          console.error('Error details:', {
+            code: insertError.code,
+            message: insertError.message,
+            details: insertError.details,
+            hint: insertError.hint
+          });
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Failed to save to database', 
+            error: insertError.message,
+            details: insertError.details || 'No additional details'
+          });
+        }
+        
+        console.log('Email saved to database successfully, data:', data);
+      } catch (dbError) {
+        console.error('Unexpected database error:', dbError);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Unexpected database error', 
+          error: dbError.message 
+        });
       }
-      
-      console.log('Email saved to database successfully');
     } else {
       console.log('Email already exists in database');
     }
