@@ -3,12 +3,13 @@
 
 const { createClient } = require('@supabase/supabase-js');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 // Environment variables
-const ZOHO_EMAIL = process.env.ZOHO_EMAIL || 'get@freelanceshield.xyz';
-const ZOHO_PASSWORD = process.env.ZOHO_PASSWORD;
-const ZOHO_SMTP_HOST = process.env.ZOHO_SMTP_HOST || 'smtp.zoho.com';
-const ZOHO_SMTP_PORT = process.env.ZOHO_SMTP_PORT || 465;
+const ZOHO_EMAIL = process.env.ZOHO_EMAIL || process.env.ZOHO_USER || 'david@freelanceshield.xyz';
+const ZOHO_PASSWORD = process.env.ZOHO_PASSWORD || process.env.ZOHO_PASS;
+const ZOHO_SMTP_HOST = process.env.ZOHO_SMTP_HOST || process.env.ZOHO_HOST || 'smtp.zoho.com';
+const ZOHO_SMTP_PORT = parseInt(process.env.ZOHO_SMTP_PORT || process.env.ZOHO_PORT || '465', 10);
 const ZOHO_SMTP_SECURE = process.env.ZOHO_SMTP_SECURE === 'false' ? false : true;
 const WAITLIST_EMAIL_SUBJECT = process.env.WAITLIST_EMAIL_SUBJECT || 'Welcome to FreelanceShield Waitlist!';
 const WAITLIST_FROM_NAME = process.env.WAITLIST_FROM_NAME || 'FreelanceShield Team';
@@ -21,29 +22,38 @@ const SUPABASE_KEY = process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY;
 console.log('Available environment variables:', {
   STORAGE_SUPABASE_URL: !!process.env.STORAGE_SUPABASE_URL,
   STORAGE_SUPABASE_SERVICE_ROLE_KEY: !!process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY,
-  ZOHO_EMAIL: !!process.env.ZOHO_EMAIL,
-  ZOHO_PASSWORD: !!process.env.ZOHO_PASSWORD,
-  ZOHO_SMTP_HOST: !!process.env.ZOHO_SMTP_HOST,
-  ZOHO_SMTP_PORT: !!process.env.ZOHO_SMTP_PORT,
+  ZOHO_EMAIL: !!ZOHO_EMAIL,
+  ZOHO_PASSWORD: !!ZOHO_PASSWORD,
+  ZOHO_SMTP_HOST: !!ZOHO_SMTP_HOST,
+  ZOHO_SMTP_PORT: ZOHO_SMTP_PORT,
   NODE_ENV: process.env.NODE_ENV
 });
 
 // In-memory storage for waitlist emails (for development/testing)
 const waitlistEmails = [];
 
+// Generate a random confirmation token
+const generateToken = () => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
 // Initialize Supabase client
-let supabase = null;
 function getSupabase() {
-  if (!supabase && SUPABASE_URL && SUPABASE_KEY) {
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    });
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('Supabase configuration missing');
+    return null;
   }
-  return supabase;
+  
+  console.log('Initializing Supabase client with URL:', SUPABASE_URL.substring(0, 15) + '...');
+  return createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
 }
 
 // Create email transporter
 const createTransporter = () => {
+  console.log(`Configuring email with ${ZOHO_SMTP_HOST}:${ZOHO_SMTP_PORT}, SSL: ${ZOHO_SMTP_SECURE}, User: ${ZOHO_EMAIL ? ZOHO_EMAIL.substring(0, 5) + '...' : 'missing'}`);
+  
   return nodemailer.createTransport({
     host: ZOHO_SMTP_HOST,
     port: ZOHO_SMTP_PORT,
@@ -189,8 +199,35 @@ const sendAdminNotification = async (subscriberEmail) => {
   }
 };
 
+// Check if email exists in Supabase
+const checkEmailExists = async (email) => {
+  try {
+    const supabase = getSupabase();
+    if (!supabase) {
+      console.error('Supabase client not initialized');
+      return false;
+    }
+
+    const { data, error } = await supabase
+      .from('waitlist')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+      
+    if (error) {
+      console.error('Error checking if email exists:', error);
+      return false;
+    }
+    
+    return data !== null;
+  } catch (error) {
+    console.error('Exception checking if email exists:', error);
+    return false; // Assume email doesn't exist if there's an error
+  }
+};
+
 // Save email to Supabase
-const saveToSupabase = async (email) => {
+const saveToSupabase = async (email, userAgent, ipAddress) => {
   try {
     const supabase = getSupabase();
     if (!supabase) {
@@ -199,41 +236,43 @@ const saveToSupabase = async (email) => {
     }
 
     // Check if email already exists
-    const { data: existingEmail, error: checkError } = await supabase
-      .from('waitlist')
-      .select('email')
-      .eq('email', email)
-      .maybeSingle();
-    
-    if (checkError) {
-      console.error('Error checking existing email:', checkError);
-      return { success: false, message: 'Database error', error: checkError.message };
-    }
-    
-    if (existingEmail) {
+    const exists = await checkEmailExists(email);
+    if (exists) {
       console.log('Email already exists in database:', email);
       return { success: true, message: 'Email already exists', isNew: false };
     }
     
-    // Save new email
+    // Generate confirmation token
+    const confirmationToken = generateToken();
+    
+    // Save new email with additional metadata
     const waitlistEntry = { 
       email: email,
+      confirmation_token: confirmationToken,
+      user_agent: userAgent || 'Unknown',
+      ip_address: ipAddress || 'Unknown',
       source: 'landing_page'
     };
     
     console.log('Saving to Supabase:', waitlistEntry);
     
-    const { error: insertError } = await supabase
+    const { data, error } = await supabase
       .from('waitlist')
-      .insert([waitlistEntry]);
+      .insert([waitlistEntry])
+      .select();
     
-    if (insertError) {
-      console.error('Error saving to Supabase:', insertError);
-      return { success: false, message: 'Failed to save to database', error: insertError.message };
+    if (error) {
+      console.error('Error saving to Supabase:', error);
+      return { success: false, message: 'Failed to save to database', error: error.message };
     }
     
-    console.log('Email saved to Supabase successfully');
-    return { success: true, message: 'Email saved to database', isNew: true };
+    console.log('Email saved to Supabase successfully:', data);
+    return { 
+      success: true, 
+      message: 'Email saved to database', 
+      isNew: true,
+      confirmationToken
+    };
   } catch (error) {
     console.error('Error saving to Supabase:', error);
     return { success: false, message: 'Failed to save to database', error: error.message };
@@ -274,9 +313,25 @@ module.exports = async (req, res) => {
       console.log('Email added to in-memory storage:', email);
     }
 
+    // Get user agent and IP for analytics
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const ipAddress = 
+      req.headers['x-forwarded-for'] || 
+      req.headers['x-real-ip'] || 
+      (req.connection ? req.connection.remoteAddress : 'Unknown');
+
     // Save email to Supabase
-    const supabaseResult = await saveToSupabase(email);
+    const supabaseResult = await saveToSupabase(email, userAgent, ipAddress);
     console.log('Supabase save result:', supabaseResult);
+
+    // If email already exists, return success with already exists flag
+    if (supabaseResult.success && !supabaseResult.isNew) {
+      return res.status(200).json({ 
+        success: true, 
+        message: "You're already on our waitlist! We'll notify you when we launch.",
+        alreadyExists: true
+      });
+    }
 
     // Send welcome email to subscriber
     const welcomeEmailResult = await sendWelcomeEmail(email);
@@ -289,7 +344,9 @@ module.exports = async (req, res) => {
     // Return success even if emails fail - we've stored the email
     return res.status(200).json({ 
       success: true, 
-      message: 'Added to waitlist successfully',
+      message: welcomeEmailResult.success 
+        ? 'Successfully joined the waitlist! Check your email for confirmation.' 
+        : 'Successfully joined the waitlist! You\'ll be notified when we launch.',
       emailSent: welcomeEmailResult.success,
       adminNotified: adminNotificationResult.success,
       savedToDatabase: supabaseResult.success
