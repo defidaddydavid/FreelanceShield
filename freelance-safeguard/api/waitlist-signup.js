@@ -1,9 +1,9 @@
 // Serverless function for handling waitlist signup and email sending
 // This will be deployed to Vercel alongside the frontend application
 
-import { createClient } from '@supabase/supabase-js';
-import nodemailer from 'nodemailer';
-import crypto from 'crypto';
+const { createClient } = require('@supabase/supabase-js');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 // Initialize Supabase client with Vercel environment variables
 const getAdminSupabase = () => {
@@ -42,11 +42,11 @@ const checkEmailExists = async (email) => {
 
 // Configure the email transporter using Zoho Mail
 const getEmailTransporter = () => {
-  const zohoUser = process.env.ZOHO_USER;
+  const zohoUser = process.env.ZOHO_EMAIL || process.env.ZOHO_USER || 'david@freelanceshield.xyz';
   const zohoPassword = process.env.ZOHO_PASSWORD || process.env.ZOHO_PASS; // Support both env var names
-  const zohoHost = process.env.ZOHO_HOST || 'smtp.zoho.eu';
-  const zohoPort = parseInt(process.env.ZOHO_PORT || '465', 10);
-  const useSSL = process.env.ZOHO_USE_SSL !== 'false';
+  const zohoHost = process.env.ZOHO_SMTP_HOST || process.env.ZOHO_HOST || 'smtp.zoho.com';
+  const zohoPort = parseInt(process.env.ZOHO_SMTP_PORT || process.env.ZOHO_PORT || '465', 10);
+  const useSSL = process.env.ZOHO_SMTP_SECURE !== 'false';
   
   console.log(`Configuring email with ${zohoHost}:${zohoPort}, SSL: ${useSSL}, User: ${zohoUser ? zohoUser.substring(0, 5) + '...' : 'missing'}`);
   
@@ -57,7 +57,9 @@ const getEmailTransporter = () => {
     auth: {
       user: zohoUser,
       pass: zohoPassword
-    }
+    },
+    debug: true,
+    logger: true
   });
 };
 
@@ -100,30 +102,66 @@ const addToWaitlist = async (email, userAgent, ipAddress) => {
 // Generate thank you email HTML
 const generateThankYouEmail = (email) => {
   return `
-    <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333333;">
-      <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="color: #9945FF; margin-bottom: 5px;">Welcome to FreelanceShield!</h1>
-        <p style="font-size: 16px; color: #666666;">Thank you for joining our waitlist</p>
-      </div>
-      
-      <p style="margin-bottom: 15px; line-height: 1.5;">Hi there,</p>
-      
-      <p style="margin-bottom: 15px; line-height: 1.5;">Thank you for joining the FreelanceShield waitlist! We're building a decentralized insurance protocol to protect freelancers from non-payment and project disputes.</p>
-      
-      <div style="background: linear-gradient(rgba(153, 69, 255, 0.1), rgba(0, 255, 255, 0.1)); padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 3px solid #00FFFF;">
-        <p style="margin: 0; color: #00FFFF; font-weight: bold;">To help us tailor FreelanceShield to your needs, please complete our brief survey:</p>
-      </div>
-      
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform?embedded=true" style="display: inline-block; background: linear-gradient(to right, #9945FF, #14F195); color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px;">Complete Our Survey</a>
-      
-      <p style="margin-top: 20px; line-height: 1.5;">The survey will help us understand your specific needs as a freelancer and how we can better protect your work and income.</p>
-      
-      <p style="margin-top: 25px; line-height: 1.5;">We'll keep you updated on our progress and you'll be among the first to know when we launch!</p>
-      
-      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(153, 69, 255, 0.3);">
-        <p style="font-size: 14px; color: #aaaaaa;">The FreelanceShield Team</p>
-        <p style="font-size: 12px; color: #888888;">Powered by Solana</p>
-      </div>
+    <div>
+        <div>
+            <div>
+                <div style="font-family: &quot;Open Sans&quot;, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 30px; background-color: rgb(10, 10, 24); color: rgb(255, 255, 255); border-radius: 12px; border: 2px solid rgb(153, 69, 255)">
+                    <h1 style="font-family: &quot;NT Brick Sans&quot;, Arial, sans-serif; color: rgb(153, 69, 255); font-size: 36px; margin-bottom: 24px; letter-spacing: 1px; text-transform: uppercase">
+                        Welcome to FreelanceShield!
+                        <br>
+                    </h1>
+                    <p style="margin-bottom: 20px; line-height: 1.6">
+                        <span class="size" style="font-size: 18px; margin-bottom: 20px; line-height: 1.6;">
+                            Thank you for joining our waitlist. We're building the future of freelance protection on Solana, and we're excited to have you on board!
+                            <br>
+                        </span>
+                    </p>
+                    <div style="padding: 20px; border-radius: 8px; margin: 24px 0; border-left: 4px solid rgb(0, 191, 255)">
+                        <p style="margin: 0px">
+                            <span class="size" style="font-size: 18px; margin: 0px;">
+                                <span class="colour" style="color:rgb(0, 191, 255)">
+                                    <b style="margin: 0px">
+                                        To help us tailor FreelanceShield to your needs, please complete our brief survey:
+                                    </b>
+                                </span>
+                                <br>
+                            </span>
+                        </p>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform?embedded=true" style="display: inline-block; background: linear-gradient(to right, rgb(153, 69, 255), rgb(0, 191, 255)); color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0; text-transform: uppercase; letter-spacing: 1px; font-size: 18px" target="_blank">
+                        Complete Our Survey
+                    </a>
+                    <p style="margin-top: 24px; line-height: 1.6">
+                        <span class="size" style="font-size: 18px; margin-top: 24px; line-height: 1.6;">
+                            The survey will help us understand your specific needs as a freelancer and how we can better protect your work and income.
+                            <br>
+                        </span>
+                    </p>
+                    <p style="margin-top: 28px; line-height: 1.6">
+                        <span class="size" style="font-size: 18px; margin-top: 28px; line-height: 1.6;">
+                            We'll keep you updated on our progress and you'll be among the first to know when we launch!
+                            <br>
+                        </span>
+                    </p>
+                    <div style="margin-top: 36px; padding-top: 24px; border-top: 1px solid rgb(192, 192, 192)">
+                        <p>
+                            <span class="colour" style="color:rgb(210, 210, 210)">
+                                <span class="size" style="font-size:16px">
+                                    The FreelanceShield Team
+                                </span>
+                            </span>
+                            <br>
+                        </p>
+                        <p>
+                            <br>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <br>
+            </div>
+        </div>
     </div>
   `;
 };
@@ -137,7 +175,7 @@ const sendConfirmationEmail = async (email, token) => {
     console.log(`Sending confirmation email to ${email}`);
     
     const mailOptions = {
-      from: process.env.ZOHO_USER || 'get@freelanceshield.xyz',
+      from: process.env.ZOHO_EMAIL || process.env.ZOHO_USER || 'david@freelanceshield.xyz',
       to: email,
       subject: 'Welcome to the FreelanceShield Waitlist!',
       html: emailHtml
@@ -153,9 +191,7 @@ const sendConfirmationEmail = async (email, token) => {
 };
 
 // Main API handler function
-export default async function handler(req, res) {
-  console.log('Received request:', req.method, 'from origin:', req.headers.origin);
-  
+module.exports = async (req, res) => {
   // Set CORS headers for all responses - must be set before any early returns
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE, PATCH');
@@ -198,8 +234,7 @@ export default async function handler(req, res) {
     const ipAddress = 
       req.headers['x-forwarded-for'] || 
       req.headers['x-real-ip'] || 
-      req.connection?.remoteAddress || 
-      'Unknown';
+      (req.connection ? req.connection.remoteAddress : 'Unknown');
     
     // Add to waitlist
     const { confirmationToken } = await addToWaitlist(email, userAgent, ipAddress);
@@ -220,4 +255,4 @@ export default async function handler(req, res) {
     console.error('Error in waitlist API:', error);
     return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
   }
-}
+};

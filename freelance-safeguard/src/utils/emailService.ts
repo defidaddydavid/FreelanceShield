@@ -28,7 +28,7 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
       return { success: false, message: 'Please enter a valid email address' };
     }
 
-    const apiUrl = `${API_BASE_URL}/api/waitlist`;
+    const apiUrl = `${API_BASE_URL}/api/waitlist-signup`;
     console.log('Calling waitlist API at:', apiUrl);
     
     // Call the Vercel API endpoint
@@ -63,7 +63,7 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
       success: data.success,
       message: data.message,
       emailSent: data.emailSent,
-      adminNotified: data.adminNotified
+      adminNotified: false // waitlist-signup doesn't send admin notifications
     };
   } catch (error) {
     console.error('Error adding to waitlist:', error);
