@@ -6,9 +6,9 @@ const nodemailer = require('nodemailer');
 
 // Debug environment variables (safely)
 console.log('Available environment variables:', {
-  SUPABASE_URL: !!process.env.SUPABASE_URL,
-  SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-  SUPABASE_ANON_KEY: !!process.env.SUPABASE_ANON_KEY,
+  STORAGE_SUPABASE_URL: !!process.env.STORAGE_SUPABASE_URL,
+  STORAGE_SUPABASE_SERVICE_ROLE_KEY: !!process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY,
+  STORAGE_SUPABASE_ANON_KEY: !!process.env.STORAGE_SUPABASE_ANON_KEY,
   ZOHO_HOST: !!process.env.ZOHO_HOST,
   ZOHO_PORT: !!process.env.ZOHO_PORT,
   ZOHO_USER: !!process.env.ZOHO_USER,
@@ -17,8 +17,8 @@ console.log('Available environment variables:', {
 });
 
 // Supabase configuration
-const supabaseUrl = process.env.SUPABASE_URL || 'https://ymsimbeqrvupvmujzrrd.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.STORAGE_SUPABASE_URL || 'https://ymsimbeqrvupvmujzrrd.supabase.co';
+const supabaseKey = process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY;
 
 // Email configuration for domain-based email address
 const emailConfig = {
@@ -88,8 +88,8 @@ function generateEmail(email) {
 module.exports = async (req, res) => {
   // Log environment variables (without sensitive values)
   console.log('Environment Variables Status:', {
-    hasSupabaseUrl: !!process.env.SUPABASE_URL,
-    hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    hasSupabaseUrl: !!process.env.STORAGE_SUPABASE_URL,
+    hasSupabaseKey: !!process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY,
     hasZohoHost: !!process.env.ZOHO_HOST,
     hasZohoPort: !!process.env.ZOHO_PORT,
     hasZohoUser: !!process.env.ZOHO_USER,
