@@ -4,7 +4,7 @@ import { Shield, Lock, UserCheck, Landmark } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
-import { addToWaitlist, WAITLIST_FORM_URL } from '@/api/waitlist';
+import { addToWaitlist, getWaitlistFormUrl } from '@/utils/emailService';
 
 // This is a simplified version of ComingSoonPage without wallet dependencies
 // for the landing page deployment
@@ -34,14 +34,28 @@ const LandingPage: React.FC = () => {
           description: 'Check your email for additional information.',
         });
         
-        // Open the Google Form in a new tab for additional information
-        window.open(WAITLIST_FORM_URL, '_blank');
+        // Only open Google Form if email sending failed
+        if (!response.emailSent) {
+          window.open(getWaitlistFormUrl(), '_blank');
+        }
       } else {
-        toast.error(response.message || 'Failed to join waitlist. Please try again later.');
+        // If API call fails, offer Google Form as fallback
+        toast.error('Unable to process your request. Would you like to use our Google Form instead?', {
+          action: {
+            label: 'Open Form',
+            onClick: () => window.open(getWaitlistFormUrl(), '_blank')
+          },
+        });
       }
     } catch (error) {
       console.error('Error joining waitlist:', error);
-      toast.error('Failed to join waitlist. Please try again later.');
+      // Offer Google Form as fallback
+      toast.error('Failed to join waitlist. Please try our Google Form instead.', {
+        action: {
+          label: 'Open Form',
+          onClick: () => window.open(getWaitlistFormUrl(), '_blank')
+        },
+      });
     } finally {
       setIsSubmitting(false);
       setEmail('');

@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/logo';
 import { useNavigate } from 'react-router-dom';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
-import { addToWaitlist, WAITLIST_FORM_URL } from '@/api/waitlist';
+import { addToWaitlist, getWaitlistFormUrl } from '@/utils/emailService';
 
 // Feature cards for main functionality showcase
 const features = [
@@ -191,14 +191,26 @@ export default function ComingSoonPage() {
       const response = await addToWaitlist(email);
       
       if (response.success) {
-        toast.success(response.message);
+        toast.success('Thank you for joining our waitlist! Check your email for confirmation.');
         setEmail(''); // Clear the form
       } else {
-        toast.error(response.message);
+        // If API call fails, offer Google Form as fallback
+        toast.error('Unable to process your request. Would you like to use our Google Form instead?', {
+          action: {
+            label: 'Open Form',
+            onClick: () => window.open(getWaitlistFormUrl(), '_blank')
+          },
+        });
       }
     } catch (error) {
       console.error('Error joining waitlist:', error);
-      toast.error('Failed to join waitlist. Please try again later.');
+      // Offer Google Form as fallback
+      toast.error('Failed to join waitlist. Please try our Google Form instead.', {
+        action: {
+          label: 'Open Form',
+          onClick: () => window.open(getWaitlistFormUrl(), '_blank')
+        },
+      });
     } finally {
       setIsSubmitting(false);
     }
