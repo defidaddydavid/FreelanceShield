@@ -1,9 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "npm run build:landing",
-  "outputDirectory": "dist",
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" }
+    { "src": "api/*.js", "use": "@vercel/node" },
+    { 
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist",
+        "buildCommand": "npm run build:landing"
+      }
+    }
   ],
   "routes": [
     {
@@ -19,6 +25,6 @@
     { "src": "/api/waitlist-signup", "dest": "/api/waitlist-signup.js" },
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/landing.html" }
+    { "src": "/(.*)", "dest": "/" }
   ]
 }
