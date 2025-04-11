@@ -1,11 +1,5 @@
 {
   "framework": "vite",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "routes": [
-    { "src": "/api/test", "dest": "/api/test.js" },
-    { "src": "/api/waitlist", "dest": "/api/waitlist.cjs" },
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
-  ]
+  "outputDirectory": "dist"
 }
