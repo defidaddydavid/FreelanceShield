@@ -1,5 +1,5 @@
 // Simple test API endpoint
-export default function handler(req, res) {
+module.exports = (req, res) => {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -15,6 +15,12 @@ export default function handler(req, res) {
     success: true, 
     message: 'API test endpoint is working',
     method: req.method,
-    body: req.body
+    body: req.body,
+    env: {
+      hasSupabaseUrl: !!process.env.STORAGE_SUPABASE_URL,
+      hasSupabaseKey: !!process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY,
+      hasZohoEmail: !!process.env.ZOHO_EMAIL,
+      hasZohoPassword: !!process.env.ZOHO_PASSWORD
+    }
   });
 }

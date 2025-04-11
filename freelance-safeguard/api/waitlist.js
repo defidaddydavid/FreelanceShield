@@ -6,7 +6,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
 // Environment variables
-const ZOHO_EMAIL = process.env.ZOHO_EMAIL || process.env.ZOHO_USER || 'david@freelanceshield.xyz';
+const ZOHO_EMAIL = process.env.ZOHO_EMAIL || process.env.ZOHO_USER || 'get@freelanceshield.xyz';
 const ZOHO_PASSWORD = process.env.ZOHO_PASSWORD || process.env.ZOHO_PASS;
 const ZOHO_SMTP_HOST = process.env.ZOHO_SMTP_HOST || process.env.ZOHO_HOST || 'smtp.zoho.com';
 const ZOHO_SMTP_PORT = parseInt(process.env.ZOHO_SMTP_PORT || process.env.ZOHO_PORT || '465', 10);
@@ -281,24 +281,24 @@ const saveToSupabase = async (email, userAgent, ipAddress) => {
 
 // API handler
 module.exports = async (req, res) => {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-
-  // Handle preflight request
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
-  // Only allow POST requests
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' });
-  }
-
   try {
+    // Handle preflight request
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+
+    // Only allow POST requests
+    if (req.method !== 'POST') {
+      return res.status(405).json({ success: false, message: 'Method not allowed' });
+    }
+
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
     console.log('Received waitlist request with body:', JSON.stringify(req.body));
     const { email } = req.body;
 

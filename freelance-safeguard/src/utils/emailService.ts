@@ -13,7 +13,7 @@ export interface EmailResponse {
 
 // Base URL for API endpoints - detects environment
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://freelanceshield.xyz' 
+  ? '' // Use relative URL in production to avoid CORS issues
   : 'http://localhost:3000';
 
 /**
@@ -28,10 +28,11 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
       return { success: false, message: 'Please enter a valid email address' };
     }
 
-    console.log('Calling waitlist API at:', `${API_BASE_URL}/api/waitlist`);
+    const apiUrl = `${API_BASE_URL}/api/waitlist`;
+    console.log('Calling waitlist API at:', apiUrl);
     
     // Call the Vercel API endpoint
-    const response = await fetch(`${API_BASE_URL}/api/waitlist`, {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,6 +40,9 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
       body: JSON.stringify({ email }),
     });
 
+    // Log the raw response for debugging
+    console.log('API response status:', response.status, response.statusText);
+    
     // Check if the response is OK
     if (!response.ok) {
       console.error('API response not OK:', response.status, response.statusText);
@@ -52,7 +56,7 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
 
     // Parse the response
     const data = await response.json();
-    console.log('API response:', data);
+    console.log('API response data:', data);
     
     // Return the result
     return {
