@@ -1,21 +1,25 @@
 {
   "version": 2,
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "dist",
   "builds": [
     { "src": "api/*.js", "use": "@vercel/node" },
-    { "src": "package.json", "use": "@vercel/static-build" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type, Accept, Origin" },
+        { "key": "Access-Control-Max-Age", "value": "86400" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/api/waitlist", "destination": "/api/waitlist-signup.js" },
+    { "source": "/api/waitlist-signup", "destination": "/api/waitlist-signup.js" },
+    { "source": "/api/(.*)", "destination": "/api/$1" }
   ]
 }
