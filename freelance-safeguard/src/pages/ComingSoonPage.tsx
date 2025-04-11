@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -7,6 +8,7 @@ import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/logo';
 import { useNavigate } from 'react-router-dom';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
+import { Input } from '@/components/ui/input';
 
 // Feature cards for main functionality showcase
 const features = [
@@ -125,7 +127,7 @@ const terminalTexts = [
   "System ready for launch."
 ];
 
-// Google Form URL for the waitlist
+// Google Form URL for the waitlist (as fallback)
 const WAITLIST_FORM_URL = "https://forms.gle/qZjpDon9kGKqDBJr5"; // FreelanceShield waitlist form
 
 export default function ComingSoonPage() {
@@ -133,6 +135,8 @@ export default function ComingSoonPage() {
   const [currentTerminalTextIndex, setCurrentTerminalTextIndex] = useState(0);
   const [showTerminalCursor, setShowTerminalCursor] = useState(true);
   const [isDevMode, setIsDevMode] = useState(false);
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { isDark } = useSolanaTheme();
   
@@ -141,7 +145,7 @@ export default function ComingSoonPage() {
     const devBypass = localStorage.getItem('freelanceShield_devBypass') === 'true';
     setIsDevMode(devBypass);
   }, []);
-
+  
   // Rotate through features
   useEffect(() => {
     const interval = setInterval(() => {
@@ -155,17 +159,15 @@ export default function ComingSoonPage() {
     const textInterval = setInterval(() => {
       setCurrentTerminalTextIndex((prev) => {
         if (prev >= terminalTexts.length - 1) {
-          // Reached the end, stay on the last message
           clearInterval(textInterval);
-          return terminalTexts.length - 1;
+          return prev;
         }
         return prev + 1;
       });
-    }, 2000);
+    }, 1000);
     
-    // Blinking cursor effect
     const cursorInterval = setInterval(() => {
-      setShowTerminalCursor(prev => !prev);
+      setShowTerminalCursor((prev) => !prev);
     }, 500);
     
     return () => {
@@ -173,21 +175,60 @@ export default function ComingSoonPage() {
       clearInterval(cursorInterval);
     };
   }, []);
-
-  const handleJoinWaitlist = () => {
-    // Open Google Form in a new tab
-    window.open(WAITLIST_FORM_URL, '_blank');
-    toast.success('Waitlist form opened in a new tab');
+  
+  const handleJoinWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!email || !email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Call our Vercel API endpoint to add the email and send the welcome email
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        toast.success('Thank you for joining our waitlist!', {
+          description: 'We will keep you updated on our launch.',
+        });
+        
+        // Reset the form
+        setEmail('');
+      } else {
+        toast.error(result.message || 'Failed to join waitlist. Please try again.');
+        
+        // Fallback to Google Form if the API fails
+        window.open(WAITLIST_FORM_URL, '_blank');
+        toast.info('Waitlist form opened in a new tab as a fallback');
+      }
+    } catch (error) {
+      console.error('Error joining waitlist:', error);
+      toast.error('Something went wrong. Please try again later.');
+      
+      // Fallback to Google Form
+      window.open(WAITLIST_FORM_URL, '_blank');
+      toast.info('Waitlist form opened in a new tab as a fallback');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
+  
   const handleDevBypass = () => {
     localStorage.setItem('freelanceShield_devBypass', 'true');
-    toast.success('Developer bypass enabled. Redirecting to main application...');
-    
-    // Short delay before navigation to allow toast to show
-    setTimeout(() => {
-      navigate('/');
-    }, 1500);
+    toast.success('Developer bypass enabled');
+    navigate('/dashboard');
   };
 
   return (
@@ -369,15 +410,25 @@ export default function ComingSoonPage() {
               <h3 className="text-lg font-heading text-white mb-1 font-bold">Join Our Waitlist</h3>
               <p className="text-gray-300 mb-4 text-sm">Be the first to know when FreelanceShield launches.</p>
               
-              <Button
-                onClick={handleJoinWaitlist}
-                className="bg-gradient-to-r from-[#9945FF] to-[#00FFFF] hover:opacity-90 text-white font-medium py-3 px-6 rounded-md w-full max-w-xs transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(153,69,255,0.2)]"
-              >
-                <span className="flex items-center justify-center">
-                  Join Waitlist
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </span>
-              </Button>
+              <form onSubmit={handleJoinWaitlist}>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  className="w-full max-w-xs mb-4"
+                />
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-gradient-to-r from-[#9945FF] to-[#00FFFF] hover:opacity-90 text-white font-medium py-3 px-6 rounded-md w-full max-w-xs transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(153,69,255,0.2)]"
+                >
+                  <span className="flex items-center justify-center">
+                    Join Waitlist
+                    <ExternalLink className="w-4 h-4 ml-2" />
+                  </span>
+                </Button>
+              </form>
             </div>
           </div>
         </motion.div>

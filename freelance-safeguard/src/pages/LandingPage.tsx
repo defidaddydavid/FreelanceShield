@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Lock, UserCheck, Landmark } from 'lucide-react';
 import { Input } from '../components/ui/input';
@@ -10,6 +11,10 @@ import { toast } from 'sonner';
 
 const LandingPage: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Google Form URL for the waitlist (as fallback)
+  const WAITLIST_FORM_URL = "https://forms.gle/qZjpDon9kGKqDBJr5";
   
   const joinWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,18 +25,44 @@ const LandingPage: React.FC = () => {
       return;
     }
     
-    // Google Form waitlist submission URL
-    const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSf5pQO0_F4KmVc6Tki7Sqtx5NVwj65QlD39f7B5jKljVIX_Ng/formResponse';
+    setIsSubmitting(true);
     
-    // Open the Google Form in a new tab with the email pre-filled
-    window.open(`${googleFormUrl}?usp=pp_url&entry.1045781291=${encodeURIComponent(email)}`, '_blank');
-    
-    toast.success('Thank you for joining our waitlist!', {
-      description: 'We will keep you updated on our launch.',
-    });
-    
-    // Reset the form
-    setEmail('');
+    try {
+      // Call our Vercel API endpoint to add the email and send the welcome email
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        toast.success('Thank you for joining our waitlist!', {
+          description: 'We will keep you updated on our launch.',
+        });
+        
+        // Reset the form
+        setEmail('');
+      } else {
+        toast.error(result.message || 'Failed to join waitlist. Please try again.');
+        
+        // Fallback to Google Form if the API fails
+        window.open(WAITLIST_FORM_URL, '_blank');
+        toast.info('Waitlist form opened in a new tab as a fallback');
+      }
+    } catch (error) {
+      console.error('Error joining waitlist:', error);
+      toast.error('Something went wrong. Please try again later.');
+      
+      // Fallback to Google Form
+      window.open(WAITLIST_FORM_URL, '_blank');
+      toast.info('Waitlist form opened in a new tab as a fallback');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const features = [
@@ -204,12 +235,14 @@ pub struct CreatePolicy<'info> {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-gray-800 border-gray-700 text-white focus:border-[#9945FF]"
+                  disabled={isSubmitting}
                 />
                 <Button 
                   type="submit" 
                   className="bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-[#8A3BFF] hover:to-[#12E085] text-white"
+                  disabled={isSubmitting}
                 >
-                  Join
+                  {isSubmitting ? 'Joining...' : 'Join'}
                 </Button>
               </form>
             </div>
