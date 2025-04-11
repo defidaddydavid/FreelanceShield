@@ -1,10 +1,11 @@
 // Simple Vercel API handler for waitlist signups
 // This version is optimized for Vercel serverless functions
 
+const { createClient } = require('@supabase/supabase-js');
 const nodemailer = require('nodemailer');
 
 // Environment variables
-const ZOHO_EMAIL = process.env.ZOHO_EMAIL || 'david@freelanceshield.xyz';
+const ZOHO_EMAIL = process.env.ZOHO_EMAIL || 'get@freelanceshield.xyz';
 const ZOHO_PASSWORD = process.env.ZOHO_PASSWORD;
 const ZOHO_SMTP_HOST = process.env.ZOHO_SMTP_HOST || 'smtp.zoho.com';
 const ZOHO_SMTP_PORT = process.env.ZOHO_SMTP_PORT || 465;
@@ -12,8 +13,34 @@ const ZOHO_SMTP_SECURE = process.env.ZOHO_SMTP_SECURE === 'false' ? false : true
 const WAITLIST_EMAIL_SUBJECT = process.env.WAITLIST_EMAIL_SUBJECT || 'Welcome to FreelanceShield Waitlist!';
 const WAITLIST_FROM_NAME = process.env.WAITLIST_FROM_NAME || 'FreelanceShield Team';
 
+// Supabase configuration
+const SUPABASE_URL = process.env.STORAGE_SUPABASE_URL;
+const SUPABASE_KEY = process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY;
+
+// Debug environment variables (safely)
+console.log('Available environment variables:', {
+  STORAGE_SUPABASE_URL: !!process.env.STORAGE_SUPABASE_URL,
+  STORAGE_SUPABASE_SERVICE_ROLE_KEY: !!process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY,
+  ZOHO_EMAIL: !!process.env.ZOHO_EMAIL,
+  ZOHO_PASSWORD: !!process.env.ZOHO_PASSWORD,
+  ZOHO_SMTP_HOST: !!process.env.ZOHO_SMTP_HOST,
+  ZOHO_SMTP_PORT: !!process.env.ZOHO_SMTP_PORT,
+  NODE_ENV: process.env.NODE_ENV
+});
+
 // In-memory storage for waitlist emails (for development/testing)
 const waitlistEmails = [];
+
+// Initialize Supabase client
+let supabase = null;
+function getSupabase() {
+  if (!supabase && SUPABASE_URL && SUPABASE_KEY) {
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
+  }
+  return supabase;
+}
 
 // Create email transporter
 const createTransporter = () => {
@@ -25,6 +52,8 @@ const createTransporter = () => {
       user: ZOHO_EMAIL,
       pass: ZOHO_PASSWORD,
     },
+    debug: true, // Enable debug output
+    logger: true, // Log information to the console
   });
 };
 
@@ -108,13 +137,21 @@ const sendWelcomeEmail = async (email) => {
       `,
     };
 
+    console.log('Attempting to send email with configuration:', {
+      host: ZOHO_SMTP_HOST,
+      port: ZOHO_SMTP_PORT,
+      secure: ZOHO_SMTP_SECURE,
+      user: ZOHO_EMAIL,
+      hasPassword: !!ZOHO_PASSWORD
+    });
+
     const info = await transporter.sendMail(mailOptions);
     console.log('Waitlist welcome email sent:', info.messageId);
     
     return { success: true, message: 'Welcome email sent successfully' };
   } catch (error) {
     console.error('Error sending welcome email:', error);
-    return { success: false, message: 'Failed to send welcome email' };
+    return { success: false, message: 'Failed to send welcome email', error: error.message };
   }
 };
 
@@ -148,7 +185,58 @@ const sendAdminNotification = async (subscriberEmail) => {
     return { success: true, message: 'Admin notification sent successfully' };
   } catch (error) {
     console.error('Error sending admin notification:', error);
-    return { success: false, message: 'Failed to send admin notification' };
+    return { success: false, message: 'Failed to send admin notification', error: error.message };
+  }
+};
+
+// Save email to Supabase
+const saveToSupabase = async (email) => {
+  try {
+    const supabase = getSupabase();
+    if (!supabase) {
+      console.error('Supabase client not initialized');
+      return { success: false, message: 'Database not configured' };
+    }
+
+    // Check if email already exists
+    const { data: existingEmail, error: checkError } = await supabase
+      .from('waitlist')
+      .select('email')
+      .eq('email', email)
+      .maybeSingle();
+    
+    if (checkError) {
+      console.error('Error checking existing email:', checkError);
+      return { success: false, message: 'Database error', error: checkError.message };
+    }
+    
+    if (existingEmail) {
+      console.log('Email already exists in database:', email);
+      return { success: true, message: 'Email already exists', isNew: false };
+    }
+    
+    // Save new email
+    const waitlistEntry = { 
+      email: email,
+      source: 'landing_page'
+    };
+    
+    console.log('Saving to Supabase:', waitlistEntry);
+    
+    const { error: insertError } = await supabase
+      .from('waitlist')
+      .insert([waitlistEntry]);
+    
+    if (insertError) {
+      console.error('Error saving to Supabase:', insertError);
+      return { success: false, message: 'Failed to save to database', error: insertError.message };
+    }
+    
+    console.log('Email saved to Supabase successfully');
+    return { success: true, message: 'Email saved to database', isNew: true };
+  } catch (error) {
+    console.error('Error saving to Supabase:', error);
+    return { success: false, message: 'Failed to save to database', error: error.message };
   }
 };
 
@@ -172,6 +260,7 @@ module.exports = async (req, res) => {
   }
 
   try {
+    console.log('Received waitlist request with body:', JSON.stringify(req.body));
     const { email } = req.body;
 
     // Validate email
@@ -182,23 +271,35 @@ module.exports = async (req, res) => {
     // Store email in memory (for development/testing)
     if (!waitlistEmails.includes(email)) {
       waitlistEmails.push(email);
+      console.log('Email added to in-memory storage:', email);
     }
+
+    // Save email to Supabase
+    const supabaseResult = await saveToSupabase(email);
+    console.log('Supabase save result:', supabaseResult);
 
     // Send welcome email to subscriber
     const welcomeEmailResult = await sendWelcomeEmail(email);
+    console.log('Welcome email result:', welcomeEmailResult);
     
     // Send notification to admin
     const adminNotificationResult = await sendAdminNotification(email);
+    console.log('Admin notification result:', adminNotificationResult);
 
     // Return success even if emails fail - we've stored the email
     return res.status(200).json({ 
       success: true, 
       message: 'Added to waitlist successfully',
       emailSent: welcomeEmailResult.success,
-      adminNotified: adminNotificationResult.success
+      adminNotified: adminNotificationResult.success,
+      savedToDatabase: supabaseResult.success
     });
   } catch (error) {
     console.error('Waitlist API error:', error);
-    return res.status(500).json({ success: false, message: 'Server error' });
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error',
+      error: error.message
+    });
   }
 };
