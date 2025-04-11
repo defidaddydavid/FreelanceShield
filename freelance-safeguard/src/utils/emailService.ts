@@ -28,6 +28,8 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
       return { success: false, message: 'Please enter a valid email address' };
     }
 
+    console.log('Calling waitlist API at:', `${API_BASE_URL}/api/waitlist`);
+    
     // Call the Vercel API endpoint
     const response = await fetch(`${API_BASE_URL}/api/waitlist`, {
       method: 'POST',
@@ -37,8 +39,20 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
       body: JSON.stringify({ email }),
     });
 
+    // Check if the response is OK
+    if (!response.ok) {
+      console.error('API response not OK:', response.status, response.statusText);
+      return { 
+        success: false, 
+        message: `API error: ${response.status} ${response.statusText}`,
+        emailSent: false,
+        adminNotified: false
+      };
+    }
+
     // Parse the response
     const data = await response.json();
+    console.log('API response:', data);
     
     // Return the result
     return {
@@ -63,5 +77,5 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
  * @returns The Google Form URL for waitlist signup
  */
 export function getWaitlistFormUrl(): string {
-  return 'https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform?embedded=true';
+  return 'https://forms.gle/CMigcH8wUh84DEcq8';
 }
