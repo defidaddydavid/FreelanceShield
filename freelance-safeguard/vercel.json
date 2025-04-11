@@ -6,8 +6,7 @@
       "src": "package.json", 
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "buildCommand": "npm run build"
+        "distDir": "dist"
       }
     }
   ],
@@ -25,6 +24,6 @@
     { "src": "/api/waitlist-signup", "dest": "/api/waitlist-signup.js" },
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/" }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

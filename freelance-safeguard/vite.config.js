@@ -5,18 +5,19 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  root: '.', // Explicitly set the root directory
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    minify: 'esbuild',
     sourcemap: true,
     chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      input: path.resolve(__dirname, 'index.html')
+    }
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      'src': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, 'src'),
+      'src': path.resolve(__dirname, 'src')
     }
   },
   server: {
