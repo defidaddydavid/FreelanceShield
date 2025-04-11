@@ -1,7 +1,7 @@
 // API endpoint for the waitlist service
 export const WAITLIST_API_ENDPOINT = import.meta.env.VITE_WAITLIST_API_ENDPOINT || 
   (import.meta.env.PROD 
-    ? 'https://freelanceshield.xyz/api/waitlist' 
+    ? '/api/waitlist' 
     : '/api/waitlist');
 
 // Google Form URL for more detailed information
