@@ -5,20 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:debug": "vite --debug",
-    "dev:simple": "vite --force",
-    "dev:landing": "vite --config vite.config.landing.ts",
     "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "build:landing": "vite build --config vite.config.landing.ts",
     "vercel-build": "vite build",
-    "deploy:vercel": "node deploy-to-vercel.js",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "start": "vite preview",
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "test:solana": "mocha --require ts-node/register --require tsconfig-paths/register test/solana.test.ts"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
