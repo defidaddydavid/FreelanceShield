@@ -5,7 +5,6 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  root: '.', // Set the root directory where index.html is located
   build: {
     outDir: 'dist',
     emptyOutDir: true,
@@ -16,10 +15,12 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
-      '/src': path.resolve(__dirname, 'src')
-    }
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, 'src') },
+      { find: /^src\/(.*)/, replacement: path.resolve(__dirname, 'src/$1') },
+      { find: /^\/src\/(.*)/, replacement: path.resolve(__dirname, 'src/$1') },
+      { find: /^\.\/src\/(.*)/, replacement: path.resolve(__dirname, 'src/$1') }
+    ]
   },
   server: {
     port: 3000
