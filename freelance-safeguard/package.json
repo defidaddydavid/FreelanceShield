@@ -11,7 +11,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:landing": "vite build --config vite.config.landing.ts",
-    "vercel-build": "vite build --config vite.config.landing.ts",
+    "vercel-build": "vite build",
     "deploy:vercel": "node deploy-to-vercel.js",
     "lint": "eslint .",
     "preview": "vite preview",
