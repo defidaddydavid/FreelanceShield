@@ -198,7 +198,7 @@ export default async function handler(req, res) {
     const ipAddress = 
       req.headers['x-forwarded-for'] || 
       req.headers['x-real-ip'] || 
-      req.connection.remoteAddress || 
+      req.connection?.remoteAddress || 
       'Unknown';
     
     // Add to waitlist

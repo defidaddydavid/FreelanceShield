@@ -4,7 +4,7 @@
   "outputDirectory": "dist",
   "routes": [
     { "src": "/api/test", "dest": "/api/test.js" },
-    { "src": "/api/waitlist", "dest": "/api/waitlist-signup.js" },
+    { "src": "/api/waitlist", "dest": "/api/waitlist.cjs" },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
   ]
