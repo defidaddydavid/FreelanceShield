@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    input {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>FreelanceShield API Test</h1>
+  
+  <div class="container">
+    <div class="card">
+      <h2>Test API Endpoint</h2>
+      <button id="testApiBtn">Test API</button>
+      <div id="testApiResult"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Test Waitlist API</h2>
+      <input type="email" id="emailInput" placeholder="Enter your email">
+      <button id="testWaitlistBtn">Test Waitlist API</button>
+      <div id="waitlistApiResult"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('testApiBtn').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('testApiResult');
+      resultDiv.innerHTML = '<p>Testing API...</p>';
+      
+      try {
+        const response = await fetch('/api/test', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ test: true })
+        });
+        
+        const data = await response.json();
+        resultDiv.innerHTML = `
+          <p>Status: ${response.status}</p>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <p>Error: ${error.message}</p>
+          <pre>${error.stack}</pre>
+        `;
+      }
+    });
+    
+    document.getElementById('testWaitlistBtn').addEventListener('click', async () => {
+      const email = document.getElementById('emailInput').value;
+      const resultDiv = document.getElementById('waitlistApiResult');
+      
+      if (!email) {
+        resultDiv.innerHTML = '<p>Please enter an email address</p>';
+        return;
+      }
+      
+      resultDiv.innerHTML = '<p>Testing waitlist API...</p>';
+      
+      try {
+        const response = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+        
+        let responseText;
+        try {
+          const data = await response.json();
+          responseText = JSON.stringify(data, null, 2);
+        } catch (e) {
+          responseText = await response.text();
+        }
+        
+        resultDiv.innerHTML = `
+          <p>Status: ${response.status}</p>
+          <pre>${responseText}</pre>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <p>Error: ${error.message}</p>
+          <pre>${error.stack}</pre>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
