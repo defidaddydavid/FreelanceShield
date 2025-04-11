@@ -97,36 +97,50 @@ const addToWaitlist = async (email, userAgent, ipAddress) => {
   }
 };
 
+// Generate thank you email HTML
+const generateThankYouEmail = (email) => {
+  return `
+    <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333333;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #9945FF; margin-bottom: 5px;">Welcome to FreelanceShield!</h1>
+        <p style="font-size: 16px; color: #666666;">Thank you for joining our waitlist</p>
+      </div>
+      
+      <p style="margin-bottom: 15px; line-height: 1.5;">Hi there,</p>
+      
+      <p style="margin-bottom: 15px; line-height: 1.5;">Thank you for joining the FreelanceShield waitlist! We're building a decentralized insurance protocol to protect freelancers from non-payment and project disputes.</p>
+      
+      <div style="background: linear-gradient(rgba(153, 69, 255, 0.1), rgba(0, 255, 255, 0.1)); padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 3px solid #00FFFF;">
+        <p style="margin: 0; color: #00FFFF; font-weight: bold;">To help us tailor FreelanceShield to your needs, please complete our brief survey:</p>
+      </div>
+      
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform?embedded=true" style="display: inline-block; background: linear-gradient(to right, #9945FF, #14F195); color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px;">Complete Our Survey</a>
+      
+      <p style="margin-top: 20px; line-height: 1.5;">The survey will help us understand your specific needs as a freelancer and how we can better protect your work and income.</p>
+      
+      <p style="margin-top: 25px; line-height: 1.5;">We'll keep you updated on our progress and you'll be among the first to know when we launch!</p>
+      
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(153, 69, 255, 0.3);">
+        <p style="font-size: 14px; color: #aaaaaa;">The FreelanceShield Team</p>
+        <p style="font-size: 12px; color: #888888;">Powered by Solana</p>
+      </div>
+    </div>
+  `;
+};
+
 // Send confirmation email
 const sendConfirmationEmail = async (email, token) => {
   try {
     const transporter = getEmailTransporter();
-    const apiEndpoint = process.env.API_ENDPOINT || 'https://freelanceshield.xyz';
+    const emailHtml = generateThankYouEmail(email);
     
-    const confirmationLink = `${apiEndpoint}/confirm?token=${token}&email=${encodeURIComponent(email)}`;
-    
-    console.log(`Sending confirmation email to ${email} with confirmation link: ${confirmationLink}`);
+    console.log(`Sending confirmation email to ${email}`);
     
     const mailOptions = {
       from: process.env.ZOHO_USER || 'get@freelanceshield.xyz',
       to: email,
-      subject: 'Confirm your FreelanceShield waitlist signup',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #4F46E5;">Welcome to FreelanceShield!</h2>
-          <p>Thank you for joining our waitlist. We're excited to have you on board!</p>
-          <p>FreelanceShield is the first decentralized insurance protocol for freelancers on Solana, providing secure escrow, milestone payments, and dispute resolution.</p>
-          <p>Please confirm your email address by clicking the button below:</p>
-          <p style="text-align: center; margin: 30px 0;">
-            <a href="${confirmationLink}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Confirm Email</a>
-          </p>
-          <p>Or copy and paste this link into your browser:</p>
-          <p style="word-break: break-all; font-size: 14px;">${confirmationLink}</p>
-          <p>If you didn't sign up for FreelanceShield, please ignore this email.</p>
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eaeaea;">
-          <p style="font-size: 12px; color: #666;"> 2025 FreelanceShield. All rights reserved.</p>
-        </div>
-      `
+      subject: 'Welcome to the FreelanceShield Waitlist!',
+      html: emailHtml
     };
     
     const info = await transporter.sendMail(mailOptions);
@@ -196,8 +210,9 @@ export default async function handler(req, res) {
     // Return success response
     return res.status(200).json({ 
       success: true, 
-      message: "You've been added to our waitlist! " + 
-        (emailSent ? "Please check your email to confirm your signup." : "We'll notify you when we launch."),
+      message: emailSent 
+        ? 'Successfully joined the waitlist! Check your email for confirmation.' 
+        : 'Successfully joined the waitlist! You\'ll be notified when we launch.',
       emailSent 
     });
     
