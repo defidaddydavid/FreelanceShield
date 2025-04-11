@@ -1,15 +1,10 @@
 {
   "version": 2,
+  "framework": "vite",
+  "buildCommand": "npm run build:landing",
+  "outputDirectory": "dist",
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" },
-    { 
-      "src": "package.json", 
-      "use": "@vercel/static-build", 
-      "config": { 
-        "distDir": "dist",
-        "buildCommand": "npm run build:landing"
-      }
-    }
+    { "src": "api/*.js", "use": "@vercel/node" }
   ],
   "headers": [
     {
