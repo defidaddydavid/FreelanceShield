@@ -127,8 +127,7 @@ const terminalTexts = [
   "System ready for launch."
 ];
 
-// Google Form URL for the waitlist
-const WAITLIST_FORM_URL = "https://forms.gle/qZjpDon9kGKqDBJr5"; // FreelanceShield waitlist form
+// Note: WAITLIST_FORM_URL is already imported from '@/api/waitlist'
 
 export default function ComingSoonPage() {
   const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0);
@@ -307,13 +306,31 @@ export default function ComingSoonPage() {
               100% { background-position: 0% 50%; }
             }
             .silver-text {
-              background: linear-gradient(to right, #7d7d7d 0%, #d9d9d9 25%, #8e8e8e 50%, #ffffff 75%, #7d7d7d 100%);
+              background: linear-gradient(to right, #7d7d7d 0%, #d9d9d9 25%, #e8e8e8 50%, #ffffff 75%, #7d7d7d 100%);
               background-size: 200% auto;
               background-clip: text;
               -webkit-background-clip: text;
               -webkit-text-fill-color: transparent;
               text-shadow: 0px 2px 5px rgba(0,0,0,0.4), 0px 0px 15px rgba(25,113,233,0.3);
               animation: silverShine 5s linear infinite;
+            }
+            
+            /* Enhanced mobile styling */
+            @media (max-width: 768px) {
+              .silver-text {
+                background: linear-gradient(to right, #8e8e8e 0%, #e0e0e0 25%, #ffffff 50%, #e0e0e0 75%, #8e8e8e 100%);
+                background-size: 200% auto;
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                text-shadow: 
+                  0px 2px 4px rgba(0,0,0,0.6),
+                  0px 0px 10px rgba(153,69,255,0.3),
+                  0px 0px 20px rgba(0,255,255,0.2);
+                animation: silverShine 4s linear infinite;
+                font-weight: 800;
+                letter-spacing: 0.5px;
+              }
             }
           `}} />
           <h1 className="font-heading text-4xl md:text-5xl lg:text-7xl mb-3 md:mb-4 font-bold silver-text break-words hyphens-auto">
@@ -391,7 +408,7 @@ export default function ComingSoonPage() {
                   <Shield className="w-5 md:w-6 h-5 md:h-6 text-[#00FFFF]" />
                 </div>
               </motion.div>
-              <h3 className="text-base md:text-lg font-heading text-white mb-1 font-bold">Join Our Waitlist</h3>
+              <h3 className="text-base md:text-lg font-heading text-white mb-1 md:mb-2 font-bold">Join Our Waitlist</h3>
               <p className="text-gray-300 mb-4 text-xs md:text-sm">Be the first to know when FreelanceShield launches.</p>
               
               <form onSubmit={handleJoinWaitlist} className="w-full">

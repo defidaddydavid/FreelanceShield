@@ -7,8 +7,8 @@ import crypto from 'crypto';
 
 // Initialize Supabase client with Vercel environment variables
 const getAdminSupabase = () => {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl = process.env.STORAGE_SUPABASE_URL;
+  const supabaseServiceKey = process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY;
   
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Database configuration missing');

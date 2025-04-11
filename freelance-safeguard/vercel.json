@@ -1,29 +1,9 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" },
-    { 
-      "src": "package.json", 
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept, Origin",
-        "Access-Control-Max-Age": "86400"
-      }
-    },
-    { "src": "/api/waitlist", "dest": "/api/waitlist-signup.js" },
-    { "src": "/api/waitlist-signup", "dest": "/api/waitlist-signup.js" },
-    { "src": "/api/(.*)", "dest": "/api/$1" },
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/.*", "dest": "/index.html" }
   ]
 }

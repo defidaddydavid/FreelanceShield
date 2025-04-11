@@ -1,12 +1,11 @@
-// Simple in-memory waitlist storage
-// In a production environment, you would use a database or external service
-let waitlistEmails: string[] = [];
-let subscribers: Map<string, { email: string, timestamp: Date }> = new Map();
+// API endpoint for the waitlist service
+export const WAITLIST_API_ENDPOINT = import.meta.env.VITE_WAITLIST_API_ENDPOINT || 
+  (import.meta.env.PROD 
+    ? 'https://freelanceshield.xyz/api/waitlist' 
+    : '/api/waitlist');
 
 // Google Form URL for more detailed information
-export const WAITLIST_FORM_URL = "https://forms.gle/qZjpDon9kGKqDBJr5";
-
-import { sendWaitlistConfirmation } from '@/services/emailService';
+export const WAITLIST_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform?embedded=true";
 
 /**
  * Add an email to the waitlist and send a thank you email
@@ -20,34 +19,30 @@ export async function addToWaitlist(email: string): Promise<{ success: boolean; 
       return { success: false, message: 'Invalid email address' };
     }
 
-    // Check if email already exists
-    if (subscribers.has(email)) {
-      return { success: true, message: 'Email already registered' };
-    }
-
-    // Store the email (in a real implementation, this would be in a database)
-    subscribers.set(email, {
-      email,
-      timestamp: new Date()
+    console.log(`Sending waitlist signup request to: ${WAITLIST_API_ENDPOINT}`);
+    
+    // Call the API endpoint
+    const response = await fetch(WAITLIST_API_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
     });
     
-    waitlistEmails.push(email);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Waitlist API error (${response.status}): ${errorText}`);
+      return { 
+        success: false, 
+        message: 'Failed to join waitlist. Please try again later.' 
+      };
+    }
     
-    // Send thank you email with Google Form link
-    const emailSent = await sendWaitlistConfirmation(email);
-    
-    // In a production environment, you would:
-    // 1. Connect to a database or third-party service (e.g., Mailchimp, ConvertKit)
-    // 2. Implement proper error handling and retries
-    // 3. Add email validation and spam protection
-    // 4. Set up email confirmation flow
-
-    console.log(`Added to waitlist: ${email} - Email sent: ${emailSent}`);
+    const data = await response.json();
     return { 
-      success: true, 
-      message: emailSent 
-        ? 'Thank you for joining our waitlist! Check your email for additional information.' 
-        : 'Successfully added to waitlist, but there was an issue sending the confirmation email.'
+      success: data.success, 
+      message: data.message || 'Thank you for joining our waitlist!'
     };
   } catch (error) {
     console.error('Error adding to waitlist:', error);
@@ -62,20 +57,64 @@ export async function addToWaitlist(email: string): Promise<{ success: boolean; 
  * Get all waitlist subscribers
  * @returns Array of waitlist subscribers
  */
-export function getWaitlistSubscribers(): { email: string, timestamp: Date }[] {
-  return Array.from(subscribers.values());
+export async function getWaitlistSubscribers(): Promise<{ email: string, timestamp: Date }[]> {
+  try {
+    // Call the API endpoint
+    const response = await fetch(WAITLIST_API_ENDPOINT, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Waitlist API error (${response.status}): ${errorText}`);
+      throw new Error('Failed to retrieve waitlist subscribers');
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error getting waitlist subscribers:', error);
+    throw error;
+  }
 }
 
 /**
- * Export waitlist as CSV
- * @returns CSV string of waitlist emails
+ * Export waitlist as CSV - Admin function, requires backend access
+ * @returns CSV string of waitlist emails or error message
  */
-export function exportWaitlistCSV(): string {
-  let csv = 'Email,Timestamp\n';
-  
-  subscribers.forEach((subscriber) => {
-    csv += `${subscriber.email},${subscriber.timestamp.toISOString()}\n`;
-  });
-  
-  return csv;
+export async function exportWaitlistCSV(): Promise<{ success: boolean; data?: string; message?: string }> {
+  try {
+    // Call the API endpoint with export flag
+    const response = await fetch(`${WAITLIST_API_ENDPOINT}/export`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` // Simple admin auth
+      }
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Waitlist export error (${response.status}): ${errorText}`);
+      return { 
+        success: false, 
+        message: 'Failed to export waitlist data. Please check your permissions.' 
+      };
+    }
+    
+    const data = await response.text();
+    return { 
+      success: true, 
+      data
+    };
+  } catch (error) {
+    console.error('Error exporting waitlist:', error);
+    return { 
+      success: false, 
+      message: 'Failed to export waitlist data. Please try again later.' 
+    };
+  }
 }

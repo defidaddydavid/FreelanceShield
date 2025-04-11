@@ -4,12 +4,14 @@ import { Shield, Lock, UserCheck, Landmark } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
+import { addToWaitlist, WAITLIST_FORM_URL } from '@/api/waitlist';
 
 // This is a simplified version of ComingSoonPage without wallet dependencies
 // for the landing page deployment
 
 const LandingPage: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const joinWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,18 +22,30 @@ const LandingPage: React.FC = () => {
       return;
     }
     
-    // Google Form waitlist submission URL
-    const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSf5pQO0_F4KmVc6Tki7Sqtx5NVwj65QlD39f7B5jKljVIX_Ng/formResponse';
-    
-    // Open the Google Form in a new tab with the email pre-filled
-    window.open(`${googleFormUrl}?usp=pp_url&entry.1045781291=${encodeURIComponent(email)}`, '_blank');
-    
-    toast.success('Thank you for joining our waitlist!', {
-      description: 'We will keep you updated on our launch.',
-    });
-    
-    // Reset the form
-    setEmail('');
+    try {
+      setIsSubmitting(true);
+      
+      // Call the waitlist API
+      console.log('Submitting email to waitlist API:', email);
+      const response = await addToWaitlist(email);
+      
+      if (response.success) {
+        toast.success('Thank you for joining our waitlist!', {
+          description: 'Check your email for additional information.',
+        });
+        
+        // Open the Google Form in a new tab for additional information
+        window.open(WAITLIST_FORM_URL, '_blank');
+      } else {
+        toast.error(response.message || 'Failed to join waitlist. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Error joining waitlist:', error);
+      toast.error('Failed to join waitlist. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+      setEmail('');
+    }
   };
   
   const features = [
@@ -208,8 +222,9 @@ pub struct CreatePolicy<'info> {
                 <Button 
                   type="submit" 
                   className="bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-[#8A3BFF] hover:to-[#12E085] text-white"
+                  disabled={isSubmitting}
                 >
-                  Join
+                  {isSubmitting ? 'Joining...' : 'Join'}
                 </Button>
               </form>
             </div>

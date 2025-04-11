@@ -11,13 +11,19 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      }
+    }
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')
     }
   },
+  base: '',
   server: {
     port: 3000
   },

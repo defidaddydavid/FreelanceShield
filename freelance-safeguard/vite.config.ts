@@ -60,8 +60,11 @@ export default defineConfig({
     target: 'es2020',
     outDir: 'dist',
     sourcemap: true,
-    // Optimize chunks for Solana UI components
+    // Explicitly set the entry point
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
       output: {
         manualChunks: {
           'solana-wallet': [
@@ -86,6 +89,17 @@ export default defineConfig({
     fs: {
       // Allow serving files from one level up to the project root
       allow: ['..'],
+    },
+    proxy: {
+      // Proxy API requests based on environment
+      '/api/waitlist-signup': {
+        target: process.env.NODE_ENV === 'production' 
+          ? 'https://freelanceshield.xyz' 
+          : 'http://localhost:3001',
+        changeOrigin: true,
+        secure: process.env.NODE_ENV === 'production',
+        rewrite: (path) => path
+      },
     },
   },
   // Define environment variables

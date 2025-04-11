@@ -4,6 +4,7 @@
   "description": "API endpoints for FreelanceShield",
   "main": "waitlist-signup.js",
   "dependencies": {
-    "nodemailer": "^6.9.9"
+    "nodemailer": "^6.9.9",
+    "@supabase/supabase-js": "^2.39.8"
   }
 }

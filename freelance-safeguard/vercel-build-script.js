@@ -1,16 +1,11 @@
 // Custom build script for Vercel deployment
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Get the directory name in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const childProcess = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 // Configuration
 const config = {
-  projectRoot: path.resolve(__dirname),
+  projectRoot: __dirname,
   distDir: path.join(__dirname, 'dist'),
   indexHtmlPath: path.join(__dirname, 'index.html'),
   landingHtmlPath: path.join(__dirname, 'landing.html'),
@@ -42,23 +37,31 @@ function runBuild() {
     
     // Run the build command with the landing page configuration
     console.log('Running build command...');
-    execSync('npm run build:landing', { 
+    childProcess.execSync('npm run build:landing', { 
       stdio: 'inherit',
       cwd: config.projectRoot
     });
     
     // Check if the build succeeded
-    if (!fs.existsSync(path.join(config.distDir, 'landing.html'))) {
-      console.error('ERROR: Build failed - landing.html not found in dist directory');
+    if (!fs.existsSync(config.distDir)) {
+      console.error('ERROR: Build failed - dist directory not found');
       process.exit(1);
     }
     
-    // Copy landing.html to index.html in the dist directory
-    console.log('Copying landing.html to index.html in dist directory...');
-    fs.copyFileSync(
-      path.join(config.distDir, 'landing.html'),
-      path.join(config.distDir, 'index.html')
-    );
+    if (!fs.existsSync(path.join(config.distDir, 'index.html'))) {
+      console.log('Checking for landing.html in dist directory...');
+      if (fs.existsSync(path.join(config.distDir, 'landing.html'))) {
+        // Copy landing.html to index.html in the dist directory
+        console.log('Copying landing.html to index.html in dist directory...');
+        fs.copyFileSync(
+          path.join(config.distDir, 'landing.html'),
+          path.join(config.distDir, 'index.html')
+        );
+      } else {
+        console.error('ERROR: Build failed - neither index.html nor landing.html found in dist directory');
+        process.exit(1);
+      }
+    }
     
     console.log('Build completed successfully!');
   } catch (error) {

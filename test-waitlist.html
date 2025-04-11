@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FreelanceShield Waitlist API Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background: linear-gradient(to bottom, #0a0a18, #12121e);
+      color: #fff;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    input[type="email"], input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 4px;
+    }
+    button {
+      background: linear-gradient(to right, #9945FF, #14F195);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .success { 
+      background-color: rgba(20, 241, 149, 0.2);
+      border: 1px solid #14F195;
+    }
+    .error { 
+      background-color: rgba(255, 69, 58, 0.2);
+      border: 1px solid #FF453A;
+    }
+    h1 {
+      background: linear-gradient(to right, #9945FF, #14F195);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo img {
+      max-width: 150px;
+    }
+    .note {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <h1>FreelanceShield</h1>
+  </div>
+  
+  <h2>Waitlist API Test</h2>
+  
+  <div class="form-group">
+    <label for="email">Email:</label>
+    <input type="email" id="email" placeholder="Enter your email">
+  </div>
+  
+  <div class="form-group">
+    <label for="api-url">API URL:</label>
+    <input type="text" id="api-url" value="https://freelance-shield-ou99i0do3-defidaddydavids-projects.vercel.app/api/waitlist-signup">
+  </div>
+  
+  <button onclick="testWaitlist()">Join Waitlist</button>
+  
+  <div id="result"></div>
+
+  <div class="note">
+    <p><strong>Note:</strong> This form tests the waitlist API that:
+      <ol>
+        <li>Saves your email to the Supabase database</li>
+        <li>Attempts to send a confirmation email via Zoho Mail</li>
+      </ol>
+      Email sending might fail due to Zoho SMTP authentication issues, but your email will still be saved in the database.
+    </p>
+  </div>
+  
+  <script>
+    async function testWaitlist() {
+      const email = document.getElementById('email').value;
+      const apiUrl = document.getElementById('api-url').value;
+      const resultDiv = document.getElementById('result');
+      
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = 'Sending request...';
+      resultDiv.className = '';
+      
+      try {
+        console.log('Sending POST request to:', apiUrl);
+        console.log('With email:', email);
+        
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+        
+        console.log('Response status:', response.status);
+        
+        const data = await response.json();
+        console.log('Response data:', data);
+        
+        if (response.ok && data.success) {
+          resultDiv.innerHTML = `Success: ${data.message}`;
+          resultDiv.className = 'success';
+          
+          if (data.alreadyExists) {
+            resultDiv.innerHTML += '<br><br>Your email was already in our waitlist database.';
+          }
+          
+          if (!data.emailSent) {
+            resultDiv.innerHTML += '<br><br>Note: Your email has been saved, but the confirmation email could not be sent due to SMTP issues.';
+          }
+        } else {
+          resultDiv.innerHTML = `Error: ${data.message || 'Failed to join waitlist'}`;
+          resultDiv.className = 'error';
+        }
+        
+      } catch (error) {
+        resultDiv.innerHTML = `Error: ${error.message}`;
+        resultDiv.className = 'error';
+        console.error('API Error:', error);
+      }
+    }
+  </script>
+</body>
+</html>

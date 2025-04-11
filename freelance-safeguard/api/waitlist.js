@@ -22,11 +22,11 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Email configuration for domain-based email address
 const emailConfig = {
-  host: process.env.ZOHO_HOST || 'smtp.zoho.com',
-  port: process.env.ZOHO_PORT ? parseInt(process.env.ZOHO_PORT) : 465,
-  secure: true, // Always use SSL for port 465
+  host: process.env.ZOHO_HOST || 'smtppro.zoho.eu',
+  port: process.env.ZOHO_PORT ? parseInt(process.env.ZOHO_PORT) : 587,
+  secure: process.env.ZOHO_PORT === '465' ? true : false,
   auth: {
-    user: process.env.ZOHO_USER || 'get@freelanceshield.xyz',
+    user: process.env.ZOHO_USER || 'david@freelanceshield.xyz',
     pass: process.env.ZOHO_PASS
   },
   tls: {
@@ -96,13 +96,15 @@ module.exports = async (req, res) => {
     hasZohoPass: !!process.env.ZOHO_PASS
   });
 
-  // Set CORS headers
+  // Set CORS headers for all responses
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Origin, X-Requested-With');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
   
   // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS preflight request');
     return res.status(200).end();
   }
   
@@ -176,43 +178,35 @@ module.exports = async (req, res) => {
       if (!emailConfig.auth.pass) {
         console.warn('Email password not set, skipping email sending');
       } else {
-        console.log('Attempting to send email with config:', {
+        console.log('Attempting to send email with the following configuration:');
+        console.log(`Host: ${emailConfig.host}`);
+        console.log(`Port: ${emailConfig.port}`);
+        console.log(`Secure: ${emailConfig.secure}`);
+        console.log(`Auth User: ${emailConfig.auth.user}`);
+        console.log(`Auth Pass: ${emailConfig.auth.pass ? '[PROVIDED]' : '[NOT PROVIDED]'}`);
+        
+        // Create transporter with zoho domain configuration
+        const transporter = nodemailer.createTransport({
           host: emailConfig.host,
           port: emailConfig.port,
           secure: emailConfig.secure,
-          user: emailConfig.auth.user,
-          // Don't log the password for security reasons
-        });
-        
-        const transporter = nodemailer.createTransport({
-          ...emailConfig,
+          auth: emailConfig.auth,
+          // Set debug mode on to get detailed logs
           debug: true,
-          logger: true
+          // Use different TLS settings based on port
+          ...(emailConfig.port === 587 ? {
+            // TLS settings for port 587
+            tls: {
+              ciphers: 'SSLv3',
+              rejectUnauthorized: false
+            }
+          } : {
+            // SSL settings for port 465
+            secure: true
+          })
         });
         
-        // Add event listeners for better debugging
-        transporter.on('error', (err) => {
-          console.error('SMTP Transport Error:', err);
-        });
-        
-        transporter.on('idle', () => {
-          console.log('SMTP connection is idle');
-        });
-        
-        try {
-          await transporter.verify();
-          console.log('SMTP connection verified successfully');
-        } catch (verifyError) {
-          console.error('SMTP Verification Error:', {
-            code: verifyError.code,
-            command: verifyError.command,
-            response: verifyError.response,
-            responseCode: verifyError.responseCode,
-            stack: verifyError.stack
-          });
-          throw verifyError;
-        }
-        
+        // Create email data
         const mailOptions = {
           from: `"FreelanceShield" <${emailConfig.auth.user}>`,
           to: email,
@@ -220,22 +214,23 @@ module.exports = async (req, res) => {
           html: generateEmail(email),
         };
         
-        console.log('Sending email with options:', {
+        console.log('Sending email with the following options:', {
           from: mailOptions.from,
           to: mailOptions.to,
           subject: mailOptions.subject
         });
         
+        // Send email
         const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully:', {
-          messageId: info.messageId,
-          response: info.response
-        });
+        console.log('Email sent successfully:', info.messageId);
+        
+        if (info.messageId) {
+          console.log('Email delivery successful with message ID:', info.messageId);
+        }
       }
     } catch (emailError) {
-      console.error('Error sending email:', {
-        name: emailError.name,
-        message: emailError.message,
+      console.error('Error sending email:', emailError);
+      console.error('Error details:', {
         code: emailError.code,
         command: emailError.command,
         response: emailError.response,

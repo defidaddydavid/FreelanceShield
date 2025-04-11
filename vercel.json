@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "outputDirectory": "freelance-safeguard/dist",
+  "buildCommand": "cd freelance-safeguard && npm install && npm run build",
+  "installCommand": "cd freelance-safeguard && npm install",
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/freelance-safeguard/dist/index.html" }
+  ]
+}

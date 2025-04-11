@@ -54,3 +54,5 @@ bun.lockb
 
 # OS specific
 Thumbs.db
+
+.vercel
