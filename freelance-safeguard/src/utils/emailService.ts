@@ -9,6 +9,8 @@ export interface EmailResponse {
   emailSent?: boolean;
   adminNotified?: boolean;
   envCheck?: any;
+  fallbackUrl?: string;
+  alreadyExists?: boolean;
 }
 
 // Base URL for API endpoints - detects environment
@@ -97,12 +99,26 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
     // Check if the response is OK
     if (!response.ok) {
       console.error('API response not OK:', response.status, response.statusText);
-      return { 
-        success: false, 
-        message: `API error: ${response.status} ${response.statusText}`,
-        emailSent: false,
-        adminNotified: false
-      };
+      
+      // Try to parse the error response
+      try {
+        const errorData = await response.json();
+        console.log('Error response data:', errorData);
+        
+        return { 
+          success: false, 
+          message: errorData.message || `API error: ${response.status} ${response.statusText}`,
+          emailSent: false,
+          fallbackUrl: errorData.fallbackUrl
+        };
+      } catch (parseError) {
+        return { 
+          success: false, 
+          message: `API error: ${response.status} ${response.statusText}`,
+          emailSent: false,
+          fallbackUrl: getWaitlistFormUrl()
+        };
+      }
     }
 
     // Parse the response
@@ -114,7 +130,8 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
       success: data.success,
       message: data.message,
       emailSent: data.emailSent,
-      adminNotified: false
+      fallbackUrl: data.fallbackUrl,
+      alreadyExists: data.alreadyExists
     };
   } catch (error) {
     console.error('Error adding to waitlist:', error);
@@ -122,7 +139,7 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
       success: false, 
       message: `Error: ${error instanceof Error ? error.message : String(error)}`,
       emailSent: false,
-      adminNotified: false
+      fallbackUrl: getWaitlistFormUrl()
     };
   }
 }

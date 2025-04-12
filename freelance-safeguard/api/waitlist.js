@@ -76,11 +76,37 @@ module.exports = async (req, res) => {
   
   try {
     // Get the email from the request body
-    const { email } = req.body;
+    let email;
+    
+    try {
+      // Check if the body is already parsed
+      if (typeof req.body === 'object' && req.body !== null) {
+        email = req.body.email;
+      } else if (typeof req.body === 'string') {
+        // Try to parse the body as JSON
+        const parsedBody = JSON.parse(req.body);
+        email = parsedBody.email;
+      }
+      
+      // Log for debugging
+      console.log('Request body:', typeof req.body, req.body);
+      console.log('Extracted email:', email);
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid request format. Please provide a valid email address.',
+        fallbackUrl: 'https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform'
+      });
+    }
     
     // Validate email
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      return res.status(400).json({ success: false, message: 'Invalid email address' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid email address',
+        fallbackUrl: 'https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform'
+      });
     }
     
     // Initialize Supabase client
@@ -227,7 +253,8 @@ The FreelanceShield Team
       message: emailSent 
         ? 'Successfully joined the waitlist! Check your email for confirmation.' 
         : 'Successfully joined the waitlist! You\'ll be notified when we launch.',
-      emailSent
+      emailSent,
+      fallbackUrl: 'https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform'
     });
     
   } catch (error) {

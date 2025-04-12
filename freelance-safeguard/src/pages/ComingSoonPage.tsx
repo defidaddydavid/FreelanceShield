@@ -239,35 +239,27 @@ export default function ComingSoonPage() {
     setIsSubmitting(true);
     
     try {
-      // Direct Google Form URL
-      const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/formResponse';
+      // Call our API endpoint instead of Google Forms
+      const response = await addToWaitlist(email);
       
-      // Create a hidden form and submit it directly to Google
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = googleFormUrl;
-      form.target = '_blank'; // Open in new tab
-      
-      // Add the email input field (entry.123456789 should be replaced with the actual entry ID from your Google Form)
-      const emailInput = document.createElement('input');
-      emailInput.type = 'hidden';
-      emailInput.name = 'entry.1234567890'; // Replace with your actual Google Form entry ID
-      emailInput.value = email;
-      form.appendChild(emailInput);
-      
-      // Append the form to the body and submit it
-      document.body.appendChild(form);
-      form.submit();
-      
-      // Clean up the form
-      document.body.removeChild(form);
-      
-      // Show success message
-      toast.success('Successfully joined the waitlist! Check your email for confirmation.');
-      setEmail('');
+      if (response.success) {
+        toast.success(response.message);
+        setEmail('');
+      } else {
+        // If API fails, show error and fallback to Google Form
+        toast.error(response.message || 'Unable to process your request.');
+        
+        if (response.fallbackUrl) {
+          // Open Google Form as fallback
+          window.open(response.fallbackUrl, '_blank');
+        }
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error('Unable to process your request. Please try again later.');
+      
+      // Fallback to Google Form
+      window.open(getWaitlistFormUrl(), '_blank');
     } finally {
       setIsSubmitting(false);
     }
