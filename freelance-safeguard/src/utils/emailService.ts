@@ -22,7 +22,7 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
  */
 export async function testSupabaseConnection(): Promise<EmailResponse> {
   try {
-    const apiUrl = `${API_BASE_URL}/api/test-supabase-api`;
+    const apiUrl = `${API_BASE_URL}/api/v1/supabase-test`;
     console.log('Testing Supabase connection at:', apiUrl);
     
     const response = await fetch(apiUrl, {
@@ -64,7 +64,7 @@ export async function testSupabaseConnection(): Promise<EmailResponse> {
  */
 export async function testApiConnection(): Promise<EmailResponse> {
   try {
-    const apiUrl = `${API_BASE_URL}/api/simple-test`;
+    const apiUrl = `${API_BASE_URL}/api/v1/test`;
     console.log('Testing API connection at:', apiUrl);
     
     const response = await fetch(apiUrl, {
@@ -112,7 +112,7 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
       return { success: false, message: 'Please enter a valid email address' };
     }
 
-    const apiUrl = `${API_BASE_URL}/api/waitlist-signup`;
+    const apiUrl = `${API_BASE_URL}/api/v1/waitlist-signup`;
     console.log('Calling waitlist API at:', apiUrl);
     
     // Call the Vercel API endpoint
