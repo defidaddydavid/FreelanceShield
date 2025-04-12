@@ -9,12 +9,56 @@ export interface EmailResponse {
   message: string;
   emailSent?: boolean;
   adminNotified?: boolean;
+  envCheck?: string;
 }
 
 // Base URL for API endpoints - detects environment
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? '' // Use relative URL in production to avoid CORS issues
   : 'http://localhost:3000';
+
+/**
+ * Tests the root API endpoint
+ * @returns Promise with the test result
+ */
+export async function testRootApi(): Promise<EmailResponse> {
+  try {
+    const apiUrl = `${API_BASE_URL}/api`;
+    console.log('Testing root API at:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    console.log('Root API response status:', response.status, response.statusText);
+    
+    if (!response.ok) {
+      console.error('Root API response not OK:', response.status, response.statusText);
+      return { 
+        success: false, 
+        message: `Root API test failed: ${response.status} ${response.statusText}`
+      };
+    }
+
+    const data = await response.json();
+    console.log('Root API response data:', data);
+    
+    return {
+      success: data.success,
+      message: `Root API test: ${data.message}`,
+      envCheck: data.envCheck
+    };
+  } catch (error) {
+    console.error('Error testing root API:', error);
+    return { 
+      success: false, 
+      message: `Root API test error: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
+}
 
 /**
  * Tests the Supabase database connection

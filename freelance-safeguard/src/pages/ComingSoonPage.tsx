@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/logo';
 import { useNavigate } from 'react-router-dom';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
-import { addToWaitlist, getWaitlistFormUrl, testApiConnection, testSupabaseConnection } from '@/utils/emailService';
+import { addToWaitlist, getWaitlistFormUrl, testApiConnection, testSupabaseConnection, testRootApi } from '@/utils/emailService';
 
 // Feature cards for main functionality showcase
 const features = [
@@ -140,6 +140,7 @@ export default function ComingSoonPage() {
   const [isDevMode, setIsDevMode] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isTestingSupabase, setIsTestingSupabase] = useState(false);
+  const [isTestingRootApi, setIsTestingRootApi] = useState(false);
   
   // Check if developer bypass is already enabled
   useEffect(() => {
@@ -310,6 +311,22 @@ export default function ComingSoonPage() {
       toast.error(`Error testing Supabase: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsTestingSupabase(false);
+    }
+  };
+
+  const handleTestRootApi = async () => {
+    setIsTestingRootApi(true);
+    try {
+      const result = await testRootApi();
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error(`Error testing Root API: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsTestingRootApi(false);
     }
   };
 
@@ -694,6 +711,15 @@ export default function ComingSoonPage() {
                 >
                   <span className="flex items-center justify-center">
                     {isTestingSupabase ? 'Testing...' : 'Test Supabase Connection'}
+                  </span>
+                </Button>
+                <Button
+                  onClick={handleTestRootApi}
+                  disabled={isTestingRootApi}
+                  className="bg-gradient-to-r from-pink-500 to-[#1971E9] hover:opacity-90 text-white font-medium py-6 px-8 rounded-md w-full max-w-xs transition-all duration-300 transform hover:scale-105 mt-4"
+                >
+                  <span className="flex items-center justify-center">
+                    {isTestingRootApi ? 'Testing...' : 'Test Root API Connection'}
                   </span>
                 </Button>
               </div>
