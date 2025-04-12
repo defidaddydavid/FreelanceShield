@@ -6,6 +6,31 @@ const nodemailer = require('nodemailer');
 const SUPABASE_URL = process.env.STORAGE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY;
 
+// Verify SMTP connection
+const verifySmtpConnection = async () => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.ZOHO_SMTP_HOST || 'smtp.zoho.com',
+      port: parseInt(process.env.ZOHO_SMTP_PORT || '465', 10),
+      secure: true, // Use SSL/TLS
+      auth: {
+        user: process.env.ZOHO_EMAIL || 'david@freelanceshield.xyz',
+        pass: process.env.ZOHO_PASSWORD
+      },
+      debug: true, // Enable debug output
+      logger: true // Log information to the console
+    });
+    
+    // Verify SMTP connection
+    const verification = await transporter.verify();
+    console.log('SMTP Connection verified:', verification);
+    return { success: true, transporter };
+  } catch (error) {
+    console.error('SMTP Connection verification failed:', error);
+    return { success: false, error };
+  }
+};
+
 // Main API handler function
 module.exports = async (req, res) => {
   // Set CORS headers for all responses
@@ -20,6 +45,9 @@ module.exports = async (req, res) => {
   
   // For GET requests, return environment status (useful for debugging)
   if (req.method === 'GET') {
+    // Verify SMTP connection on GET request for testing
+    const smtpVerification = await verifySmtpConnection();
+    
     return res.status(200).json({
       success: true,
       message: 'Waitlist API is operational',
@@ -30,6 +58,10 @@ module.exports = async (req, res) => {
         ZOHO_PASSWORD: !!process.env.ZOHO_PASSWORD,
         ZOHO_SMTP_HOST: process.env.ZOHO_SMTP_HOST || 'smtp.zoho.com',
         ZOHO_SMTP_PORT: process.env.ZOHO_SMTP_PORT || '465'
+      },
+      smtpVerification: {
+        success: smtpVerification.success,
+        error: smtpVerification.error ? smtpVerification.error.message : null
       }
     });
   }
@@ -105,20 +137,19 @@ module.exports = async (req, res) => {
     // Try to send email, but don't fail if it doesn't work
     let emailSent = false;
     try {
-      // Configure email transporter
-      const transporter = nodemailer.createTransport({
-        host: process.env.ZOHO_SMTP_HOST || 'smtp.zoho.com',
-        port: parseInt(process.env.ZOHO_SMTP_PORT || '465', 10),
-        secure: true,
-        auth: {
-          user: process.env.ZOHO_EMAIL || 'david@freelanceshield.xyz',
-          pass: process.env.ZOHO_PASSWORD
-        }
-      });
+      // Verify SMTP connection first
+      const { success, transporter, error } = await verifySmtpConnection();
       
-      // Send welcome email
-      const mailResult = await transporter.sendMail({
-        from: `"FreelanceShield" <${process.env.ZOHO_EMAIL || 'david@freelanceshield.xyz'}>`,
+      if (!success) {
+        throw new Error(`SMTP verification failed: ${error.message}`);
+      }
+      
+      // Prepare email with proper headers to avoid spam filters
+      const mailOptions = {
+        from: {
+          name: 'FreelanceShield Team',
+          address: process.env.ZOHO_EMAIL || 'david@freelanceshield.xyz'
+        },
         to: email,
         subject: 'Welcome to the FreelanceShield Waitlist!',
         html: `
@@ -183,11 +214,39 @@ module.exports = async (req, res) => {
                   </div>
               </div>
           </div>
-        `
-      });
+        `,
+        // Add text version for better deliverability
+        text: `Welcome to FreelanceShield!
+
+Thank you for joining our waitlist. We're building the future of freelance protection on Solana, and we're excited to have you on board!
+
+To help us tailor FreelanceShield to your needs, please complete our brief survey:
+https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform
+
+The survey will help us understand your specific needs as a freelancer and how we can better protect your work and income.
+
+We'll keep you updated on our progress and you'll be among the first to know when we launch!
+
+The FreelanceShield Team`,
+        // Add headers to improve deliverability
+        headers: {
+          'X-Priority': '1', // High priority
+          'X-MSMail-Priority': 'High',
+          'Importance': 'High',
+          'List-Unsubscribe': `<mailto:unsubscribe@freelanceshield.xyz?subject=Unsubscribe ${email}>`
+        }
+      };
+      
+      // Send the email
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent successfully:', info.messageId);
+      
+      // Check for successful delivery
+      if (info.rejected && info.rejected.length > 0) {
+        throw new Error(`Email was rejected for: ${info.rejected.join(', ')}`);
+      }
       
       emailSent = true;
-      console.log('Email sent successfully');
     } catch (emailError) {
       console.error('Error sending email:', emailError);
       // We don't fail the request if email sending fails
