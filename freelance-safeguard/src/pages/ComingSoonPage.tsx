@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/logo';
 import { useNavigate } from 'react-router-dom';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
-import { addToWaitlist, getWaitlistFormUrl, testApiConnection } from '@/utils/emailService';
+import { addToWaitlist, getWaitlistFormUrl, testApiConnection, testSupabaseConnection } from '@/utils/emailService';
 
 // Feature cards for main functionality showcase
 const features = [
@@ -139,6 +139,7 @@ export default function ComingSoonPage() {
   const [showTerminalCursor, setShowTerminalCursor] = useState(true);
   const [isDevMode, setIsDevMode] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
+  const [isTestingSupabase, setIsTestingSupabase] = useState(false);
   
   // Check if developer bypass is already enabled
   useEffect(() => {
@@ -240,6 +241,22 @@ export default function ComingSoonPage() {
       toast.error(`Error testing API: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsTesting(false);
+    }
+  };
+
+  const handleTestSupabaseConnection = async () => {
+    setIsTestingSupabase(true);
+    try {
+      const result = await testSupabaseConnection();
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error(`Error testing Supabase: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsTestingSupabase(false);
     }
   };
 
@@ -510,7 +527,7 @@ export default function ComingSoonPage() {
                   <div className="pl-4"><span className="text-[#9945FF]">uint256</span> <span className="text-gray-400">public</span> coverageAmount;</div>
                   <div className="pl-4"><span className="text-[#9945FF]">uint256</span> <span className="text-gray-400">public</span> premium;</div>
                   <div className="pl-4"><span className="text-[#9945FF]">uint256</span> <span className="text-gray-400">public</span> validUntil;</div>
-                  <div className="pl-4"><span className="text-pink-500">mapping</span>(<span className="text-[#9945FF]">uint256</span> =&gt; <span className="text-[#9945FF]">Milestone</span>) <span className="text-gray-400">public</span> milestones;</div>
+                  <div className="pl-4"><span className="text-[#9945FF]">mapping</span>(<span className="text-[#9945FF]">uint256</span> =&gt; <span className="text-[#9945FF]">Milestone</span>) <span className="text-gray-400">public</span> milestones;</div>
                   <div className="pl-4"><span className="text-[#9945FF]">bool</span> <span className="text-gray-400">public</span> isActive = <span className="text-[#00FFFF]">true</span>;</div>
                   <motion.div 
                     initial={{ opacity: 0 }}
@@ -615,6 +632,15 @@ export default function ComingSoonPage() {
                 >
                   <span className="flex items-center justify-center">
                     {isTesting ? 'Testing...' : 'Test API Connection'}
+                  </span>
+                </Button>
+                <Button
+                  onClick={handleTestSupabaseConnection}
+                  disabled={isTestingSupabase}
+                  className="bg-gradient-to-r from-pink-500 to-[#1971E9] hover:opacity-90 text-white font-medium py-6 px-8 rounded-md w-full max-w-xs transition-all duration-300 transform hover:scale-105 mt-4"
+                >
+                  <span className="flex items-center justify-center">
+                    {isTestingSupabase ? 'Testing...' : 'Test Supabase Connection'}
                   </span>
                 </Button>
               </div>

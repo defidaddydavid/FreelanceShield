@@ -17,6 +17,48 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
   : 'http://localhost:3000';
 
 /**
+ * Tests the Supabase database connection
+ * @returns Promise with the test result
+ */
+export async function testSupabaseConnection(): Promise<EmailResponse> {
+  try {
+    const apiUrl = `${API_BASE_URL}/api/test-supabase-api`;
+    console.log('Testing Supabase connection at:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    console.log('Supabase test response status:', response.status, response.statusText);
+    
+    if (!response.ok) {
+      console.error('Supabase test response not OK:', response.status, response.statusText);
+      return { 
+        success: false, 
+        message: `Supabase connection failed: ${response.status} ${response.statusText}`
+      };
+    }
+
+    const data = await response.json();
+    console.log('Supabase test response data:', data);
+    
+    return {
+      success: data.success,
+      message: `Supabase test: ${data.message}${data.recordCount !== undefined ? ` (${data.recordCount} records found)` : ''}`
+    };
+  } catch (error) {
+    console.error('Error testing Supabase connection:', error);
+    return { 
+      success: false, 
+      message: `Supabase test error: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
+}
+
+/**
  * Tests the API connection with a simple endpoint
  * @returns Promise with the test result
  */
