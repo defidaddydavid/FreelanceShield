@@ -1,5 +1,4 @@
 /**
- * Email Service for FreelanceShield
  * Handles email sending for waitlist signups with environment detection
  */
 
@@ -9,7 +8,7 @@ export interface EmailResponse {
   message: string;
   emailSent?: boolean;
   adminNotified?: boolean;
-  envCheck?: string;
+  envCheck?: any;
 }
 
 // Base URL for API endpoints - detects environment
@@ -23,7 +22,7 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
  */
 export async function testRootApi(): Promise<EmailResponse> {
   try {
-    const apiUrl = `${API_BASE_URL}/api`;
+    const apiUrl = `${API_BASE_URL}/api/waitlist`;
     console.log('Testing root API at:', apiUrl);
     
     const response = await fetch(apiUrl, {
@@ -48,100 +47,24 @@ export async function testRootApi(): Promise<EmailResponse> {
     
     return {
       success: data.success,
-      message: `Root API test: ${data.message}`,
-      envCheck: data.envCheck
+      message: `API test: ${data.message}`,
+      envCheck: data.env
     };
   } catch (error) {
     console.error('Error testing root API:', error);
     return { 
       success: false, 
-      message: `Root API test error: ${error instanceof Error ? error.message : String(error)}`
-    };
-  }
-}
-
-/**
- * Tests the Supabase database connection
- * @returns Promise with the test result
- */
-export async function testSupabaseConnection(): Promise<EmailResponse> {
-  try {
-    const apiUrl = `${API_BASE_URL}/api/v1/supabase-test`;
-    console.log('Testing Supabase connection at:', apiUrl);
-    
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-
-    console.log('Supabase test response status:', response.status, response.statusText);
-    
-    if (!response.ok) {
-      console.error('Supabase test response not OK:', response.status, response.statusText);
-      return { 
-        success: false, 
-        message: `Supabase connection failed: ${response.status} ${response.statusText}`
-      };
-    }
-
-    const data = await response.json();
-    console.log('Supabase test response data:', data);
-    
-    return {
-      success: data.success,
-      message: `Supabase test: ${data.message}${data.recordCount !== undefined ? ` (${data.recordCount} records found)` : ''}`
-    };
-  } catch (error) {
-    console.error('Error testing Supabase connection:', error);
-    return { 
-      success: false, 
-      message: `Supabase test error: ${error instanceof Error ? error.message : String(error)}`
-    };
-  }
-}
-
-/**
- * Tests the API connection with a simple endpoint
- * @returns Promise with the test result
- */
-export async function testApiConnection(): Promise<EmailResponse> {
-  try {
-    const apiUrl = `${API_BASE_URL}/api/v1/test`;
-    console.log('Testing API connection at:', apiUrl);
-    
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-
-    console.log('Test API response status:', response.status, response.statusText);
-    
-    if (!response.ok) {
-      console.error('Test API response not OK:', response.status, response.statusText);
-      return { 
-        success: false, 
-        message: `API test failed: ${response.status} ${response.statusText}`
-      };
-    }
-
-    const data = await response.json();
-    console.log('Test API response data:', data);
-    
-    return {
-      success: true,
-      message: `API test successful: ${data.message}`
-    };
-  } catch (error) {
-    console.error('Error testing API connection:', error);
-    return { 
-      success: false, 
       message: `API test error: ${error instanceof Error ? error.message : String(error)}`
     };
   }
+}
+
+/**
+ * Returns the Google Form URL for the waitlist
+ * @returns The URL for the Google Form
+ */
+export function getWaitlistFormUrl(): string {
+  return 'https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/viewform';
 }
 
 /**
@@ -197,17 +120,9 @@ export async function addToWaitlist(email: string): Promise<EmailResponse> {
     console.error('Error adding to waitlist:', error);
     return { 
       success: false, 
-      message: 'Failed to join waitlist. Please try again or use the Google Form link.',
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
       emailSent: false,
       adminNotified: false
     };
   }
-}
-
-/**
- * Get the Google Form URL for waitlist fallback
- * @returns The Google Form URL for waitlist signup
- */
-export function getWaitlistFormUrl(): string {
-  return 'https://forms.gle/CMigcH8wUh84DEcq8';
 }

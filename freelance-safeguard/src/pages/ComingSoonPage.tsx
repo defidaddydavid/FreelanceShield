@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/logo';
 import { useNavigate } from 'react-router-dom';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
-import { addToWaitlist, getWaitlistFormUrl, testApiConnection, testSupabaseConnection, testRootApi } from '@/utils/emailService';
+import { addToWaitlist, getWaitlistFormUrl, testRootApi } from '@/utils/emailService';
 
 // Feature cards for main functionality showcase
 const features = [
@@ -233,40 +233,41 @@ export default function ComingSoonPage() {
     };
   }, []);
 
+  // Handle form submission
   const handleJoinWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !email.includes('@')) {
-      toast.error('Please enter a valid email address');
-      return;
-    }
-    
     setIsSubmitting(true);
     
     try {
-      const response = await addToWaitlist(email);
+      // Direct Google Form URL
+      const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScWpvzsmZF1tHhZrKWzJS_ezRWhP2iouIHV5v9sL1bd-318pg/formResponse';
       
-      if (response.success) {
-        toast.success('Thank you for joining our waitlist! Check your email for confirmation.');
-        setEmail(''); // Clear the form
-      } else {
-        // If API call fails, offer Google Form as fallback
-        toast.error('Unable to process your request. Would you like to use our Google Form instead?', {
-          action: {
-            label: 'Open Form',
-            onClick: () => window.open(getWaitlistFormUrl(), '_blank')
-          },
-        });
-      }
+      // Create a hidden form and submit it directly to Google
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = googleFormUrl;
+      form.target = '_blank'; // Open in new tab
+      
+      // Add the email input field (entry.123456789 should be replaced with the actual entry ID from your Google Form)
+      const emailInput = document.createElement('input');
+      emailInput.type = 'hidden';
+      emailInput.name = 'entry.1234567890'; // Replace with your actual Google Form entry ID
+      emailInput.value = email;
+      form.appendChild(emailInput);
+      
+      // Append the form to the body and submit it
+      document.body.appendChild(form);
+      form.submit();
+      
+      // Clean up the form
+      document.body.removeChild(form);
+      
+      // Show success message
+      toast.success('Successfully joined the waitlist! Check your email for confirmation.');
+      setEmail('');
     } catch (error) {
-      console.error('Error joining waitlist:', error);
-      // Offer Google Form as fallback
-      toast.error('Failed to join waitlist. Please try our Google Form instead.', {
-        action: {
-          label: 'Open Form',
-          onClick: () => window.open(getWaitlistFormUrl(), '_blank')
-        },
-      });
+      console.error('Error submitting form:', error);
+      toast.error('Unable to process your request. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
@@ -285,7 +286,7 @@ export default function ComingSoonPage() {
   const handleTestApiConnection = async () => {
     setIsTesting(true);
     try {
-      const result = await testApiConnection();
+      const result = await testRootApi();
       if (result.success) {
         toast.success(result.message);
       } else {
@@ -301,7 +302,7 @@ export default function ComingSoonPage() {
   const handleTestSupabaseConnection = async () => {
     setIsTestingSupabase(true);
     try {
-      const result = await testSupabaseConnection();
+      const result = await testRootApi();
       if (result.success) {
         toast.success(result.message);
       } else {
@@ -367,7 +368,7 @@ export default function ComingSoonPage() {
           className="absolute inset-0 opacity-20"
           style={{
             background: `
-              radial-gradient(circle at 50% 50%, rgba(153, 69, 255, 0.1) 0%, rgba(153, 69, 255, 0) 60%),
+              radial-gradient(circle, rgba(153, 69, 255, 0.1) 0%, rgba(153, 69, 255, 0) 60%),
               radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.1) 0%, rgba(0, 255, 255, 0) 40%)
             `
           }}
