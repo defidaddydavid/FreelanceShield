@@ -17,6 +17,48 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
   : 'http://localhost:3000';
 
 /**
+ * Tests the API connection with a simple endpoint
+ * @returns Promise with the test result
+ */
+export async function testApiConnection(): Promise<EmailResponse> {
+  try {
+    const apiUrl = `${API_BASE_URL}/api/simple-test`;
+    console.log('Testing API connection at:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    console.log('Test API response status:', response.status, response.statusText);
+    
+    if (!response.ok) {
+      console.error('Test API response not OK:', response.status, response.statusText);
+      return { 
+        success: false, 
+        message: `API test failed: ${response.status} ${response.statusText}`
+      };
+    }
+
+    const data = await response.json();
+    console.log('Test API response data:', data);
+    
+    return {
+      success: true,
+      message: `API test successful: ${data.message}`
+    };
+  } catch (error) {
+    console.error('Error testing API connection:', error);
+    return { 
+      success: false, 
+      message: `API test error: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
+}
+
+/**
  * Adds an email to the waitlist and sends confirmation emails
  * @param email The email address to add to the waitlist
  * @returns Promise with the operation result

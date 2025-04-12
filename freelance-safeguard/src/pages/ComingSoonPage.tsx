@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/logo';
 import { useNavigate } from 'react-router-dom';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
-import { addToWaitlist, getWaitlistFormUrl } from '@/utils/emailService';
+import { addToWaitlist, getWaitlistFormUrl, testApiConnection } from '@/utils/emailService';
 
 // Feature cards for main functionality showcase
 const features = [
@@ -130,14 +130,15 @@ const terminalTexts = [
 // Note: WAITLIST_FORM_URL is already imported from '@/api/waitlist'
 
 export default function ComingSoonPage() {
-  const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0);
-  const [currentTerminalTextIndex, setCurrentTerminalTextIndex] = useState(0);
-  const [showTerminalCursor, setShowTerminalCursor] = useState(true);
-  const [isDevMode, setIsDevMode] = useState(false);
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { isDark } = useSolanaTheme();
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentTerminalTextIndex, setCurrentTerminalTextIndex] = useState(0);
+  const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0);
+  const [showTerminalCursor, setShowTerminalCursor] = useState(true);
+  const [isDevMode, setIsDevMode] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   
   // Check if developer bypass is already enabled
   useEffect(() => {
@@ -224,6 +225,22 @@ export default function ComingSoonPage() {
     setTimeout(() => {
       navigate('/');
     }, 1500);
+  };
+
+  const handleTestApiConnection = async () => {
+    setIsTesting(true);
+    try {
+      const result = await testApiConnection();
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error(`Error testing API: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsTesting(false);
+    }
   };
 
   return (
@@ -589,6 +606,15 @@ export default function ComingSoonPage() {
                   <span className="flex items-center justify-center">
                     Enable Developer Bypass
                     <ArrowRight className="w-4 h-4 ml-2" />
+                  </span>
+                </Button>
+                <Button
+                  onClick={handleTestApiConnection}
+                  disabled={isTesting}
+                  className="bg-gradient-to-r from-pink-500 to-[#1971E9] hover:opacity-90 text-white font-medium py-6 px-8 rounded-md w-full max-w-xs transition-all duration-300 transform hover:scale-105 mt-4"
+                >
+                  <span className="flex items-center justify-center">
+                    {isTesting ? 'Testing...' : 'Test API Connection'}
                   </span>
                 </Button>
               </div>
