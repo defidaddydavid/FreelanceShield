@@ -143,8 +143,61 @@ export default function ComingSoonPage() {
   
   // Check if developer bypass is already enabled
   useEffect(() => {
-    const devBypass = localStorage.getItem('freelanceShield_devBypass') === 'true';
-    setIsDevMode(devBypass);
+    const devBypass = localStorage.getItem('devBypass');
+    const devMode = localStorage.getItem('devMode');
+    setIsDevMode(process.env.NODE_ENV === 'development' || devBypass === 'true' || devMode === 'true');
+    
+    // Start feature rotation
+    const interval = setInterval(() => {
+      setCurrentFeatureIndex((prev) => (prev + 1) % features.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Enable dev mode with a special key combination
+  useEffect(() => {
+    let clickCount = 0;
+    let clickTimer: number | null = null;
+    
+    const handleLogoClick = () => {
+      clickCount++;
+      
+      if (clickCount === 1) {
+        // Start timer to reset click count after 2 seconds
+        clickTimer = window.setTimeout(() => {
+          clickCount = 0;
+          clickTimer = null;
+        }, 2000);
+      }
+      
+      // After 5 clicks within 2 seconds, enable dev mode
+      if (clickCount >= 5) {
+        setIsDevMode(true);
+        localStorage.setItem('devMode', 'true');
+        toast.success('Developer mode enabled');
+        clickCount = 0;
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+        }
+      }
+    };
+    
+    // Find the logo element and add click handler
+    const logoElement = document.querySelector('.logo-container');
+    if (logoElement) {
+      logoElement.addEventListener('click', handleLogoClick);
+    }
+    
+    return () => {
+      if (logoElement) {
+        logoElement.removeEventListener('click', handleLogoClick);
+      }
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+      }
+    };
   }, []);
 
   // Rotate through features
@@ -219,7 +272,7 @@ export default function ComingSoonPage() {
   };
 
   const handleDevBypass = () => {
-    localStorage.setItem('freelanceShield_devBypass', 'true');
+    localStorage.setItem('devBypass', 'true');
     toast.success('Developer bypass enabled. Redirecting to main application...');
     
     // Short delay before navigation to allow toast to show
@@ -334,7 +387,7 @@ export default function ComingSoonPage() {
 
       <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 py-8 md:py-16 overflow-hidden container mx-auto max-w-7xl">
         {/* Logo */}
-        <div className="mb-4 md:mb-6">
+        <div className="logo-container mb-4 md:mb-6">
           <Logo size="lg" className="h-16 md:h-24 w-auto" />
         </div>
 
