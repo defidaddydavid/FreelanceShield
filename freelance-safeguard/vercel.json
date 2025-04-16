@@ -1,8 +1,9 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/landing.html" }
+    { "source": "/api/waitlist", "destination": "/api/waitlist.cjs" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "buildCommand": "npm run build:landing",
+  "buildCommand": "npm run build:optimized",
   "outputDirectory": "dist",
   "framework": "vite",
   "headers": [
@@ -15,5 +16,28 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/**/*": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "redirects": [
+    {
+      "source": "/dashboard",
+      "destination": "https://app.freelanceshield.xyz",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard/(.*)",
+      "destination": "https://app.freelanceshield.xyz/$1",
+      "permanent": false
+    }
+  ],
+  "github": {
+    "enabled": true,
+    "silent": false
+  },
+  "trailingSlash": false
 }

@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 import path from 'path';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
   plugins: [
@@ -31,6 +32,8 @@ export default defineConfig({
         titleProp: true,
       },
     }),
+    // Add node polyfills for Privy and Coinbase Wallet SDK
+    nodePolyfills(),
   ],
   // Test configuration
   test: {
@@ -60,21 +63,36 @@ export default defineConfig({
     target: 'es2020',
     outDir: 'dist',
     sourcemap: true,
-    // Optimize chunks for Solana UI components
+    // Increase memory limit for node
+    chunkSizeWarningLimit: 2000,
+    // Optimize chunks for better performance
     rollupOptions: {
       output: {
-        manualChunks: {
-          'solana-wallet': [
-            '@solana/wallet-adapter-react',
-            '@solana/wallet-adapter-wallets',
-            '@solana/web3.js',
-          ],
-          'ui-core': [
-            'react',
-            'react-dom',
-            'react-router-dom',
-          ],
-        },
+        manualChunks: (id) => {
+          // Create chunk for Solana web3.js and anchor
+          if (id.includes('@solana/web3.js') || id.includes('@project-serum/anchor')) {
+            return 'blockchain';
+          }
+          
+          // Create chunk for React and related libraries
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            return 'ui-core';
+          }
+          
+          // Create chunk for Privy authentication
+          if (id.includes('@privy-io/react-auth')) {
+            return 'auth-providers';
+          }
+          
+          // Create chunk for UI components
+          if (id.includes('@radix-ui/') || 
+              id.includes('lucide-react') || 
+              id.includes('class-variance-authority') || 
+              id.includes('clsx') || 
+              id.includes('tailwind-merge')) {
+            return 'ui-components';
+          }
+        }
       },
     },
   },
@@ -96,9 +114,9 @@ export default defineConfig({
   // Optimize dependencies
   optimizeDeps: {
     include: [
-      '@solana/wallet-adapter-react',
-      '@solana/wallet-adapter-wallets',
       '@solana/web3.js',
+      '@project-serum/anchor',
+      '@privy-io/react-auth',
       'react',
       'react-dom',
       'react-router-dom',
@@ -107,6 +125,10 @@ export default defineConfig({
     ],
     esbuildOptions: {
       target: 'es2020',
+      // Exclude problematic dependencies
+      define: {
+        global: 'globalThis',
+      },
     },
   },
 });
