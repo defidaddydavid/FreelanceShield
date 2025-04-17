@@ -160,14 +160,6 @@ FreelanceShield implements several security best practices:
 - **Q1 2026**: Mainnet deployment with additional security audits
 - **Q2 2026**: Mobile application development
 
-## 👥 Team
-
-FreelanceShield is built by a team of experienced developers and insurance experts passionate about bringing financial security to the freelance economy.
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
 ---
 
 <div align="center">
