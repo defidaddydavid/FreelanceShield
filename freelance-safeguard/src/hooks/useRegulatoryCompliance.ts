@@ -16,6 +16,9 @@ export interface UseRegulatoryComplianceProps {
   autoDetectJurisdiction?: boolean;
 }
 
+// Define the allowed data types for data sovereignty
+export type DataType = 'policy' | 'claim' | 'personal' | 'financial';
+
 export function useRegulatoryCompliance({ autoDetectJurisdiction = true }: UseRegulatoryComplianceProps = {}) {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
@@ -234,7 +237,7 @@ export function useRegulatoryCompliance({ autoDetectJurisdiction = true }: UseRe
    * Store personal data with data sovereignty
    */
   const storePersonalData = useCallback(async (
-    dataType: string,
+    dataType: DataType,
     data: any
   ): Promise<{ success: boolean; dataHash: string }> => {
     if (!publicKey) {

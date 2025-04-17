@@ -25,13 +25,22 @@ pub struct BayesianVerificationModel {
     pub denied_claims: u64,
     pub manual_review_claims: u64,
     
+    // Learning metrics
+    pub false_positives: u64,         // Approved claims that were actually fraudulent
+    pub false_negatives: u64,         // Denied claims that were actually legitimate
+    pub true_positives: u64,          // Correctly approved claims
+    pub true_negatives: u64,          // Correctly denied claims
+    
+    // Learning rate parameters
+    pub threshold_adjustment_rate: u16, // Rate at which thresholds are adjusted (basis points)
+    pub weight_adjustment_rate: u16,    // Rate at which weights are adjusted (basis points)
+    
     // Reserved space for future parameters without Default trait needed
-    pub reserved: [u8; 64],
+    pub reserved: [u8; 32],
     
     pub bump: u8,
 }
 
-// Manually implement Default for BayesianVerificationModel to handle [u8; 64]
 impl Default for BayesianVerificationModel {
     fn default() -> Self {
         Self {
@@ -47,7 +56,13 @@ impl Default for BayesianVerificationModel {
             approved_claims: 0,
             denied_claims: 0,
             manual_review_claims: 0,
-            reserved: [0u8; 64],          // Initialize all bytes to 0
+            false_positives: 0,
+            false_negatives: 0,
+            true_positives: 0,
+            true_negatives: 0,
+            threshold_adjustment_rate: 200, // 2% adjustment rate
+            weight_adjustment_rate: 100,    // 1% adjustment rate
+            reserved: [0u8; 32],          // Initialize all bytes to 0
             bump: 255,                    // Invalid bump, to be set during initialization
         }
     }
@@ -67,7 +82,13 @@ impl BayesianVerificationModel {
                             8 +  // approved_claims
                             8 +  // denied_claims
                             8 +  // manual_review_claims
-                            64 + // reserved
+                            8 +  // false_positives
+                            8 +  // false_negatives
+                            8 +  // true_positives
+                            8 +  // true_negatives
+                            2 +  // threshold_adjustment_rate
+                            2 +  // weight_adjustment_rate
+                            32 + // reserved
                             1;   // bump
 }
 
@@ -192,7 +213,102 @@ pub fn initialize_default_model() -> BayesianVerificationModel {
         approved_claims: 0,
         denied_claims: 0,
         manual_review_claims: 0,
-        reserved: [0; 64],
+        false_positives: 0,
+        false_negatives: 0,
+        true_positives: 0,
+        true_negatives: 0,
+        threshold_adjustment_rate: 200, // 2% adjustment rate
+        weight_adjustment_rate: 100,    // 1% adjustment rate
+        reserved: [0; 32],
         bump: 0,                     // Will be set by the caller
     }
+}
+
+/// Update Bayesian model based on actual claim outcome
+/// This function implements adaptive learning to improve the model over time
+pub fn update_bayesian_model(
+    model: &mut BayesianVerificationModel,
+    claim_result: ClaimVerificationResult,
+    actual_outcome: bool, // true if claim was legitimate
+) -> Result<()> {
+    // Update performance metrics
+    model.total_claims_processed += 1;
+    
+    // Track prediction accuracy
+    match (claim_result, actual_outcome) {
+        (ClaimVerificationResult::Approved, true) => {
+            // True positive - correctly approved legitimate claim
+            model.true_positives += 1;
+        },
+        (ClaimVerificationResult::Approved, false) => {
+            // False positive - incorrectly approved fraudulent claim
+            model.false_positives += 1;
+            
+            // Adjust approve threshold upward to be more conservative
+            let adjustment = (model.approve_threshold as u32 * model.threshold_adjustment_rate as u32) / 10000;
+            model.approve_threshold = std::cmp::min(
+                model.approve_threshold.saturating_add(adjustment as u16),
+                9500 // Cap at 95% to avoid being too restrictive
+            );
+        },
+        (ClaimVerificationResult::Denied, true) => {
+            // False negative - incorrectly denied legitimate claim
+            model.false_negatives += 1;
+            
+            // Adjust deny threshold downward to be less restrictive
+            let adjustment = (model.deny_threshold as u32 * model.threshold_adjustment_rate as u32) / 10000;
+            model.deny_threshold = std::cmp::max(
+                model.deny_threshold.saturating_sub(adjustment as u16),
+                500 // Floor at 5% to maintain some filtering
+            );
+        },
+        (ClaimVerificationResult::Denied, false) => {
+            // True negative - correctly denied fraudulent claim
+            model.true_negatives += 1;
+        },
+        (ClaimVerificationResult::ManualReview, _) => {
+            // Manual review cases don't affect the model directly
+            model.manual_review_claims += 1;
+        }
+    }
+    
+    // Adjust weights based on historical performance if we have enough data
+    if model.total_claims_processed > 100 {
+        // Calculate accuracy metrics
+        let total_predictions = model.true_positives + model.true_negatives + 
+                               model.false_positives + model.false_negatives;
+        
+        if total_predictions > 0 {
+            // Overall accuracy
+            let accuracy = ((model.true_positives + model.true_negatives) * 10000) / total_predictions;
+            
+            // If accuracy is below 80%, adjust weights to improve performance
+            if accuracy < 8000 {
+                // Adjust weights based on which type of error is more common
+                if model.false_positives > model.false_negatives {
+                    // More false positives, increase weight on completion evidence
+                    let adjustment = (model.completion_weight as u32 * model.weight_adjustment_rate as u32) / 10000;
+                    model.completion_weight = model.completion_weight.saturating_add(adjustment as u16);
+                } else {
+                    // More false negatives, increase weight on history evidence
+                    let adjustment = (model.history_weight as u32 * model.weight_adjustment_rate as u32) / 10000;
+                    model.history_weight = model.history_weight.saturating_add(adjustment as u16);
+                }
+                
+                // Normalize weights to ensure they sum to 10000
+                let total_weight = model.completion_weight + model.review_weight + 
+                                  model.history_weight + model.time_weight;
+                
+                if total_weight > 0 {
+                    let scale_factor = 10000 / total_weight;
+                    model.completion_weight = (model.completion_weight as u32 * scale_factor as u32 / 10000) as u16;
+                    model.review_weight = (model.review_weight as u32 * scale_factor as u32 / 10000) as u16;
+                    model.history_weight = (model.history_weight as u32 * scale_factor as u32 / 10000) as u16;
+                    model.time_weight = (model.time_weight as u32 * scale_factor as u32 / 10000) as u16;
+                }
+            }
+        }
+    }
+    
+    Ok(())
 }

@@ -72,26 +72,22 @@ pub fn calculate_base_premium(
         DURATION_FACTOR_LONG_TERM
     };
     
+    // Use fixed point arithmetic with precision of 10000
+    const PRECISION: u64 = 10000;
+    
     // Calculate premium with duration adjustment using checked operations
-    let adjusted_rate = (base_rate as u128)
-        .checked_mul(duration_factor as u128)
+    let adjusted_rate = (base_rate as u64)
+        .checked_mul(duration_factor as u64)
         .ok_or(PremiumCalculationError::PremiumCalculationError)?
-        .checked_div(BASIS_POINTS_DIVISOR as u128)
+        .checked_div(BASIS_POINTS_DIVISOR as u64)
         .ok_or(PremiumCalculationError::PremiumCalculationError)?;
     
     // Calculate premium amount
-    let premium = (contract_value as u128)
+    let premium = (contract_value)
         .checked_mul(adjusted_rate)
         .ok_or(PremiumCalculationError::PremiumCalculationError)?
-        .checked_div(BASIS_POINTS_DIVISOR as u128)
+        .checked_div(PRECISION)
         .ok_or(PremiumCalculationError::PremiumCalculationError)?;
-    
-    // Ensure the result fits in u64
-    if premium > u64::MAX as u128 {
-        return Err(error!(PremiumCalculationError::PremiumCalculationError));
-    }
-    
-    let premium = premium as u64;
     
     // Enforce minimum premium
     let min_premium = match risk_category {

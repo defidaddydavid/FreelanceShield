@@ -1,5 +1,5 @@
 import React from 'react';
-import Navbar from './Navbar';
+import PrivyNavbar from './PrivyNavbar';
 import Footer from './Footer';
 import { cn } from '@/lib/utils';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
@@ -20,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       "min-h-screen flex flex-col",
       isDark ? "bg-[#0a0a0a] text-white" : "bg-white text-foreground"
     )}>
-      <Navbar />
+      <PrivyNavbar />
       <main className="flex-grow">
         {children}
       </main>

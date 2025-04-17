@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { useWallet } from '@/hooks/useWallet';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, Transaction, PublicKey, SendOptions } from '@solana/web3.js';
 import { toast } from 'sonner';
 import { TransactionDialog } from '@/components/wallet/TransactionDialog';

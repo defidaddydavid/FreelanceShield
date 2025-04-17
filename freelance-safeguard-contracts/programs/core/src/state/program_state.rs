@@ -23,8 +23,6 @@ pub struct ProgramState {
     pub grace_period_days: u8,
     /// Period for submitting claims after policy expiration (in days)
     pub claim_period_days: u8,
-    
-    // === Risk Parameters ===
     /// Target reserve ratio (percentage)
     pub target_reserve_ratio: u8,
     /// Minimum capital requirement (in lamports)
@@ -99,6 +97,13 @@ pub struct ProgramState {
     pub is_paused: bool,
     /// Last update timestamp
     pub last_update_timestamp: i64,
+    
+    // === Timelock Parameters ===
+    /// Pending update parameters (for timelock)
+    pub pending_update_params: UpdateProgramParamsParams,
+    /// Timestamp when pending update can be executed
+    pub pending_update_timestamp: i64,
+    
     /// PDA bump seed
     pub bump: u8,
 }
@@ -147,6 +152,31 @@ impl ProgramState {
         1 +  // current_reserve_ratio
         1 +  // is_paused
         8 +  // last_update_timestamp
+        1 +  // base_reserve_ratio option
+        9 +  // min_coverage_amount option
+        9 +  // max_coverage_amount option
+        3 +  // min_period_days option
+        3 +  // max_period_days option
+        2 +  // grace_period_days option
+        2 +  // claim_period_days option
+        2 +  // target_reserve_ratio option
+        9 +  // min_capital_requirement option
+        2 +  // risk_buffer_percentage option
+        3 +  // monte_carlo_iterations option
+        2 +  // arbitration_threshold option
+        9 +  // auto_claim_limit option
+        2 +  // auto_process_threshold option
+        2 +  // min_votes_required option
+        2 +  // voting_period_days option
+        9 +  // base_premium_rate option
+        2 +  // risk_curve_exponent option
+        2 +  // reputation_impact_weight option
+        2 +  // claims_history_impact_weight option
+        2 +  // market_volatility_weight option
+        7 +  // job_type_risk_weights option
+        8 +  // industry_risk_weights option
+        2 +  // is_paused option
+        8 +  // pending_update_timestamp
         1;   // bump
 }
 

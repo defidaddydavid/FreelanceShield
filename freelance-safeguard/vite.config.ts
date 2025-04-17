@@ -55,8 +55,8 @@ export default defineConfig({
       { find: '@/components', replacement: path.resolve(__dirname, './src/components') },
       { find: '@/contexts', replacement: path.resolve(__dirname, './src/contexts') },
       // Add compatibility layer for wallet adapter
-      { find: '@solana/wallet-adapter-react', replacement: path.resolve(__dirname, './src/lib/solana/wallet-adapter-compat.ts') },
-      { find: '@solana/wallet-adapter-react-ui', replacement: path.resolve(__dirname, './src/lib/solana/wallet-adapter-compat.ts') },
+      { find: '@solana/wallet-adapter-react', replacement: path.resolve(__dirname, './src/lib/solana/wallet-adapter-compat') },
+      { find: '@solana/wallet-adapter-react-ui', replacement: path.resolve(__dirname, './src/lib/solana/wallet-adapter-compat') }
     ],
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },

@@ -1,200 +1,121 @@
-# FreeLanceShield Smart Contract System
+# FreelanceShield Smart Contracts
 
-A comprehensive Solana Devnet-based smart contract system for FreelanceShield, providing insurance policies, risk assessment, claims processing, escrow protections, and DAO governance.
+A comprehensive Solana-based smart contract system for FreelanceShield, providing insurance policies, risk assessment, claims processing, and DAO governance.
 
 ## System Architecture
 
-The FreeLanceShield contract system consists of five modular and upgradeable programs:
+The FreelanceShield contract system consists of five modular and upgradeable programs:
 
-1. **Insurance Program** - Handles policy creation, management, and cancellation
-2. **Claims Processor** - Manages claim submissions, verification, and payouts
-3. **Risk Pool Program** - Manages capital reserves and risk assessment
-4. **Escrow Program** - Protects freelancer payments through escrow contracts
+1. **Core Program** - Central coordination module and main entry point
+2. **Insurance Program** - Handles policy creation, management, and cancellation
+3. **Claims Processor** - Manages claim submissions, verification, and payouts
+4. **Risk Pool Program** - Manages capital reserves and risk assessment
 5. **DAO Governance** - Allows users to stake and vote on insurance parameters
 
-## Key Features
+## Key Technical Features
 
 - **Modular Design**: Each program handles a specific aspect of the system
-- **Upgradeable**: Programs can be upgraded independently
-- **Gas Efficient**: Optimized for minimal transaction costs
-- **Secure**: Follows Solana security best practices
-- **Demo Mode Support**: Contracts support both real execution and demo mode
+- **Bayesian Verification**: AI-powered risk scoring for claims verification
+- **Fixed Point Arithmetic**: Precision-safe calculations without floating point
+- **Multi-Signature Security**: Critical operations require multiple approvals
+- **Timelock Mechanism**: Delay for sensitive parameter updates
+- **Circuit Breaker Pattern**: Automatic pause on suspicious activity
+- **Capital Adequacy Checks**: Ensures sufficient reserves for coverage
+- **Adaptive Learning**: Models improve over time based on actual outcomes
 
-## Technical Implementation
+## Security Enhancements
 
-### Insurance Program
+Based on comprehensive analysis, the following security enhancements have been implemented:
 
-The Insurance Program manages the creation and lifecycle of insurance policies. Key features include:
+1. **Reentrancy Protection**
+   - Added `is_processing` flag to prevent reentrancy attacks
+   - Implemented proper guards in critical functions
 
-- Policy creation with customizable coverage amounts and periods
-- Risk-based premium calculation
-- Policy cancellation with prorated refunds
-- Configurable parameters for minimum/maximum coverage
+2. **Timelock for Critical Operations**
+   - Added timelock mechanism for parameter updates
+   - Created pending update fields in the ProgramState struct
 
-### Claims Processor
+3. **Fixed Point Arithmetic**
+   - Replaced floating point with fixed point arithmetic
+   - Used precision factor of 10000 to maintain accuracy
 
-The Claims Processor handles claim submissions and verification. Key features include:
+4. **Circuit Breaker Pattern**
+   - Implemented rate limiting for claim submissions
+   - Added automatic system pause on suspicious activity
 
-- Claim submission with evidence attachments
-- AI-powered risk scoring for fraud detection
-- Automatic approval for low-risk claims
-- Manual review for high-risk claims
-- Arbitration system for disputed claims
+5. **Multi-Signature Requirements**
+   - Added secondary authority for critical operations
+   - Required multiple signers for parameter updates
 
-### Risk Pool Program
+6. **Capital Adequacy Checks**
+   - Added verification of capital reserves
+   - Implemented ratio calculation for capital health
 
-The Risk Pool Program manages the capital reserves and risk assessment. Key features include:
-
-- Capital deposits and withdrawals
-- Monte Carlo simulations for dynamic premium adjustments
-- Reserve ratio management
-- Risk-based capital adequacy assessment
-
-## Deployment Instructions
-
-### Prerequisites
+## Prerequisites
 
 - Solana CLI tools installed and configured
 - Anchor framework installed
-- A funded Solana devnet wallet
+- Rust 1.81.0 or later
 
-### Deploying to Devnet
-
-We've created a deployment script to simplify the process of deploying the contracts to Solana devnet and updating the frontend constants:
+## Development Setup
 
 ```bash
-# Navigate to the contracts directory
+# Clone the repository
+git clone https://github.com/FreelanceShield/freelance-safeguard-contracts.git
 cd freelance-safeguard-contracts
 
-# Make sure you have a funded devnet wallet
-solana balance --url devnet
+# Install dependencies
+npm install
 
-# Run the deployment script
-node scripts/deploy-to-devnet.js
-```
-
-The script will:
-1. Build all Anchor programs
-2. Deploy them to Solana devnet
-3. Extract the program IDs
-4. Update the frontend constants file with the new program IDs
-
-### Manual Deployment
-
-If you prefer to deploy manually:
-
-```bash
 # Build the programs
 anchor build
 
+# Run tests
+anchor test
+```
+
+## Deployment Instructions
+
+```bash
 # Deploy to devnet
 anchor deploy --provider.cluster devnet
 
 # Get the program IDs
+solana address -k target/deploy/core-keypair.json
 solana address -k target/deploy/insurance_program-keypair.json
 solana address -k target/deploy/claims_processor-keypair.json
 solana address -k target/deploy/risk_pool_program-keypair.json
-solana address -k target/deploy/escrow_program-keypair.json
 solana address -k target/deploy/dao_governance-keypair.json
 ```
 
-Then update the program IDs in the frontend constants file manually.
-
-### Testing the Deployment
-
-After deployment, you can test the integration using the Solana Integration Test page in the frontend:
-
-1. Start the frontend application
-2. Navigate to `/solana-test`
-3. Connect your wallet
-4. Test the various SDK functions
-
-### Escrow Program
-
-The Escrow Program protects freelancer payments. Key features include:
-
-- Milestone-based escrow contracts
-- Dispute resolution mechanism
-- Automatic release options
-- Client-initiated milestone releases
-
-### DAO Governance
-
-The DAO Governance program allows users to participate in system governance. Key features include:
-
-- Token staking for voting rights
-- Proposal creation and voting
-- Parameter updates through governance
-- Execution delay for security
-
-## Monte Carlo Simulation
-
-The system implements Monte Carlo simulations to dynamically adjust insurance premiums based on risk. The simulation:
-
-1. Estimates expected losses based on policy count and claim frequency
-2. Calculates Value at Risk (VaR) at 95% and 99% confidence levels
-3. Determines recommended capital requirements
-4. Adjusts premiums based on capital adequacy
-
-## AI-Powered Claim Verification
-
-The claims processor includes an AI-powered risk scoring system that:
-
-1. Evaluates claim amount relative to coverage
-2. Considers policy age and previous claims
-3. Assigns a risk score to each claim
-4. Automatically approves low-risk claims
-5. Flags high-risk claims for manual review
-
-
-## Deployment
+## Program IDs
 
 All contracts are deployed on Solana Devnet with the following program IDs:
 
+- Core Program: `BWop9ejaeHDK9ktZivqzqwgZMN8kituGYM7cKqrpNiaE`
 - Insurance Program: `5YQrtSDqiRsVTJ4ZxLEHbcNTibiJrMsYTGNs3kRqKLRW`
 - Risk Pool Program: `7YarYNBF8GYZ5yzrUJGR3yHVs6SQapPezvnJrKRFUeD7`
 - Claims Processor: `9ot9f4UgMKPdHHgHqkKJrEGmpGBgk9Kxg8xJPJsxGYNY`
-- Escrow Program: `8ZU8MgTZG3UAYu5ChPKCCqGBiV9RGR9WJZLJcWA1UDxz`
 - DAO Governance: `DAoGXKLYx3MgXkJxv1e4W5D4LQkbtqxnDRBUVJAqMSLt`
 
-## Security Considerations
+## Project Structure
 
-The contract system implements several security measures:
+```
+programs/
+├── core/                 # Central coordination module
+├── claims-processor/     # Claims processing and verification
+├── risk-pool-program/    # Capital reserves and risk assessment
+├── insurance-program/    # Policy management
+├── dao-governance/       # Governance and voting
+└── other modules...      # Additional supporting modules
 
-- PDAs (Program Derived Addresses) for secure account management
-- Proper authority checks for all sensitive operations
-- Signer verification for all transactions
-- Reserve ratio requirements to ensure solvency
-- Execution delays for governance actions
-
-## Enhancement Plan
-
-### 1. Premium Model Improvements (High Priority)
-- **Dynamic Risk Weights**: Implement adaptive weights based on historical data
-- **Advanced Monte Carlo Simulations**: Enhance with sophisticated statistical methods
-- **Market Condition Integration**: Add real-time market condition adjustments
-- **Machine Learning Integration**: Develop off-chain ML models for premium prediction
-- **User Reputation System**: Enhance reputation factor calculation with granular metrics
-
-### 2. Governance Finalization (Medium Priority)
-- **Voting Mechanism Improvements**: Implement quadratic voting and delegation
-- **Proposal System Refinement**: Add templates and discussion periods
-- **Treasury Management**: Create DAO treasury with multi-signature requirements
-- **Cross-Program Governance**: Implement unified governance across all programs
-- **Governance Analytics**: Add on-chain analytics for participation tracking
-
-### 3. Risk-Based Pricing Enhancements (High Priority)
-- **Granular Risk Categories**: Expand job types and industry categories
-- **Claim Severity Analysis**: Enhance risk scoring with severity prediction
-- **External Risk Data Integration**: Add oracle integration for external data
-- **Real-Time Risk Adjustment**: Implement continuous assessment during policy lifetime
-- **Capital Efficiency Optimization**: Enhance reserve calculations with risk-weighted assets
+app/                      # Client-side SDK and utilities
+scripts/                  # Deployment and utility scripts
+tests/                    # Integration and unit tests
+```
 
 ## Future Enhancements
 
-Planned future enhancements include:
-
-- Dynamic risk weights based on actual claims data
 - Enhanced fraud detection algorithms
 - Multi-token support
 - Cross-chain compatibility

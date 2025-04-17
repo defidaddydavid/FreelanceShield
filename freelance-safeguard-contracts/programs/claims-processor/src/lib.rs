@@ -2,13 +2,18 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::clock::Clock;
 
 mod bayesian_verification;
-use bayesian_verification::{BayesianVerificationModel as BayesianModel, ClaimEvidence, ClaimVerificationResult, verify_claim, calculate_claim_legitimacy, initialize_default_model};
+use bayesian_verification::{BayesianVerificationModel as BayesianModel, ClaimEvidence, ClaimVerificationResult, verify_claim, calculate_claim_legitimacy, initialize_default_model, update_bayesian_model};
 
 declare_id!("5RUxNojf6fWZoU1pX81gXYXi46YyWa6SsrDhdYdNrHre");
 
 // Define program IDs for cross-program invocation
 pub const INSURANCE_PROGRAM_ID: Pubkey = solana_program::pubkey!("69JEStA6rKXi2y8LaLyNtXv4H2ZG211JFRmg6ES4GWEu");
 pub const RISK_POOL_PROGRAM_ID: Pubkey = solana_program::pubkey!("AGNZSGGL9hdWfT76TVFypbPcfsbrRJLDcHmczghbixoM");
+
+// Circuit breaker constants
+pub const MAX_CLAIMS_PER_HOUR: u16 = 100;
+pub const MAX_CLAIMS_PER_MINUTE: u16 = 20;
+pub const SUSPICIOUS_ACTIVITY_THRESHOLD: u16 = 50;
 
 #[program]
 pub mod claims_processor {
@@ -31,6 +36,12 @@ pub mod claims_processor {
         claims_state.auto_process_threshold = auto_process_threshold;
         claims_state.claims_count = 0;
         claims_state.is_paused = false;
+        claims_state.pause_reason = PauseReason::None;
+        claims_state.claims_in_last_hour = 0;
+        claims_state.claims_in_last_minute = 0;
+        claims_state.last_claim_timestamp = 0;
+        claims_state.max_claims_per_hour = MAX_CLAIMS_PER_HOUR;
+        claims_state.max_claims_per_minute = MAX_CLAIMS_PER_MINUTE;
         claims_state.bump = ctx.bumps.claims_state;
         
         Ok(())
@@ -44,8 +55,48 @@ pub mod claims_processor {
         evidence_attachments: Vec<String>,
         claim_category: ClaimCategory,
     ) -> Result<()> {
+        let claims_state = &mut ctx.accounts.claims_state;
         let claim = &mut ctx.accounts.claim;
         let clock = Clock::get()?;
+        
+        // Check if program is paused
+        require!(!claims_state.is_paused, ClaimsError::ProgramPaused);
+        
+        // Circuit breaker pattern: Check for suspicious activity
+        // Update claims rate metrics
+        let current_time = clock.unix_timestamp;
+        
+        // Update hourly metrics
+        if current_time - claims_state.last_claim_timestamp > 3600 {
+            // More than an hour since last claim, reset counter
+            claims_state.claims_in_last_hour = 1;
+        } else {
+            claims_state.claims_in_last_hour += 1;
+        }
+        
+        // Update minute metrics
+        if current_time - claims_state.last_claim_timestamp > 60 {
+            // More than a minute since last claim, reset counter
+            claims_state.claims_in_last_minute = 1;
+        } else {
+            claims_state.claims_in_last_minute += 1;
+        }
+        
+        // Update last claim timestamp
+        claims_state.last_claim_timestamp = current_time;
+        
+        // Check for suspicious activity
+        if claims_state.claims_in_last_minute > claims_state.max_claims_per_minute ||
+           claims_state.claims_in_last_hour > claims_state.max_claims_per_hour {
+            // Automatically pause the system
+            claims_state.is_paused = true;
+            claims_state.pause_reason = PauseReason::SuspiciousActivity;
+            
+            // Log the event
+            msg!("Circuit breaker activated: Suspicious activity detected");
+            
+            return Err(error!(ClaimsError::CircuitBreakerActivated));
+        }
         
         // Get policy data by deserializing the account data
         let policy_data = ctx.accounts.policy.try_borrow_data()?;
@@ -69,9 +120,6 @@ pub mod claims_processor {
             ClaimsError::AmountExceedsCoverage
         );
         
-        // Check if program is paused
-        require!(!ctx.accounts.claims_state.is_paused, ClaimsError::ProgramPaused);
-        
         // Calculate days since policy started
         let policy_age_days = (clock.unix_timestamp - policy.creation_time) / 86400;
         
@@ -79,8 +127,10 @@ pub mod claims_processor {
         let time_factor = calculate_time_risk_factor(policy_age_days as u16);
         
         // Calculate amount-based risk factor (percentage of coverage)
+        // Use fixed-point arithmetic instead of floating point
+        const PRECISION: u64 = 10000;
         let amount_risk = if policy.coverage_amount > 0 {
-            ((amount as f64 / policy.coverage_amount as f64) * 100f64) as u8
+            ((amount * PRECISION / policy.coverage_amount) * 100 / PRECISION) as u8
         } else {
             100 // Maximum risk if coverage amount is zero
         };
@@ -267,6 +317,8 @@ pub mod claims_processor {
         auto_claim_limit: Option<u64>,
         auto_process_threshold: Option<u8>,
         is_paused: Option<bool>,
+        max_claims_per_hour: Option<u16>,
+        max_claims_per_minute: Option<u16>,
     ) -> Result<()> {
         let claims_state = &mut ctx.accounts.claims_state;
         
@@ -291,9 +343,21 @@ pub mod claims_processor {
         
         if let Some(paused) = is_paused {
             claims_state.is_paused = paused;
+            
+            // If unpausing, reset the pause reason
+            if !paused {
+                claims_state.pause_reason = PauseReason::None;
+            }
         }
         
-        msg!("Claims processor parameters updated");
+        if let Some(max_per_hour) = max_claims_per_hour {
+            claims_state.max_claims_per_hour = max_per_hour;
+        }
+        
+        if let Some(max_per_minute) = max_claims_per_minute {
+            claims_state.max_claims_per_minute = max_per_minute;
+        }
+        
         Ok(())
     }
 
@@ -444,6 +508,29 @@ pub mod claims_processor {
         
         claim.last_update_slot = clock.slot;
         
+        Ok(())
+    }
+
+    /// Update the Bayesian model based on actual claim outcome
+    pub fn update_bayesian_model(
+        ctx: Context<UpdateBayesianModel>,
+        claim_result: ClaimVerificationResult,
+        actual_outcome: bool, // true if claim was legitimate
+    ) -> Result<()> {
+        // Verify authority
+        require!(
+            ctx.accounts.authority.key() == ctx.accounts.claims_state.authority,
+            ClaimsError::Unauthorized
+        );
+        
+        // Update the Bayesian model with the outcome
+        bayesian_verification::update_bayesian_model(
+            &mut ctx.accounts.bayesian_model,
+            claim_result,
+            actual_outcome
+        )?;
+        
+        msg!("Bayesian model updated based on actual claim outcome");
         Ok(())
     }
 
@@ -773,6 +860,27 @@ pub struct VerifyClaimBayesian<'info> {
 }
 
 #[derive(Accounts)]
+pub struct UpdateBayesianModel<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    
+    #[account(
+        mut,
+        constraint = !claims_state.is_paused @ ClaimsError::ProgramPaused
+    )]
+    pub claims_state: Account<'info, ClaimsState>,
+    
+    #[account(
+        mut,
+        seeds = [b"bayesian_model"],
+        bump = bayesian_model.bump,
+    )]
+    pub bayesian_model: Account<'info, BayesianModel>,
+    
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
 pub struct RegisterArbitrator<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -879,13 +987,18 @@ pub struct ClaimsState {
     pub authority: Pubkey,
     pub insurance_program_id: Pubkey,
     pub risk_pool_id: Pubkey,
+    pub arbitration_threshold: u8,
+    pub auto_claim_limit: u64,
+    pub auto_process_threshold: u8,
     pub claims_count: u64,
-    pub arbitration_threshold: u8,     // Claim amount percentage of coverage that requires arbitration
-    pub auto_claim_limit: u64,         // Maximum amount for auto-processing
-    pub auto_process_threshold: u8,    // Fraud score threshold for auto-processing (0-100)
-    pub is_paused: bool,               // Emergency pause for claims processing
+    pub is_paused: bool,
+    pub pause_reason: PauseReason,
+    pub claims_in_last_hour: u16,
+    pub claims_in_last_minute: u16,
+    pub last_claim_timestamp: i64,
+    pub max_claims_per_hour: u16,
+    pub max_claims_per_minute: u16,
     pub bump: u8,
-    pub processors: Vec<Pubkey>,
 }
 
 impl ClaimsState {
@@ -897,8 +1010,13 @@ impl ClaimsState {
                             8 +  // auto_claim_limit
                             1 +  // auto_process_threshold
                             1 +  // is_paused
+                            1 +  // pause_reason
+                            2 +  // claims_in_last_hour
+                            2 +  // claims_in_last_minute
+                            8 +  // last_claim_timestamp
+                            2 +  // max_claims_per_hour
+                            2 +  // max_claims_per_minute
                             1 +  // bump
-                            100 + // processors (estimated)
                             1;   // reserved
 
     // Check if a pubkey is in the processors list
@@ -1046,6 +1164,8 @@ pub enum ClaimsError {
     InvalidArbitrator,
     #[msg("Arbitrator already registered")]
     ArbitratorAlreadyRegistered,
+    #[msg("Circuit breaker activated due to suspicious activity")]
+    CircuitBreakerActivated,
 }
 
 #[account]
@@ -1068,5 +1188,20 @@ impl ClaimsHistory {
     
     pub fn get_claims_count(&self) -> usize {
         self.claim_list.len()
+    }
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, Copy, Debug)]
+pub enum PauseReason {
+    None,
+    SuspiciousActivity,
+    AdminPause,
+    SystemMaintenance,
+    SecurityIncident,
+}
+
+impl Default for PauseReason {
+    fn default() -> Self {
+        PauseReason::None
     }
 }

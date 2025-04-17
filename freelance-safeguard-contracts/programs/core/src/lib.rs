@@ -59,6 +59,8 @@ pub use crate::cpi_validation::*;
 // Program ID - this will be updated once deployed
 declare_id!("BWop9ejaeHDK9ktZivqzqwgZMN8kituGYM7cKqrpNiaE");
 
+const TIMELOCK_DURATION: i64 = 60 * 60 * 24; // 1 day
+
 #[program]
 pub mod freelance_shield_core {
     use super::*;
@@ -140,7 +142,20 @@ pub mod freelance_shield_core {
         ctx: Context<PayClaim>,
         transaction_signature: Option<String>,
     ) -> Result<()> {
-        instructions::claim::pay::handler(ctx, transaction_signature)
+        // Add reentrancy check
+        let claim = &mut ctx.accounts.claim;
+        require!(!claim.is_processing, FreelanceShieldError::ReentrancyDetected);
+        
+        // Set processing flag to prevent reentrancy
+        claim.is_processing = true;
+        
+        // Process the claim
+        let result = instructions::claim::pay::handler(ctx, transaction_signature);
+        
+        // Reset reentrancy guard regardless of result
+        claim.is_processing = false;
+        
+        result
     }
     
     /// Dispute a rejected claim
@@ -217,7 +232,31 @@ pub mod freelance_shield_core {
         ctx: Context<UpdateProgramParameters>,
         params: UpdateProgramParamsParams,
     ) -> Result<()> {
-        instructions::program::update::handler(ctx, params)
+        let program_state = &mut ctx.accounts.program_state;
+        
+        // Check if this is a proposal or execution
+        if program_state.pending_update_timestamp == 0 {
+            // This is a proposal, set the timelock
+            program_state.pending_update_params = params;
+            program_state.pending_update_timestamp = Clock::get()?.unix_timestamp + TIMELOCK_DURATION;
+            msg!("Parameter update proposed. Will be executable after timestamp: {}", 
+                 program_state.pending_update_timestamp);
+            return Ok(());
+        } else {
+            // This is an execution, check timelock
+            require!(
+                Clock::get()?.unix_timestamp >= program_state.pending_update_timestamp,
+                FreelanceShieldError::TimelockNotExpired
+            );
+            
+            // Apply the pending update
+            let result = instructions::program::update::handler(ctx, program_state.pending_update_params.clone());
+            
+            // Reset timelock
+            program_state.pending_update_timestamp = 0;
+            
+            result
+        }
     }
 }
 
@@ -450,4 +489,10 @@ pub enum FreelanceShieldError {
     
     #[msg("Deserialization error")]
     DeserializationError,
+    
+    #[msg("Reentrancy detected")]
+    ReentrancyDetected,
+    
+    #[msg("Timelock not expired")]
+    TimelockNotExpired,
 }

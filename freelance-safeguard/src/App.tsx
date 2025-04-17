@@ -2,19 +2,8 @@ import { SolanaThemeProvider } from './contexts/SolanaThemeProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Toaster } from './components/ui/toaster';
-import { useWallet, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
-import { 
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-  LedgerWalletAdapter,
-  SlopeWalletAdapter,
-  TorusWalletAdapter
-} from '@solana/wallet-adapter-wallets';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { ConnectionProvider } from '@solana/wallet-adapter-react';
 import { clusterApiUrl } from '@solana/web3.js';
 import { useMemo, useEffect } from 'react';
-import { WalletIntegrationProvider, useWalletIntegrationContext } from './components/wallet/WalletIntegrationProvider';
 import { TransactionProvider } from './contexts/TransactionContext';
 import { FreelanceInsuranceSDKProvider } from './lib/solana/sdk/context';
 import { Home } from './pages/Home';
@@ -39,57 +28,36 @@ import { SolanaErrorBoundary } from './components/SolanaErrorBoundary';
 import { useSolanaTheme } from './contexts/SolanaThemeProvider';
 import { initializeTheme } from './utils/theme-utils';
 
+// Import Privy authentication
+import { PrivyProvider } from '@privy-io/react-auth';
+import { usePrivyAuth } from './hooks/usePrivyAuth';
+
 // Unified SolanaProviders component
 const SolanaProviders = ({ children }) => {
-  // Set up network and wallet adapters
+  // Set up network for Solana connection
   const network = import.meta.env.VITE_SOLANA_NETWORK || 'devnet';
   const endpoint = useMemo(() => {
     return import.meta.env.VITE_SOLANA_RPC_URL || clusterApiUrl(network);
   }, [network]);
 
-  // Set up wallet adapters
-  const wallets = useMemo(() => {
-    try {
-      return [
-        new PhantomWalletAdapter(),
-        new SolflareWalletAdapter(),
-        new LedgerWalletAdapter(),
-        new SlopeWalletAdapter(),
-        new TorusWalletAdapter()
-      ];
-    } catch (error) {
-      console.error('Failed to initialize wallet adapters:', error);
-      // Fall back to basic adapters
-      return [
-        new PhantomWalletAdapter(),
-        new SolflareWalletAdapter()
-      ];
-    }
-  }, []);
-
   return (
-    <ConnectionProvider endpoint={endpoint} config={{ commitment: 'confirmed' }}>
-      <SolanaWalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          <SolanaThemeProvider>
-            <SolanaErrorBoundary>
-              {children}
-            </SolanaErrorBoundary>
-          </SolanaThemeProvider>
-        </WalletModalProvider>
-      </SolanaWalletProvider>
-    </ConnectionProvider>
+    <SolanaThemeProvider>
+      {children}
+    </SolanaThemeProvider>
   );
 };
 
-// Protected route component that redirects to home if wallet is not connected
+// Protected route component that redirects to home if not authenticated with Privy
 const ProtectedRoute = ({ children }) => {
-  // Use both wallet adapters for compatibility during transition
-  const { connected } = useWallet();
-  const { walletInfo } = useWalletIntegrationContext();
+  const { isAuthenticated, ready } = usePrivyAuth();
   
-  // Allow access if either wallet is connected
-  if (!connected && !walletInfo.connected) {
+  // Show nothing while Privy is initializing
+  if (!ready) {
+    return null;
+  }
+  
+  // Redirect to home if not authenticated
+  if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
   
@@ -124,10 +92,16 @@ function ErrorFallback({ error }) {
       )}>
         <h2 className={cn(
           "text-xl font-heading font-bold mb-4",
-          isDark ? "text-shield-blue" : "text-shield-purple"
+          isDark ? "text-white" : "text-gray-900"
         )}>
           Something went wrong
         </h2>
+        <p className={cn(
+          "mb-4",
+          isDark ? "text-gray-300" : "text-gray-600"
+        )}>
+          An error occurred while rendering the application:
+        </p>
         <pre className={cn(
           "p-4 rounded overflow-auto text-sm",
           isDark 
@@ -155,8 +129,8 @@ function ErrorFallback({ error }) {
 // Launch gate component to redirect all traffic to coming soon page
 // Set isPreLaunch to false when ready to launch the full app
 const LaunchGate = () => {
-  // Set to true to show the coming soon page, false to show the actual app
-  const isPreLaunch = true;
+  // Set to false to show the actual app, true to show the coming soon page
+  const isPreLaunch = false;
   
   // Check if developer mode is enabled via localStorage
   const bypassEnabled = localStorage.getItem('freelanceShield_devBypass') === 'true';
@@ -191,22 +165,37 @@ export default function App() {
     if (!meta) {
       const newMeta = document.createElement('meta');
       newMeta.name = 'theme-color';
-      newMeta.content = '#0F1116'; // Dark background color
+      newMeta.content = '#0a0a0a'; // Dark background color
       document.head.appendChild(newMeta);
     }
   }, [setTheme]);
 
+  // Privy configuration
+  const privyAppId = import.meta.env.VITE_PRIVY_APP_ID || '';
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div className={cn(
-        "min-h-screen transition-colors duration-300",
-        "bg-background text-foreground",
+        "min-h-screen",
         isDark ? "bg-[#0a0a0a]" : "bg-white"
       )}>
         <Router>
           <QueryClientProvider client={queryClient}>
-            <SolanaProviders>
-              <WalletIntegrationProvider>
+            <PrivyProvider
+              appId={privyAppId}
+              config={{
+                loginMethods: ['email', 'wallet'],
+                appearance: {
+                  theme: isDark ? 'dark' : 'light',
+                  accentColor: '#9945FF',
+                  logo: '/logo.svg',
+                },
+                embeddedWallets: {
+                  createOnLogin: 'users-without-wallets',
+                },
+              }}
+            >
+              <SolanaProviders>
                 <FreelanceInsuranceSDKProvider>
                   <TransactionProvider>
                     <Routes>
@@ -284,8 +273,8 @@ export default function App() {
                     />
                   </TransactionProvider>
                 </FreelanceInsuranceSDKProvider>
-              </WalletIntegrationProvider>
-            </SolanaProviders>
+              </SolanaProviders>
+            </PrivyProvider>
           </QueryClientProvider>
         </Router>
       </div>

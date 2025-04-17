@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useSolanaTheme } from "@/contexts/SolanaThemeProvider";
+import LaserAnimation from "./LaserAnimation";
 
 interface GridBackgroundProps {
   className?: string;
@@ -7,6 +8,7 @@ interface GridBackgroundProps {
   withTopAccent?: boolean;
   withBottomAccent?: boolean;
   density?: 'low' | 'medium' | 'high';
+  withLaserAnimation?: boolean;
 }
 
 /**
@@ -20,13 +22,15 @@ interface GridBackgroundProps {
  * @param withTopAccent - Whether to show a purple accent line at the top
  * @param withBottomAccent - Whether to show a purple accent line at the bottom
  * @param density - Grid line density: 'low' (40px), 'medium' (28px), or 'high' (20px)
+ * @param withLaserAnimation - Whether to show the laser animation
  */
 export const GridBackground: React.FC<GridBackgroundProps> = ({
   className,
   children,
   withTopAccent = false,
   withBottomAccent = false,
-  density = 'medium'
+  density = 'medium',
+  withLaserAnimation = false
 }) => {
   const { isDark } = useSolanaTheme();
   
@@ -44,6 +48,9 @@ export const GridBackground: React.FC<GridBackgroundProps> = ({
         "absolute inset-0 z-0",
         isDark ? "bg-shield-purple/5" : "bg-shield-purple/3"
       )} />
+      
+      {/* Laser Animation */}
+      {withLaserAnimation && <LaserAnimation />}
       
       {/* Top accent line */}
       {withTopAccent && (

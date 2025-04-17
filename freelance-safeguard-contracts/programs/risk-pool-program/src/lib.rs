@@ -34,6 +34,9 @@ pub mod risk_pool_program {
         // Set the authority
         risk_pool_state.authority = ctx.accounts.authority.key();
         
+        // Set the secondary authority
+        risk_pool_state.secondary_authority = ctx.accounts.authority.key();
+        
         // Set the claims processor ID
         risk_pool_state.claims_processor_id = claims_processor_id;
         
@@ -56,6 +59,9 @@ pub mod risk_pool_program {
         risk_pool_state.risk_buffer_percentage = 10; // Default 10% buffer
         risk_pool_state.is_paused = false;
         risk_pool_state.is_processing_external_call = false;
+        risk_pool_state.is_capital_adequate = true;
+        risk_pool_state.capital_adequacy_ratio = 100;
+        risk_pool_state.last_adequacy_check = 0;
         
         // Store the bump
         risk_pool_state.bump = ctx.bumps.risk_pool_state;
@@ -318,10 +324,16 @@ pub mod risk_pool_program {
     ) -> Result<()> {
         let risk_pool_state = &mut ctx.accounts.risk_pool_state;
         
-        // Validate caller is authorized
+        // Validate primary authority is authorized
         require!(
             ctx.accounts.authority.key() == risk_pool_state.authority,
             RiskPoolError::InvalidAccount
+        );
+        
+        // Validate secondary authority is authorized
+        require!(
+            ctx.accounts.secondary_authority.key() == risk_pool_state.secondary_authority,
+            RiskPoolError::InvalidSecondaryAuthority
         );
         
         // Update parameters if provided
@@ -339,7 +351,7 @@ pub mod risk_pool_program {
             risk_pool_state.is_paused = paused;
         }
         
-        msg!("Risk parameters updated");
+        msg!("Risk parameters updated with multi-signature approval");
         Ok(())
     }
 
@@ -376,6 +388,59 @@ pub mod risk_pool_program {
         );
         
         msg!("Domain premium recorded: {}", amount);
+        Ok(())
+    }
+
+    pub fn verify_capital_adequacy(
+        ctx: Context<VerifyCapitalAdequacy>,
+    ) -> Result<()> {
+        let risk_pool_state = &mut ctx.accounts.risk_pool_state;
+        let clock = Clock::get()?;
+        
+        // Calculate required capital based on total coverage liability and target reserve ratio
+        let required_capital = (risk_pool_state.total_coverage_liability)
+            .checked_mul(risk_pool_state.target_reserve_ratio as u64)
+            .ok_or(RiskPoolError::ArithmeticError)?
+            .checked_div(PERCENTAGE_DIVISOR as u64)
+            .ok_or(RiskPoolError::ArithmeticError)?;
+        
+        // Check if current capital is sufficient
+        let is_capital_adequate = risk_pool_state.total_capital >= required_capital;
+        
+        // Calculate capital adequacy ratio (scaled by 100 for percentage)
+        let capital_adequacy_ratio = if required_capital > 0 {
+            (risk_pool_state.total_capital)
+                .checked_mul(100)
+                .ok_or(RiskPoolError::ArithmeticError)?
+                .checked_div(required_capital)
+                .ok_or(RiskPoolError::ArithmeticError)?
+        } else {
+            // If no liability, capital is more than adequate
+            100
+        };
+        
+        // Update capital adequacy status
+        risk_pool_state.is_capital_adequate = is_capital_adequate;
+        risk_pool_state.capital_adequacy_ratio = capital_adequacy_ratio as u16;
+        risk_pool_state.last_adequacy_check = clock.unix_timestamp;
+        
+        // Emit event with capital adequacy status
+        emit!(CapitalAdequacyChecked {
+            is_adequate: is_capital_adequate,
+            capital_adequacy_ratio: capital_adequacy_ratio as u16,
+            total_capital: risk_pool_state.total_capital,
+            required_capital,
+            timestamp: clock.unix_timestamp,
+        });
+        
+        // Return error if capital is inadequate
+        if !is_capital_adequate {
+            msg!("Capital adequacy check failed: Current capital {} is less than required capital {}", 
+                 risk_pool_state.total_capital, required_capital);
+            return Err(error!(RiskPoolError::InsufficientCapital));
+        }
+        
+        msg!("Capital adequacy verified: Ratio {}%", capital_adequacy_ratio);
         Ok(())
     }
 }
@@ -533,11 +598,14 @@ pub struct UpdateRiskParameters<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     
+    #[account(mut)]
+    pub secondary_authority: Signer<'info>,
+    
     #[account(
         mut,
         seeds = [b"risk_pool_state"],
         bump = risk_pool_state.bump,
-        constraint = authority.key() == risk_pool_state.authority
+        constraint = !risk_pool_state.is_paused @ RiskPoolError::InvalidAccount
     )]
     pub risk_pool_state: Account<'info, RiskPoolState>,
     
@@ -575,11 +643,30 @@ pub struct RecordDomainPremium<'info> {
     pub system_program: Program<'info, System>,
 }
 
+#[derive(Accounts)]
+pub struct VerifyCapitalAdequacy<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    
+    #[account(
+        mut,
+        seeds = [b"risk_pool_state"],
+        bump = risk_pool_state.bump,
+        constraint = !risk_pool_state.is_paused @ RiskPoolError::InvalidAccount
+    )]
+    pub risk_pool_state: Account<'info, RiskPoolState>,
+    
+    pub system_program: Program<'info, System>,
+}
+
 #[account]
 #[derive(Default)]
 pub struct RiskPoolState {
     /// Authority allowed to manage the risk pool
     pub authority: Pubkey,
+    
+    /// Secondary authority for multi-sig operations
+    pub secondary_authority: Pubkey,
     
     /// Claims processor program ID
     pub claims_processor_id: Pubkey,
@@ -614,12 +701,22 @@ pub struct RiskPoolState {
     /// Reentrancy guard
     pub is_processing_external_call: bool,
     
+    /// Capital adequacy status
+    pub is_capital_adequate: bool,
+    
+    /// Capital adequacy ratio (percentage * 100)
+    pub capital_adequacy_ratio: u16,
+    
+    /// Last capital adequacy check timestamp
+    pub last_adequacy_check: i64,
+    
     /// PDA bump
     pub bump: u8,
 }
 
 impl RiskPoolState {
     pub const SIZE: usize = 32 + // authority
+                            32 + // secondary_authority
                             32 + // claims_processor_id
                             32 + // insurance_program_id
                             8 +  // total_capital
@@ -631,6 +728,9 @@ impl RiskPoolState {
                             1 +  // risk_buffer_percentage
                             1 +  // is_paused
                             1 +  // is_processing_external_call
+                            1 +  // is_capital_adequate
+                            2 +  // capital_adequacy_ratio
+                            8 +  // last_adequacy_check
                             1;   // bump
 }
 
@@ -681,6 +781,9 @@ pub enum RiskPoolError {
     
     #[msg("Reserve ratio violation")]
     ReserveRatioViolation,
+    
+    #[msg("Invalid secondary authority")]
+    InvalidSecondaryAuthority,
 }
 
 #[event]
@@ -697,4 +800,13 @@ pub struct CapitalWithdrawn {
     pub amount: u64,
     pub total_capital: u64,
     pub reserve_ratio: u8,
+}
+
+#[event]
+pub struct CapitalAdequacyChecked {
+    pub is_adequate: bool,
+    pub capital_adequacy_ratio: u16,
+    pub total_capital: u64,
+    pub required_capital: u64,
+    pub timestamp: i64,
 }

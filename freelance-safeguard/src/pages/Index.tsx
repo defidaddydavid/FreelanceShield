@@ -24,6 +24,7 @@ const Index = () => {
         className={cn("w-full min-h-screen", isDark ? "text-white" : "text-foreground")}
         withTopAccent
         withBottomAccent
+        withLaserAnimation
       >
         <Hero />
         <Features />

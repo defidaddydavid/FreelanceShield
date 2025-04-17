@@ -1,69 +1,106 @@
-# Welcome to your Lovable project
+# FreelanceShield Frontend
 
-## Project info
+The frontend application for FreelanceShield, a decentralized insurance protocol for the freelance economy.
 
-**URL**: https://lovable.dev/projects/9036ab43-8b81-46bc-8d8c-10284821969a
+## Overview
 
-## How can I edit this code?
+This React application provides the user interface for FreelanceShield, allowing users to:
 
-There are several ways of editing your application.
+- Browse and purchase insurance policies
+- Submit and track claims
+- Manage their freelance profile
+- Participate in DAO governance
 
-**Use Lovable**
+## Technology Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9036ab43-8b81-46bc-8d8c-10284821969a) and start prompting.
+- **React**: UI framework
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **Privy**: Authentication integration (replacing Solana wallet adapter)
+- **Vite**: Build tool
+- **shadcn/ui**: Component library
 
-Changes made via Lovable will be committed automatically to this repo.
+## Deployment Strategy
 
-**Use your preferred IDE**
+The application uses a Git-based deployment strategy with Vercel:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Production (landing-page branch)**: Contains the "coming soon" page with waitlist signup
+- **Preview (main branch)**: Contains the full app with Privy authentication
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Getting Started
 
-Follow these steps:
+### Prerequisites
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Node.js (v16+)
+- npm or yarn
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your configuration
+
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Environment Variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The following environment variables are required:
 
-**Use GitHub Codespaces**
+```
+# Supabase for waitlist storage
+STORAGE_SUPABASE_URL=
+STORAGE_SUPABASE_SERVICE_ROLE_KEY=
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Zoho for email notifications
+ZOHO_USER=
+ZOHO_PASSWORD=
+ZOHO_PORT=465
+ZOHO_SMTP_HOST=smtp.zoho.com
 
-## What technologies are used for this project?
+# Privy for authentication
+NEXT_PUBLIC_PRIVY_APP_ID=
+```
 
-This project is built with .
+## Project Structure
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+src/
+├── components/     # UI components
+├── contexts/       # React context providers
+├── hooks/          # Custom React hooks
+├── lib/            # Utility functions and libraries
+├── pages/          # Page components
+├── styles/         # Global styles
+└── types/          # TypeScript type definitions
+```
 
-## How can I deploy this project?
+## Solana Integration
 
-Simply open [Lovable](https://lovable.dev/projects/9036ab43-8b81-46bc-8d8c-10284821969a) and click on Share -> Publish.
+The application integrates with Solana through custom hooks:
 
-## I want to use a custom domain - is that possible?
+- `useWallet`: Replacement for @solana/wallet-adapter-react's useWallet
+- `useConnection`: Custom connection provider and hooks
+- `useAnchorWallet`: Compatibility layer for Anchor integration
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Build and Deployment
+
+```bash
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## Waitlist API
+
+The application includes a waitlist API that connects to Supabase to store email addresses from users signing up on the landing page. The implementation includes:
+
+- Supabase connection for storing emails in a 'waitlist' table
+- Email notifications using Zoho SMTP

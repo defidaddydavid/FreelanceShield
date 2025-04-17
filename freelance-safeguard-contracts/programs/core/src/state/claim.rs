@@ -48,6 +48,8 @@ pub struct Claim {
     pub last_update_slot: u64,
     /// Claim index within the policy (same as policy.claims_count at creation)
     pub index: u8,
+    /// Reentrancy guard to prevent multiple processing
+    pub is_processing: bool,
     /// PDA bump seed
     pub bump: u8,
 }
@@ -71,6 +73,7 @@ impl Claim {
         8 +  // creation_slot
         8 +  // last_update_slot
         1 +  // index
+        1 +  // is_processing
         1;   // bump
         
     // Note: Vec sizes are dynamic and allocated separately

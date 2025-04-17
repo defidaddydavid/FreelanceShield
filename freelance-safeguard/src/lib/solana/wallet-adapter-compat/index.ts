@@ -3,13 +3,12 @@
  * 
  * This file provides compatibility with the old wallet adapter API
  * while using our new Privy integration under the hood.
- * 
- * This allows us to gradually migrate the codebase without breaking changes.
  */
 
+import { useWallet as usePrivyWallet } from '../../../hooks/useWallet';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { useWallet as usePrivyWallet } from '@/hooks/useWallet';
 import { useMemo } from 'react';
+import React from 'react';
 
 // Re-export the useWallet hook with the same API as @solana/wallet-adapter-react
 export const useWallet = () => {
@@ -84,23 +83,21 @@ export const useAnchorWallet = () => {
 };
 
 // Export a dummy WalletMultiButton component
-export const WalletMultiButton = () => null;
+export const WalletMultiButton = (props: any) => {
+  return React.createElement('div', { ...props, className: 'wallet-adapter-button wallet-adapter-button-trigger' }, 'Connect Wallet');
+};
 
 // Export a dummy ConnectionProvider component
-export const ConnectionProvider = ({ children }) => children;
+export const ConnectionProvider = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(React.Fragment, null, children);
+};
 
 // Export a dummy WalletProvider component
-export const WalletProvider = ({ children }) => children;
+export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(React.Fragment, null, children);
+};
 
 // Export a dummy WalletModalProvider component
-export const WalletModalProvider = ({ children }) => children;
-
-export default {
-  useWallet,
-  useConnection,
-  useAnchorWallet,
-  WalletMultiButton,
-  ConnectionProvider,
-  WalletProvider,
-  WalletModalProvider,
+export const WalletModalProvider = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement(React.Fragment, null, children);
 };

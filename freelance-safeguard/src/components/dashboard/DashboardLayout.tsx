@@ -143,7 +143,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               {navItems.map((item) => (
                 <Button
                   key={item.name}
-                  variant={location.pathname === item.path ? "secondary" : "ghost"}
+                  variant={location.pathname === item.path ? "default" : "ghost"}
                   className={cn(
                     "w-full justify-start mb-1",
                     location.pathname === item.path ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
