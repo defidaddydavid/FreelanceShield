@@ -1,17 +1,5 @@
 # 🛡️ FreelanceShield
 
-<div align="center">
-  <img src="https://i.imgur.com/XYZ123.png" alt="FreelanceShield Logo" width="300"/>
-  <p><strong>Decentralized Insurance Protocol for the Freelance Economy</strong></p>
-  <p>
-    <a href="https://freelanceshield.xyz">Website</a> •
-    <a href="#features">Features</a> •
-    <a href="#architecture">Architecture</a> •
-    <a href="#getting-started">Getting Started</a> •
-    <a href="#deployment">Deployment</a>
-  </p>
-</div>
-
 ## 🌟 Overview
 
 FreelanceShield is a revolutionary decentralized insurance protocol built on Solana, designed specifically for the growing freelance economy. Our platform provides comprehensive protection for freelancers and clients, with features including policy management, claims processing, risk assessment, and DAO governance.
