@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import { Logo } from '@/components/ui/logo';
 import { cn } from '@/lib/utils';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
+import PrivyLogo from '@/components/icons/PrivyLogo';
 
 // Inline SVG for Solana logo
-const SolanaLogo = ({ className }: { className?: string }) => {
-  const { isDark } = useSolanaTheme();
+const SolanaLogo = ({ className, width = 28, height = 28 }: { className?: string, width?: number, height?: number }) => {
   return (
     <svg 
-      width="28" 
-      height="28" 
+      width={width} 
+      height={height} 
       viewBox="0 0 397 311" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg" 
@@ -34,12 +34,14 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-8">
           <div>
-            <Link to="/" className="flex items-center space-x-2 mb-4">
-              <Logo size={90} withText={false} />
-              <span className="font-['NT_Brick_Sans'] text-2xl tracking-wide text-shield-purple">
-                FreelanceShield
-              </span>
-            </Link>
+            <div className="mb-4">
+              <Link to="/" className="flex items-center space-x-2 mb-2">
+                <Logo size={90} withText={false} />
+                <span className="font-['NT_Brick_Sans'] text-2xl tracking-wide text-shield-purple">
+                  FreelanceShield
+                </span>
+              </Link>
+            </div>
             <p className="text-muted-foreground mb-6">
               Decentralized micro-insurance for Web3 freelancers, powered by Solana.
             </p>
@@ -137,11 +139,24 @@ const Footer = () => {
         
         <div className="pt-8 border-t border-white/10 text-center text-muted-foreground text-sm">
           <p> {new Date().getFullYear()} FreelanceShield. All rights reserved.</p>
-          <p className="mt-2 flex items-center justify-center space-x-2">
-            <span>Built on</span>
-            <SolanaLogo className="mx-1" />
-            <span>Solana Blockchain</span>
-          </p>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+            <div className="flex items-center">
+              <span>Built on</span>
+              <SolanaLogo className="mx-1" />
+              <span>Solana</span>
+            </div>
+            <span className="hidden sm:inline">•</span>
+            <div className="flex items-center">
+              <span>Secured with</span>
+              <div className="mx-2">
+                <PrivyLogo 
+                  width={60} 
+                  height={24} 
+                  variant="black"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

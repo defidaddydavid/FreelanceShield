@@ -23,6 +23,8 @@ export default defineConfig({
       },
     }),
     // Add SVGR plugin for importing SVGs as React components
+    svgr(), 
+    // Add SVGR plugin for importing SVGs as React components
     svgr({ 
       include: '**/*.svg',
       svgrOptions: {
@@ -50,13 +52,9 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@', replacement: path.resolve(__dirname, './src') },
-      // Add explicit aliases for commonly used paths
       { find: '@/lib', replacement: path.resolve(__dirname, './src/lib') },
       { find: '@/components', replacement: path.resolve(__dirname, './src/components') },
-      { find: '@/contexts', replacement: path.resolve(__dirname, './src/contexts') },
-      // Add compatibility layer for wallet adapter
-      { find: '@solana/wallet-adapter-react', replacement: path.resolve(__dirname, './src/lib/solana/wallet-adapter-compat') },
-      { find: '@solana/wallet-adapter-react-ui', replacement: path.resolve(__dirname, './src/lib/solana/wallet-adapter-compat') }
+      { find: '@/contexts', replacement: path.resolve(__dirname, './src/contexts') }
     ],
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
@@ -97,6 +95,18 @@ export default defineConfig({
           }
         }
       },
+      // Explicitly mark problematic dependencies as external
+      external: [],
+      // Ignore Privy annotation warnings and wallet adapter warnings
+      onwarn(warning, warn) {
+        // Ignore specific warnings from the Privy library
+        if (warning.code === 'INVALID_ANNOTATION' && warning.message.includes('@privy-io/react-auth')) {
+          return;
+        }
+        
+        // Forward all other warnings
+        warn(warning);
+      }
     },
   },
   // Development server configuration
@@ -113,6 +123,8 @@ export default defineConfig({
   define: {
     // Ensure process.env is available in the client
     'process.env': process.env,
+    // Add global definitions for Privy
+    global: 'globalThis',
   },
   // Optimize dependencies
   optimizeDeps: {
@@ -126,6 +138,8 @@ export default defineConfig({
       'clsx',
       'tailwind-merge',
     ],
+    // Exclude problematic dependencies
+    exclude: [],
     esbuildOptions: {
       target: 'es2020',
       // Exclude problematic dependencies

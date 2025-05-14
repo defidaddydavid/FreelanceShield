@@ -1,6 +1,8 @@
 import { usePrivyAuth } from './usePrivyAuth';
 import { PublicKey } from '@solana/web3.js';
 import { useMemo } from 'react';
+import { usePrivy } from '@privy-io/react-auth';
+import { useUnifiedWallet } from './useUnifiedWallet';
 
 /**
  * Custom hook that adapts Privy wallet to Solana wallet interface
@@ -8,33 +10,37 @@ import { useMemo } from 'react';
  */
 export const useWallet = () => {
   const privyAuth = usePrivyAuth();
+  const privy = usePrivy();
+  const { 
+    publicKey: unifiedPublicKey, 
+    isConnected, 
+    connect, 
+    disconnect 
+  } = useUnifiedWallet();
   
   // Create a compatible wallet interface
   const wallet = useMemo(() => {
-    const solanaWallet = privyAuth.solanaWallet;
-    const walletAddress = solanaWallet?.address || '';
-    
-    // Create a PublicKey if we have a wallet address
-    const publicKey = walletAddress ? new PublicKey(walletAddress) : null;
+    // Get Solana public key from unified wallet
+    const publicKey = unifiedPublicKey ? new PublicKey(unifiedPublicKey) : null;
     
     return {
       // Connection state
-      connected: !!solanaWallet,
-      connecting: false,
+      connected: isConnected,
+      connecting: privy.ready && !privy.authenticated,
       disconnecting: false,
       
       // Wallet data
       publicKey,
-      walletAddress,
+      walletAddress: publicKey?.toString() || '',
       
       // Methods
-      connect: privyAuth.loginWithWallet,
-      disconnect: privyAuth.logout,
+      connect: () => connect('privy'),
+      disconnect,
       
       // Original privy auth for advanced usage
       privyAuth
     };
-  }, [privyAuth]);
+  }, [privyAuth, privy, unifiedPublicKey, isConnected, connect, disconnect]);
   
   return wallet;
 };

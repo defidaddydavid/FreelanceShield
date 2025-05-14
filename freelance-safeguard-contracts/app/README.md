@@ -15,7 +15,7 @@ A Solana-based freelance insurance platform using Anchor framework that enables 
 
 - Node.js v16+ and npm
 - Solana CLI tools
-- Anchor v0.26.0+
+- Anchor v0.31.0+
 - Phantom Wallet browser extension
 
 ### Installation

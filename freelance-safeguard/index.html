@@ -3,13 +3,118 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Block specific Ethereum-related scripts -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.privy.io https://unpkg.com https://vercel.live 'nonce-freelanceshield'; connect-src 'self' https://*.privy.io https://*.solana.com https://*.vercel-insights.com wss://*.privy.io wss://*.solana.com https://api.devnet.solana.com https://api.mainnet-beta.solana.com https://*.supabase.co https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://*.privy.io; frame-src 'self' https://*.privy.io https://vercel.live;">
     <title>FreelanceShield</title>
     <meta name="description" content="Decentralized Insurance for Freelancers on Solana" />
     <meta name="author" content="FreelanceShield" />
     <meta property="og:image" content="/og-image.png" />
-    <link rel="icon" href="/favicon.ico" />
-    <!-- Preload Solana web3 libraries -->
-    <link rel="preload" as="script" href="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js" />
+    <link rel="icon" href="/logo.png" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ethereum Blocker Script -->
+    <script nonce="freelanceshield">
+      // Block Ethereum-related scripts and properties
+      (function() {
+        // Store original methods
+        const originalDefineProperty = Object.defineProperty;
+        const originalCreateElement = document.createElement;
+        
+        // Override defineProperty to block ethereum property injections
+        Object.defineProperty = function(obj, prop, descriptor) {
+          if ((obj === window || obj === globalThis) && 
+              (prop === 'ethereum' || prop === 'web3' || 
+               (typeof prop === 'string' && 
+                (prop.toLowerCase().includes('wallet') || 
+                 prop.toLowerCase().includes('evm'))))) {
+            console.log(`[FreelanceShield] Blocked injection of ${prop}`);
+            return obj;
+          }
+          return originalDefineProperty.call(Object, obj, prop, descriptor);
+        };
+        
+        // Override createElement to block script loading
+        document.createElement = function(tagName) {
+          const element = originalCreateElement.call(document, tagName);
+          
+          if (tagName.toLowerCase() === 'script') {
+            const originalSetAttribute = element.setAttribute;
+            element.setAttribute = function(name, value) {
+              if (name === 'src' && typeof value === 'string' && 
+                  (value.includes('evmAsk.js') || 
+                   value.includes('inpage.js') || 
+                   value.includes('ethereum') ||
+                   value.includes('metamask'))) {
+                console.log(`[FreelanceShield] Blocked loading of: ${value}`);
+                return element;
+              }
+              return originalSetAttribute.call(this, name, value);
+            };
+          }
+          
+          return element;
+        };
+        
+        // Remove existing properties
+        ['ethereum', 'web3', 'evmProvider'].forEach(prop => {
+          if (window[prop]) {
+            try {
+              delete window[prop];
+              console.log(`[FreelanceShield] Removed ${prop}`);
+            } catch (e) {
+              console.log(`[FreelanceShield] Could not remove ${prop}`);
+              try {
+                window[prop] = undefined;
+              } catch (e2) {}
+            }
+          }
+        });
+        
+        // Block script loading via MutationObserver
+        const observer = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            if (mutation.type === 'childList') {
+              for (const node of mutation.addedNodes) {
+                if (node.tagName === 'SCRIPT') {
+                  const src = node.src || '';
+                  if (src.includes('evmAsk.js') || 
+                      src.includes('inpage.js') || 
+                      src.includes('ethereum') ||
+                      src.includes('metamask') ||
+                      src.includes('wallet-adapter')) {
+                    console.log(`[FreelanceShield] Blocked script: ${src}`);
+                    node.remove();
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // Start observing
+        observer.observe(document, { 
+          childList: true, 
+          subtree: true 
+        });
+        
+        // Block imports of wallet adapters
+        const originalImport = window.import;
+        if (originalImport) {
+          window.import = function(path) {
+            if (path.includes('@solana/wallet-adapter') || 
+                path.includes('wallet-adapter')) {
+              console.log(`[FreelanceShield] Blocked import of: ${path}`);
+              return Promise.reject(new Error('Module not available - FreelanceShield uses Privy only'));
+            }
+            return originalImport.apply(this, arguments);
+          };
+        }
+        
+        console.log('[FreelanceShield] Ethereum blocker initialized');
+      })();
+    </script>
   </head>
 
   <body>

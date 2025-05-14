@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Fragment } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { cn } from '@/lib/utils';
@@ -40,10 +40,21 @@ import {
   SendHorizonal,
   X,
   ChevronDown,
-  FileText
+  FileText,
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { NETWORK_CONFIG, RISK_WEIGHTS } from '@/lib/solana/constants';
+import PrivyLogo from '@/components/icons/PrivyLogo';
+
+const PercentageDisplay = ({ value, className }: { value: number, className?: string }) => {
+  return (
+    <span className={cn("font-mono font-bold", className)}>
+      {value.toFixed(1)}%
+    </span>
+  );
+};
 
 const HowItWorksPage = () => {
   const { isDark } = useSolanaTheme();
@@ -135,11 +146,6 @@ const HowItWorksPage = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Scroll to top when page loads
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
   
   // Toggle section expansion
   const toggleSection = (sectionId: string) => {
@@ -149,603 +155,1707 @@ const HowItWorksPage = () => {
       [sectionId]: !prev[sectionId]
     }));
   };
-
+  
   return (
     <Layout>
-      <GridBackground
-        className="w-full min-h-screen"
-        withBottomAccent
-        density="medium"
-      >
+      <GridBackground className="min-h-screen w-full" density="high">
+        {/* Background elements */}
+        <div className="absolute inset-0 bg-gradient-to-b from-shield-purple/5 via-transparent to-transparent dark:from-shield-purple/10 dark:via-transparent dark:to-transparent -z-10" />
+        
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+          <motion.div 
+            className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-shield-purple/5 dark:bg-shield-purple/3 rounded-full blur-3xl"
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.5, 0.3]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-shield-purple/3 dark:bg-shield-purple/2 rounded-full blur-3xl"
+            animate={{
+              scale: [1, 1.15, 1],
+              opacity: [0.2, 0.4, 0.2]
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              repeatType: "reverse",
+              delay: 1
+            }}
+          />
+        </div>
+        
         {/* Hero Section */}
-        <div className={cn(
-          "relative overflow-hidden py-20 lg:py-28",
-        )} ref={heroRef}>
-          {/* Background grid and gradients are now provided by the parent GridBackground component */}
-          
-          {/* Enhanced retro elements */}
-          <div className="absolute top-20 left-10 w-20 h-20 rounded-full bg-shield-purple/20 blur-3xl animate-pulse-slow" />
-          <div className="absolute bottom-10 right-10 w-32 h-32 rounded-full bg-shield-purple/10 blur-3xl animate-pulse-slow animation-delay-2000" />
-          <div className="absolute top-1/3 right-20 w-16 h-16 rounded-full bg-shield-purple/15 blur-2xl animate-pulse-slow animation-delay-4000" />
-          
-          {/* Diagonal glowing line accent */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-            <div className={cn(
-              "absolute h-[1px] w-[200%] -rotate-45 origin-top-left",
-              isDark 
-                ? "bg-gradient-to-r from-transparent via-shield-purple/30 to-transparent" 
-                : "bg-gradient-to-r from-transparent via-shield-purple/20 to-transparent"
-            )} />
-            <div className={cn(
-              "absolute h-[1px] w-[200%] -rotate-[60deg] origin-bottom-left translate-y-[30vh]",
-              isDark 
-                ? "bg-gradient-to-r from-transparent via-shield-purple/20 to-transparent" 
-                : "bg-gradient-to-r from-transparent via-shield-purple/10 to-transparent"
-            )} />
-          </div>
-          
-          {/* Cyberpunk corner accent */}
-          <div className="absolute top-0 right-0 h-28 w-28 overflow-hidden pointer-events-none">
-            <div className={cn(
-              "absolute top-12 right-0 h-[1px] w-16 animate-glow",
-              isDark ? "bg-shield-purple/50" : "bg-shield-purple/40"
-            )} />
-            <div className={cn(
-              "absolute top-0 right-12 h-16 w-[1px] animate-glow animation-delay-2000",
-              isDark ? "bg-shield-purple/50" : "bg-shield-purple/40"
-            )} />
-          </div>
-          
-          {/* Glowing grid points */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className={cn(
-              "absolute top-1/3 left-1/4 h-2 w-2 rounded-full animate-pulse-slow",
-              isDark ? "bg-shield-purple/60" : "bg-shield-purple/50"
-            )} />
-            <div className={cn(
-              "absolute top-2/3 left-3/4 h-2 w-2 rounded-full animate-pulse-slow animation-delay-2000",
-              isDark ? "bg-shield-purple/60" : "bg-shield-purple/50"
-            )} />
-            <div className={cn(
-              "absolute top-1/4 left-2/3 h-2 w-2 rounded-full animate-pulse-slow animation-delay-4000",
-              isDark ? "bg-shield-purple/60" : "bg-shield-purple/50"
-            )} />
-          </div>
-          
-          <div className="container mx-auto px-4 relative z-10">
+        <div 
+          ref={heroRef} 
+          className="relative pt-24 pb-16 md:pt-32 md:pb-24"
+        >
+          <div className="px-0">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
-              className="text-center max-w-4xl mx-auto"
+              className="max-w-3xl mx-auto text-center"
             >
-              <Badge className={cn(
-                "mb-4 border text-xs py-1 px-3",
-                isDark 
-                  ? "bg-shield-purple/20 text-shield-purple border-shield-purple/50" 
-                  : "bg-shield-purple/10 text-shield-purple border-shield-purple/30"
-              )}>
-                Decentralized Freelance Insurance
+              <Badge 
+                className={cn(
+                  "mb-4 font-['NT_Brick_Sans'] px-4 py-1 text-sm rounded-full inline-flex items-center gap-1",
+                  isDark 
+                    ? "bg-shield-purple/20 text-shield-purple border-shield-purple/30" 
+                    : "bg-shield-purple/10 text-shield-purple border-shield-purple/20"
+                )}
+              >
+                <Shield className="w-3.5 h-3.5 mr-1" />
+                Decentralized Protection
               </Badge>
               
               <h1 className={cn(
-                "text-4xl md:text-6xl font-['NT_Brick_Sans'] font-bold mb-4",
-                isDark ? "text-white" : "text-foreground"
+                "text-4xl md:text-5xl lg:text-6xl font-['NT_Brick_Sans'] tracking-wide mb-6 leading-tight",
+                isDark ? "text-white" : "text-gray-900"
               )}>
                 How <span className="text-shield-purple">FreelanceShield</span> Works
               </h1>
               
               <p className={cn(
-                "text-lg mb-10 max-w-3xl mx-auto",
+                "text-lg md:text-xl mb-8 leading-relaxed max-w-2xl mx-auto",
                 isDark ? "text-gray-400" : "text-gray-600"
               )}>
-                FreelanceShield combines the power of Solana smart contracts with decentralized insurance principles to protect freelancers from project risks and payment disputes.
+                Discover how our decentralized insurance platform protects freelancers from payment disputes, project cancellations, and other risks.
               </p>
               
-              {/* Navigation pills */}
-              <div className="flex flex-wrap justify-center gap-2 mb-10">
-                {[
-                  { id: 'connect-wallet', label: '01 Connect Wallet' },
-                  { id: 'choose-plan', label: '02 Choose Plan' },
-                  { id: 'pay-premium', label: '03 Pay Premium' },
-                  { id: 'risk-pool', label: '04 Risk Pool' },
-                  { id: 'submit-claim', label: '05 Submit Claim' },
-                  { id: 'arbitration', label: '06 Arbitration' },
-                  { id: 'staking-governance', label: '07 Staking & Governance' }
-                ].map((item) => (
-                  <Button
-                    key={item.id}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => scrollToSection(item.id)}
-                    className={cn(
-                      "rounded-full border transition-all",
-                      isDark
-                        ? "border-shield-purple/30 bg-shield-purple/5" 
-                        : "border-shield-purple/20 bg-shield-purple/5",
-                      "text-sm",
-                      activeSection === item.id 
-                        ? "bg-shield-purple text-white" 
-                        : "text-shield-purple hover:bg-shield-purple/20"
-                    )}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button 
+                  size="lg" 
+                  className="px-8 py-3 rounded-md font-medium text-white bg-shield-purple hover:bg-shield-purple/90 transition-colors shadow-lg hover:shadow-xl hover:shadow-shield-purple/20 border border-white/10 font-['NT_Brick_Sans']"
+                  onClick={() => scrollToSection('connect-wallet')}
+                >
+                  Get Started
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="px-8 py-3 rounded-md font-medium border border-shield-purple/30 text-shield-purple hover:bg-shield-purple/10 transition-colors hover:shadow-lg font-['NT_Brick_Sans']"
+                  onClick={() => scrollToSection('risk-pool')}
+                >
+                  Explore Risk Pools
+                </Button>
               </div>
             </motion.div>
           </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="container mx-auto px-4 pb-20">
-          {/* Connect Wallet Section */}
-          <div className="py-20">
-            <div className="container mx-auto px-4">
-              <div className="relative">
-                {/* Section accent */}
-                <div className="absolute -left-4 top-0 bottom-0 w-[1px]">
-                  <div className={cn(
-                    "h-full w-full",
-                    isDark 
-                      ? "bg-gradient-to-b from-transparent via-shield-purple/40 to-transparent" 
-                      : "bg-gradient-to-b from-transparent via-shield-purple/30 to-transparent"
-                  )} />
-                </div>
-                
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                  {/* Content */}
-                  <div className="space-y-6">
-                    <div className="inline-flex items-center space-x-2">
-                      <Badge variant="outline" className={cn(
-                        "rounded-sm px-3 py-1 text-xs font-medium uppercase tracking-wider",
-                        isDark 
-                          ? "border-shield-blue/50 text-shield-blue" 
-                          : "border-shield-purple/50 text-shield-purple"
-                      )}>
-                        Step 1
-                      </Badge>
-                      <div className={cn(
-                        "h-[1px] w-12",
-                        isDark ? "bg-shield-blue/50" : "bg-shield-purple/50"
-                      )} />
-                    </div>
-                    
-                    <h2 className={cn(
-                      "text-3xl md:text-4xl font-['NT_Brick_Sans'] font-bold mb-4",
-                      isDark ? "text-white" : "text-gray-900"
-                    )}>
-                      Connect Your <span className="text-shield-purple">Wallet</span>
-                    </h2>
-                    
-                    <p className={cn(
-                      "mb-6",
-                      isDark ? "text-gray-400" : "text-gray-600"
-                    )}>
-                      To get started with FreelanceShield, connect your Solana wallet to access our decentralized insurance platform. This creates a secure connection between your wallet and our smart contracts.
-                    </p>
-                    
-                    <div className="space-y-4">
-                      <div className={cn(
-                        "flex items-start gap-3 p-4 rounded-lg",
-                        isDark 
-                          ? "bg-gray-800/50" 
-                          : "bg-gray-50"
-                      )}>
-                        <div className={cn(
-                          "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
-                          isDark 
-                            ? "bg-shield-purple/20 text-shield-purple" 
-                            : "bg-shield-purple/10 text-shield-purple"
-                        )}>
-                          <Shield className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h3 className={cn(
-                            "text-sm font-semibold mb-1",
-                            isDark ? "text-white" : "text-gray-900"
-                          )}>
-                            Secure & Non-Custodial
-                          </h3>
-                          <p className={cn(
-                            "text-sm",
-                            isDark ? "text-gray-400" : "text-gray-600"
-                          )}>
-                            We never take custody of your funds. All transactions occur directly on the Solana blockchain.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className={cn(
-                        "flex items-start gap-3 p-4 rounded-lg",
-                        isDark 
-                          ? "bg-gray-800/50" 
-                          : "bg-gray-50"
-                      )}>
-                        <div className={cn(
-                          "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
-                          isDark 
-                            ? "bg-shield-purple/20 text-shield-purple" 
-                            : "bg-shield-purple/10 text-shield-purple"
-                        )}>
-                          <Wallet className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h3 className={cn(
-                            "text-sm font-semibold mb-1",
-                            isDark ? "text-white" : "text-gray-900"
-                          )}>
-                            Multiple Wallets Supported
-                          </h3>
-                          <p className={cn(
-                            "text-sm",
-                            isDark ? "text-gray-400" : "text-gray-600"
-                          )}>
-                            Compatible with Phantom, Solflare, Ledger, Slope, and Torus wallets.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="md:w-1/2">
-                    <div className={cn(
-                      "rounded-xl overflow-hidden border backdrop-filter backdrop-blur-sm h-full flex items-center justify-center p-6 relative",
-                      isDark 
-                        ? "bg-gray-800/30 border-shield-purple/20" 
-                        : "bg-gray-50/50 border-shield-purple/10"
-                    )}>
-                      {/* Stylized wallet connection visualization */}
-                      <div className="relative w-full max-w-md mx-auto">
-                        {/* Background grid effect */}
-                        <div className={cn(
-                          "absolute inset-0 rounded-lg",
-                          isDark 
-                            ? "bg-[linear-gradient(to_right,#6a4abc0d_1px,transparent_1px),linear-gradient(to_bottom,#6a4abc0d_1px,transparent_1px)]" 
-                            : "bg-[linear-gradient(to_right,#6a4abc0a_1px,transparent_1px),linear-gradient(to_bottom,#6a4abc0a_1px,transparent_1px)]",
-                          "bg-[size:20px_20px]"
-                        )} />
-                        
-                        {/* Wallet UI */}
-                        <div className={cn(
-                          "relative rounded-xl overflow-hidden border shadow-lg",
-                          isDark 
-                            ? "bg-gray-900 border-shield-purple/30" 
-                            : "bg-white border-shield-purple/20"
-                        )}>
-                          {/* Wallet header */}
-                          <div className={cn(
-                            "flex items-center justify-between p-4 border-b",
-                            isDark 
-                              ? "bg-shield-purple text-white border-shield-purple/50" 
-                              : "bg-shield-purple/90 text-white border-shield-purple/30"
-                          )}>
-                            <div className="flex items-center">
-                              <Shield className="w-5 h-5 mr-2" />
-                              <span className="font-medium">Connect Wallet</span>
-                            </div>
-                            <X className="w-4 h-4 opacity-70" />
-                          </div>
-                          
-                          {/* Wallet content */}
-                          <div className="p-6 space-y-4">
-                            <p className={cn(
-                              "text-sm text-center",
-                              isDark ? "text-gray-300" : "text-gray-700"
-                            )}>
-                              Select your preferred wallet
-                            </p>
-                            
-                            {/* Phantom wallet option */}
-                            <div className={cn(
-                              "flex items-center p-3 rounded-lg cursor-pointer transition-colors",
-                              isDark 
-                                ? "bg-gray-800 hover:bg-shield-purple/10" 
-                                : "bg-gray-50 hover:bg-shield-purple/5"
-                            )}>
-                              <div className="w-8 h-8 rounded-full bg-[#AB9FF2] mr-3 flex items-center justify-center">
-                                <span className="text-white font-bold text-xs">P</span>
-                              </div>
-                              <span className={isDark ? "text-white" : "text-gray-900"}>Phantom</span>
-                            </div>
-                            
-                            {/* Solflare wallet option */}
-                            <div className={cn(
-                              "flex items-center p-3 rounded-lg cursor-pointer transition-colors",
-                              isDark 
-                                ? "bg-gray-800 hover:bg-shield-purple/10" 
-                                : "bg-gray-50 hover:bg-shield-purple/5"
-                            )}>
-                              <div className="w-8 h-8 rounded-full bg-[#FC9965] mr-3 flex items-center justify-center">
-                                <span className="text-white font-bold text-xs">S</span>
-                              </div>
-                              <span className={isDark ? "text-white" : "text-gray-900"}>Solflare</span>
-                            </div>
-                            
-                            {/* Indicator showing connection in progress */}
-                            <div className="pt-4 text-center">
-                              <div className={cn(
-                                "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium",
-                                isDark 
-                                  ? "bg-shield-purple/10 text-shield-purple" 
-                                  : "bg-shield-purple/5 text-shield-purple"
-                              )}>
-                                <span className="w-2 h-2 rounded-full bg-green-400 mr-2"></span>
-                                Awaiting Connection
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Risk Pool Section */}
-          <div className="py-20 mt-12">
-            <div className="container mx-auto px-4">
-              <div className="relative">
-                {/* Section accent */}
-                <div className="absolute -left-4 top-0 bottom-0 w-[1px]">
-                  <div className={cn(
-                    "h-full w-full",
-                    isDark 
-                      ? "bg-gradient-to-b from-transparent via-shield-blue/40 to-transparent" 
-                      : "bg-gradient-to-b from-transparent via-shield-purple/30 to-transparent"
-                  )} />
-                </div>
-                
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                  {/* Visual */}
-                  <div className="order-2 lg:order-1">
-                    <div className={cn(
-                      "rounded-xl overflow-hidden border backdrop-filter backdrop-blur-sm h-full flex items-center justify-center p-6 relative",
-                      isDark 
-                        ? "bg-gray-800/30 border-shield-blue/20" 
-                        : "bg-gray-50/50 border-shield-purple/10"
-                    )}>
-                      {/* Animation container */}
-                      <div className="relative w-full max-w-md mx-auto">
-                        {/* Background grid effect with diagonal accent */}
-                        <div className={cn(
-                          "absolute inset-0 rounded-lg",
-                          isDark 
-                            ? "bg-[linear-gradient(to_right,#6a4abc0d_1px,transparent_1px),linear-gradient(to_bottom,#6a4abc0d_1px,transparent_1px)]" 
-                            : "bg-[linear-gradient(to_right,#6a4abc0a_1px,transparent_1px),linear-gradient(to_bottom,#6a4abc0a_1px,transparent_1px)]",
-                          "bg-[size:20px_20px]"
-                        )} />
-                        
-                        {/* Diagonal accent line */}
-                        <div className={cn(
-                          "absolute h-[1px] w-[120%] -rotate-[30deg] left-0 top-1/2",
-                          isDark 
-                            ? "bg-gradient-to-r from-transparent via-shield-blue/40 to-transparent animate-glow" 
-                            : "bg-gradient-to-r from-transparent via-shield-purple/30 to-transparent animate-glow"
-                        )} />
-                        
-                        {/* Risk pool visualization */}
-                        <div className="relative z-10 flex flex-col items-center py-8">
-                          {/* Risk pool circle */}
-                          <div className={cn(
-                            "w-48 h-48 rounded-full flex items-center justify-center relative",
-                            isDark 
-                              ? "bg-gray-800/70 border border-shield-blue/30" 
-                              : "bg-white/70 border border-shield-purple/20 shadow-lg"
-                          )}>
-                            {/* Ripple effect */}
-                            <div className={cn(
-                              "absolute w-full h-full rounded-full animate-pulse-slow",
-                              isDark 
-                                ? "border-2 border-shield-blue/20" 
-                                : "border-2 border-shield-purple/15"
-                            )} />
-                            <div className={cn(
-                              "absolute w-[110%] h-[110%] rounded-full animate-pulse-slow animation-delay-2000",
-                              isDark 
-                                ? "border border-shield-blue/10" 
-                                : "border border-shield-purple/10"
-                            )} />
-                            
-                            {/* Center icon */}
-                            <div className={cn(
-                              "w-20 h-20 rounded-full flex items-center justify-center",
-                              isDark 
-                                ? "bg-shield-blue/20" 
-                                : "bg-shield-purple/10"
-                            )}>
-                              <Shield className={cn(
-                                "w-10 h-10",
-                                isDark ? "text-shield-blue" : "text-shield-purple"
-                              )} />
-                            </div>
-                          </div>
-                          
-                          {/* Metrics */}
-                          <div className="grid grid-cols-2 gap-6 mt-8 w-full">
-                            <div className={cn(
-                              "rounded-lg p-3 text-center",
-                              isDark 
-                                ? "bg-gray-800 border border-shield-blue/20" 
-                                : "bg-white border border-shield-purple/10 shadow-sm"
-                            )}>
-                              <div className={cn(
-                                "text-xs uppercase font-medium mb-1",
-                                isDark ? "text-gray-400" : "text-gray-500"
-                              )}>
-                                Pool Size
-                              </div>
-                              <div className={cn(
-                                "text-xl font-bold",
-                                isDark 
-                                  ? "text-shield-blue" 
-                                  : "text-shield-purple"
-                              )}>
-                                ◎ 250,000
-                              </div>
-                            </div>
-                            
-                            <div className={cn(
-                              "rounded-lg p-3 text-center",
-                              isDark 
-                                ? "bg-gray-800 border border-shield-blue/20" 
-                                : "bg-white border border-shield-purple/10 shadow-sm"
-                            )}>
-                              <div className={cn(
-                                "text-xs uppercase font-medium mb-1",
-                                isDark ? "text-gray-400" : "text-gray-500"
-                              )}>
-                                Active Policies
-                              </div>
-                              <div className={cn(
-                                "text-xl font-bold",
-                                isDark 
-                                  ? "text-shield-blue" 
-                                  : "text-shield-purple"
-                              )}>
-                                1,250+
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="space-y-6 order-1 lg:order-2">
-                    <div className="inline-flex items-center space-x-2">
-                      <Badge variant="outline" className={cn(
-                        "rounded-sm px-3 py-1 text-xs font-medium uppercase tracking-wider",
-                        isDark 
-                          ? "border-shield-blue/50 text-shield-blue" 
-                          : "border-shield-purple/50 text-shield-purple"
-                      )}>
-                        Step 2
-                      </Badge>
-                      <div className={cn(
-                        "h-[1px] w-12",
-                        isDark ? "bg-shield-blue/50" : "bg-shield-purple/50"
-                      )} />
-                    </div>
-                    
-                    <h2 className={cn(
-                      "text-3xl md:text-4xl font-['NT_Brick_Sans'] font-bold mb-4",
-                      isDark ? "text-white" : "text-gray-900"
-                    )}>
-                      Risk <span className="text-shield-purple">Pool</span> Management
-                    </h2>
-                    
-                    <p className={cn(
-                      "mb-6",
-                      isDark ? "text-gray-400" : "text-gray-600"
-                    )}>
-                      Our risk pools are community-owned and provide the foundation for all insurance policies. Liquidity providers earn rewards for staking tokens in the risk pool.
-                    </p>
-                    
-                    <div className="space-y-4">
-                      <div className={cn(
-                        "flex items-start gap-3 p-4 rounded-lg",
-                        isDark 
-                          ? "bg-gray-800/50" 
-                          : "bg-gray-50"
-                      )}>
-                        <div className={cn(
-                          "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
-                          isDark 
-                            ? "bg-shield-purple/20 text-shield-purple" 
-                            : "bg-shield-purple/10 text-shield-purple"
-                        )}>
-                          <CoinsIcon className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h3 className={cn(
-                            "text-sm font-semibold mb-1",
-                            isDark ? "text-white" : "text-gray-900"
-                          )}>
-                            Diversified Risk Management
-                          </h3>
-                          <p className={cn(
-                            "text-sm",
-                            isDark ? "text-gray-400" : "text-gray-600"
-                          )}>
-                            Pools are diversified across multiple risk categories to ensure solvency and provide optimal coverage.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className={cn(
-                        "flex items-start gap-3 p-4 rounded-lg",
-                        isDark 
-                          ? "bg-gray-800/50" 
-                          : "bg-gray-50"
-                      )}>
-                        <div className={cn(
-                          "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
-                          isDark 
-                            ? "bg-shield-purple/20 text-shield-purple" 
-                            : "bg-shield-purple/10 text-shield-purple"
-                        )}>
-                          <BarChart3 className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h3 className={cn(
-                            "text-sm font-semibold mb-1",
-                            isDark ? "text-white" : "text-gray-900"
-                          )}>
-                            Transparent & On-Chain
-                          </h3>
-                          <p className={cn(
-                            "text-sm",
-                            isDark ? "text-gray-400" : "text-gray-600"
-                          )}>
-                            All risk pool activities are transparent and recorded on-chain, ensuring absolute trust and auditability.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Rest of your content sections would go here */}
-          {/* This is just a simplified version to ensure proper routing and layout */}
-        </div>
-        
-        {/* Footer with CTA */}
-        <div className={cn(
-          "border-t py-16",
-          isDark 
-            ? "bg-gray-900/50 border-shield-purple/20" 
-            : "bg-gray-50 border-shield-purple/10"
-        )}>
-          <div className="container mx-auto px-4 text-center">
-            <h2 className={cn(
-              "text-3xl lg:text-4xl font-['NT_Brick_Sans'] tracking-wide mb-4",
-              isDark ? "text-white" : "text-gray-900"
-            )}>
-              Ready to <span className="text-shield-purple">Get Protected</span>?
-            </h2>
+          
+          {/* Scroll indicator */}
+          <motion.div 
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 0.5 }}
+          >
             <p className={cn(
-              "text-lg mb-8 max-w-2xl mx-auto",
+              "text-sm mb-2 font-['NT_Brick_Sans']",
               isDark ? "text-gray-400" : "text-gray-600"
             )}>
-              Join thousands of freelancers who trust FreelanceShield for secure, decentralized protection against project risks.
+              Scroll to learn more
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="bg-shield-purple hover:bg-shield-purple/90 text-white">
-                Get Started Now
-              </Button>
-              <Button size="lg" variant="outline" className={cn(
-                isDark
-                  ? "border-shield-purple/50 text-shield-purple hover:bg-shield-purple/10"
-                  : "border-shield-purple/30 text-shield-purple hover:bg-shield-purple/5"
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <ChevronDown className="w-5 h-5 text-shield-purple" />
+            </motion.div>
+          </motion.div>
+        </div>
+        
+        {/* Main content */}
+        <div className="px-0 pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Sidebar navigation */}
+            <div className="lg:col-span-3">
+              <div className={cn(
+                "sticky top-24 rounded-xl p-4 mb-8",
+                isDark 
+                  ? "bg-gray-900/50 border border-shield-purple/20" 
+                  : "bg-gray-50/80 border border-shield-purple/10"
               )}>
-                View Pricing Plans
-              </Button>
+                <h3 className={cn(
+                  "text-lg font-['NT_Brick_Sans'] mb-4",
+                  isDark ? "text-white" : "text-gray-900"
+                )}>
+                  Process Steps
+                </h3>
+                
+                <nav className="flex flex-col gap-2">
+                  {[
+                    { id: 'connect-wallet', label: 'Connect Wallet', icon: <Wallet className="w-4 h-4" /> },
+                    { id: 'choose-plan', label: 'Choose Plan', icon: <FileCheck2 className="w-4 h-4" /> },
+                    { id: 'pay-premium', label: 'Pay Premium', icon: <CreditCard className="w-4 h-4" /> },
+                    { id: 'risk-pool', label: 'Risk Pool', icon: <Database className="w-4 h-4" /> },
+                    { id: 'submit-claim', label: 'Submit Claim', icon: <FileQuestion className="w-4 h-4" /> },
+                    { id: 'staking-governance', label: 'Staking & Governance', icon: <Vote className="w-4 h-4" /> },
+                    { id: 'arbitration', label: 'Arbitration', icon: <Gavel className="w-4 h-4" /> }
+                  ].map(item => (
+                    <button
+                      key={item.id}
+                      onClick={() => scrollToSection(item.id)}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 rounded-lg text-left font-['NT_Brick_Sans'] transition-all",
+                        activeSection === item.id
+                          ? "bg-shield-purple text-white"
+                          : isDark 
+                            ? "text-gray-300 hover:bg-gray-800" 
+                            : "text-gray-700 hover:bg-gray-100"
+                      )}
+                    >
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </button>
+                  ))}
+                </nav>
+              </div>
+              
+              {/* Stats card */}
+              <div className={cn(
+                "rounded-xl p-4",
+                isDark 
+                  ? "bg-gray-900/50 border border-shield-purple/20" 
+                  : "bg-gray-50/80 border border-shield-purple/10"
+              )}>
+                <h3 className={cn(
+                  "text-lg font-['NT_Brick_Sans'] mb-4",
+                  isDark ? "text-white" : "text-gray-900"
+                )}>
+                  Platform Stats
+                </h3>
+                
+                <div className="space-y-4">
+                  {[
+                    { label: 'Policies Created', value: '3,500+' },
+                    { label: 'Claims Approved', value: <PercentageDisplay value={99.5} /> },
+                    { label: 'USDC Protected', value: '2.1M' }
+                  ].map((stat, index) => (
+                    <div key={index} className={cn(
+                      "p-3 rounded-lg",
+                      isDark 
+                        ? "bg-gray-800/50" 
+                        : "bg-white/50"
+                    )}>
+                      <div className={cn(
+                        "text-sm font-['NT_Brick_Sans']",
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      )}>
+                        {stat.label}
+                      </div>
+                      <div className="text-xl font-['NT_Brick_Sans'] text-shield-purple">
+                        {stat.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Main content area */}
+            <div className="lg:col-span-9">
+              {/* Connect Wallet Section */}
+              <div 
+                ref={connectWalletRef}
+                id="connect-wallet" 
+                className={cn(
+                  "mb-12 p-6 rounded-xl",
+                  isDark 
+                    ? "bg-gray-900/50 border border-shield-purple/20" 
+                    : "bg-gray-50/80 border border-shield-purple/10"
+                )}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "flex items-center justify-center w-10 h-10 rounded-lg shrink-0",
+                      isDark 
+                        ? "bg-shield-purple/20 text-shield-purple" 
+                        : "bg-shield-purple/10 text-shield-purple"
+                    )}>
+                      <Wallet className="w-5 h-5" />
+                    </div>
+                    <h2 className={cn(
+                      "text-2xl font-['NT_Brick_Sans']",
+                      isDark ? "text-white" : "text-gray-900"
+                    )}>
+                      1. Connect Wallet
+                    </h2>
+                  </div>
+                  <button 
+                    onClick={() => toggleSection('connect-wallet')}
+                    className={cn(
+                      "p-2 rounded-full",
+                      isDark 
+                        ? "hover:bg-gray-800" 
+                        : "hover:bg-gray-200"
+                    )}
+                  >
+                    <ChevronDown className={cn(
+                      "w-5 h-5 transition-transform",
+                      expandedSections['connect-wallet'] ? "rotate-180" : "",
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    )} />
+                  </button>
+                </div>
+                
+                <AnimatePresence>
+                  {expandedSections['connect-wallet'] && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <p className={cn(
+                        "mb-4",
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      )}>
+                        The first step is to connect your Solana wallet to FreelanceShield. This allows you to interact with our smart contracts, access your policies, and make claims.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className={cn(
+                          "flex items-start gap-3 p-4 rounded-lg",
+                          isDark 
+                            ? "bg-gray-800/50" 
+                            : "bg-white/50"
+                        )}>
+                          <div className={cn(
+                            "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
+                            isDark 
+                              ? "bg-shield-purple/20 text-shield-purple" 
+                              : "bg-shield-purple/10 text-shield-purple"
+                          )}>
+                            <Shield className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className={cn(
+                              "text-sm font-semibold mb-1 font-['NT_Brick_Sans']",
+                              isDark ? "text-white" : "text-gray-900"
+                            )}>
+                              Secure Authentication
+                            </h3>
+                            <p className={cn(
+                              "text-sm",
+                              isDark ? "text-gray-400" : "text-gray-600"
+                            )}>
+                              Connect securely using Privy integration with Solana wallet authentication - no password required.
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className={cn(
+                          "flex items-start gap-3 p-4 rounded-lg",
+                          isDark 
+                            ? "bg-gray-800/50" 
+                            : "bg-white/50"
+                        )}>
+                          <div className={cn(
+                            "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
+                            isDark 
+                              ? "bg-shield-purple/20 text-shield-purple" 
+                              : "bg-shield-purple/10 text-shield-purple"
+                          )}>
+                            <Activity className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className={cn(
+                              "text-sm font-semibold mb-1 font-['NT_Brick_Sans']",
+                              isDark ? "text-white" : "text-gray-900"
+                            )}>
+                              Reputation Integration
+                            </h3>
+                            <p className={cn(
+                              "text-sm",
+                              isDark ? "text-gray-400" : "text-gray-600"
+                            )}>
+                              Your Ethos reputation score is automatically linked to determine premium rates.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className={cn(
+                          "p-4 rounded-lg mb-4",
+                          isDark 
+                            ? "bg-gray-800/30 border border-shield-purple/10" 
+                            : "bg-gray-100/50 border border-shield-purple/5"
+                        )}>
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className={cn(
+                              "text-sm font-semibold font-['NT_Brick_Sans']",
+                              isDark ? "text-white" : "text-gray-900"
+                            )}>
+                              Privy Integration Benefits
+                            </h3>
+                            <div className={cn(
+                              "p-1 rounded",
+                              !isDark && "bg-gray-800"
+                            )}>
+                              <PrivyLogo 
+                                width={80} 
+                                height={24} 
+                              />
+                            </div>
+                          </div>
+                          <p className={cn(
+                            "text-sm mb-2",
+                            isDark ? "text-gray-400" : "text-gray-600"
+                          )}>
+                            Our Privy integration provides a seamless authentication experience while maintaining the security of your wallet:
+                          </p>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-start gap-2">
+                              <CheckCircle className="w-4 h-4 text-shield-purple mt-0.5" />
+                              <span className={cn(
+                                "text-sm",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Social login options with wallet creation
+                              </span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <CheckCircle className="w-4 h-4 text-shield-purple mt-0.5" />
+                              <span className={cn(
+                                "text-sm",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Embedded wallet for new users
+                              </span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <CheckCircle className="w-4 h-4 text-shield-purple mt-0.5" />
+                              <span className={cn(
+                                "text-sm",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Automatic Ethos reputation integration
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end">
+                        <Button 
+                          onClick={() => scrollToSection('choose-plan')}
+                          className="bg-shield-purple hover:bg-shield-purple/90 text-white font-['NT_Brick_Sans']"
+                        >
+                          Next: Choose Plan
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              
+              {/* Choose Plan Section */}
+              <div 
+                ref={choosePlanRef}
+                id="choose-plan" 
+                className={cn(
+                  "mb-12 p-6 rounded-xl",
+                  isDark 
+                    ? "bg-gray-900/50 border border-shield-purple/20" 
+                    : "bg-gray-50/80 border border-shield-purple/10"
+                )}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "flex items-center justify-center w-10 h-10 rounded-lg shrink-0",
+                      isDark 
+                        ? "bg-shield-purple/20 text-shield-purple" 
+                        : "bg-shield-purple/10 text-shield-purple"
+                    )}>
+                      <FileCheck2 className="w-5 h-5" />
+                    </div>
+                    <h2 className={cn(
+                      "text-2xl font-['NT_Brick_Sans']",
+                      isDark ? "text-white" : "text-gray-900"
+                    )}>
+                      2. Choose Plan
+                    </h2>
+                  </div>
+                  <button 
+                    onClick={() => toggleSection('choose-plan')}
+                    className={cn(
+                      "p-2 rounded-full",
+                      isDark 
+                        ? "hover:bg-gray-800" 
+                        : "hover:bg-gray-200"
+                    )}
+                  >
+                    <ChevronDown className={cn(
+                      "w-5 h-5 transition-transform",
+                      expandedSections['choose-plan'] ? "rotate-180" : "",
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    )} />
+                  </button>
+                </div>
+                
+                <AnimatePresence>
+                  {expandedSections['choose-plan'] && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <p className={cn(
+                        "mb-4",
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      )}>
+                        FreelanceShield offers three plan tiers that determine your coverage limits and protection features. All plans have the same base premium rate of 5% of the coverage amount.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        {[
+                          {
+                            title: "Basic",
+                            price: "5%",
+                            description: "Essential coverage for small projects",
+                            features: [
+                              "Up to $2,000 coverage",
+                              "30-day protection",
+                              "Basic dispute resolution"
+                            ]
+                          },
+                          {
+                            title: "Standard",
+                            price: "5%",
+                            description: "Comprehensive coverage for medium projects",
+                            features: [
+                              "Up to $10,000 coverage",
+                              "90-day protection",
+                              "Priority dispute resolution",
+                              "Milestone protection"
+                            ],
+                            recommended: true
+                          },
+                          {
+                            title: "Premium",
+                            price: "5%",
+                            description: "Maximum protection for large projects",
+                            features: [
+                              "Up to $50,000 coverage",
+                              "180-day protection",
+                              "24/7 dispute resolution",
+                              "Milestone protection",
+                              "Scope creep protection"
+                            ]
+                          }
+                        ].map((plan, index) => (
+                          <div 
+                            key={index}
+                            className={cn(
+                              "rounded-xl p-5 relative",
+                              plan.recommended 
+                                ? isDark 
+                                  ? "bg-shield-purple/20 border-shield-purple/40" 
+                                  : "bg-shield-purple/10 border-shield-purple/30"
+                                : isDark 
+                                  ? "bg-gray-800/50 border-gray-700/50" 
+                                  : "bg-white/80 border-gray-200/80",
+                              "border"
+                            )}
+                          >
+                            {plan.recommended && (
+                              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                                <Badge className="bg-shield-purple text-white font-['NT_Brick_Sans']">
+                                  Recommended
+                                </Badge>
+                              </div>
+                            )}
+                            
+                            <h3 className={cn(
+                              "text-xl font-['NT_Brick_Sans'] mb-2",
+                              isDark ? "text-white" : "text-gray-900"
+                            )}>
+                              {plan.title}
+                            </h3>
+                            
+                            <div className="flex items-baseline mb-3">
+                              <span className={cn(
+                                "text-3xl font-['NT_Brick_Sans'] font-bold",
+                                "text-shield-purple"
+                              )}>
+                                <PercentageDisplay value={parseFloat(plan.price)} />
+                              </span>
+                              <span className={cn(
+                                "text-sm ml-1",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                of coverage amount
+                              </span>
+                            </div>
+                            
+                            <p className={cn(
+                              "text-sm mb-4",
+                              isDark ? "text-gray-400" : "text-gray-600"
+                            )}>
+                              {plan.description}
+                            </p>
+                            
+                            <div className="space-y-2 mb-4">
+                              {plan.features.map((feature, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                  <CheckCircle className="w-4 h-4 text-shield-purple shrink-0" />
+                                  <span className={cn(
+                                    "text-sm",
+                                    isDark ? "text-gray-300" : "text-gray-700"
+                                  )}>
+                                    {feature}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            <Button 
+                              className={cn(
+                                "w-full font-['NT_Brick_Sans']",
+                                plan.recommended
+                                  ? "bg-shield-purple hover:bg-shield-purple/90 text-white"
+                                  : isDark
+                                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                                    : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                              )}
+                            >
+                              Select Plan
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <p className={cn(
+                        "mb-4",
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      )}>
+                        Once you've selected your plan, you'll need to create a specific policy for each project and pay the premium. The premium is calculated as 5% of your selected coverage amount, with potential discounts based on your reputation score.
+                      </p>
+                      
+                      <div className={cn(
+                        "p-4 rounded-lg mb-4",
+                        isDark 
+                          ? "bg-gray-800/30 border border-shield-purple/10" 
+                          : "bg-gray-100/50 border border-shield-purple/5"
+                      )}>
+                        <h3 className={cn(
+                          "text-sm font-semibold mb-2 font-['NT_Brick_Sans']",
+                          isDark ? "text-white" : "text-gray-900"
+                        )}>
+                          Custom Plans Available
+                        </h3>
+                        <p className={cn(
+                          "text-sm",
+                          isDark ? "text-gray-400" : "text-gray-600"
+                        )}>
+                          For projects with unique requirements or higher coverage needs, contact us to create a custom insurance plan tailored to your specific situation.
+                        </p>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <Button 
+                          variant="outline"
+                          onClick={() => scrollToSection('connect-wallet')}
+                          className={cn(
+                            "font-['NT_Brick_Sans']",
+                            isDark
+                              ? "border-gray-700 text-gray-300 hover:bg-gray-800"
+                              : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                          )}
+                        >
+                          <ArrowLeft className="mr-2 w-4 h-4" />
+                          Previous: Connect Wallet
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => scrollToSection('pay-premium')}
+                          className="bg-shield-purple hover:bg-shield-purple/90 text-white font-['NT_Brick_Sans']"
+                        >
+                          Next: Pay Premium
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              
+              {/* Pay Premium Section */}
+              <div 
+                ref={payPremiumRef}
+                id="pay-premium" 
+                className={cn(
+                  "mb-12 p-6 rounded-xl",
+                  isDark 
+                    ? "bg-gray-900/50 border border-shield-purple/20" 
+                    : "bg-gray-50/80 border border-shield-purple/10"
+                )}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "flex items-center justify-center w-10 h-10 rounded-lg shrink-0",
+                      isDark 
+                        ? "bg-shield-purple/20 text-shield-purple" 
+                        : "bg-shield-purple/10 text-shield-purple"
+                    )}>
+                      <CreditCard className="w-5 h-5" />
+                    </div>
+                    <h2 className={cn(
+                      "text-2xl font-['NT_Brick_Sans']",
+                      isDark ? "text-white" : "text-gray-900"
+                    )}>
+                      3. Pay Premium
+                    </h2>
+                  </div>
+                  <button 
+                    onClick={() => toggleSection('pay-premium')}
+                    className={cn(
+                      "p-2 rounded-full",
+                      isDark 
+                        ? "hover:bg-gray-800" 
+                        : "hover:bg-gray-200"
+                    )}
+                  >
+                    <ChevronDown className={cn(
+                      "w-5 h-5 transition-transform",
+                      expandedSections['pay-premium'] ? "rotate-180" : "",
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    )} />
+                  </button>
+                </div>
+                
+                <AnimatePresence>
+                  {expandedSections['pay-premium'] && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <p className={cn(
+                        "mb-4",
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      )}>
+                        Once you've selected your plan, pay the premium using USDC from your connected wallet. The premium is calculated as 5% of your coverage amount, with adjustments based on your reputation score and project type.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div className={cn(
+                          "rounded-xl p-5 border",
+                          isDark 
+                            ? "bg-gray-800/50 border-gray-700/50" 
+                            : "bg-white/80 border-gray-200/80"
+                        )}>
+                          <h3 className={cn(
+                            "text-lg font-['NT_Brick_Sans'] mb-3",
+                            isDark ? "text-white" : "text-gray-900"
+                          )}>
+                            Premium Calculation
+                          </h3>
+                          
+                          <div className="space-y-4">
+                            <div className="flex flex-col">
+                              <label className={cn(
+                                "text-sm mb-1 font-['NT_Brick_Sans']",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Coverage Amount (USDC)
+                              </label>
+                              <div className={cn(
+                                "flex items-center rounded-md border p-2",
+                                isDark 
+                                  ? "bg-gray-900 border-gray-700" 
+                                  : "bg-gray-50 border-gray-300"
+                              )}>
+                                <input 
+                                  type="text" 
+                                  defaultValue="1000" 
+                                  className={cn(
+                                    "bg-transparent w-full focus:outline-none font-['NT_Brick_Sans']",
+                                    isDark ? "text-white" : "text-gray-900"
+                                  )}
+                                />
+                                <span className={isDark ? "text-gray-400" : "text-gray-600"}>$</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-col">
+                              <label className={cn(
+                                "text-sm mb-1 font-['NT_Brick_Sans']",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Premium Rate
+                              </label>
+                              <div className={cn(
+                                "flex items-center rounded-md border p-2",
+                                isDark 
+                                  ? "bg-gray-900 border-gray-700" 
+                                  : "bg-gray-50 border-gray-300"
+                              )}>
+                                <select 
+                                  className={cn(
+                                    "w-full bg-transparent outline-none",
+                                    isDark ? "text-white" : "text-gray-900"
+                                  )}
+                                >
+                                  <option value="0.05" selected>Base Rate (<PercentageDisplay value={5.0} />)</option>
+                                </select>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-col">
+                              <label className={cn(
+                                "text-sm mb-1 font-['NT_Brick_Sans']",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Reputation Factor
+                              </label>
+                              <div className={cn(
+                                "flex items-center rounded-md border p-2",
+                                isDark 
+                                  ? "bg-gray-900 border-gray-700" 
+                                  : "bg-gray-50 border-gray-300"
+                              )}>
+                                <input 
+                                  type="text" 
+                                  defaultValue="0.85" 
+                                  disabled 
+                                  className={cn(
+                                    "bg-transparent w-full focus:outline-none font-['NT_Brick_Sans']",
+                                    isDark ? "text-white" : "text-gray-900"
+                                  )}
+                                />
+                                <span className={isDark ? "text-gray-400" : "text-gray-600"}>
+                                  <Badge className="bg-green-500 text-white">Good</Badge>
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="pt-2 border-t border-dashed mt-2 mb-2">
+                              <div className="flex justify-between items-center">
+                                <span className={cn(
+                                  "font-['NT_Brick_Sans']",
+                                  isDark ? "text-gray-300" : "text-gray-700"
+                                )}>
+                                  Premium Amount:
+                                </span>
+                                <span className={cn(
+                                  "text-xl font-['NT_Brick_Sans'] font-bold",
+                                  "text-shield-purple"
+                                )}>
+                                  <PercentageDisplay value={4.25} className="text-xl" />
+                                </span>
+                              </div>
+                              <div className="text-xs text-right mt-1">
+                                <span className={isDark ? "text-gray-400" : "text-gray-600"}>
+                                  1000 USDC × <PercentageDisplay value={5.0} className="text-xs" /> × <PercentageDisplay value={0.85} className="text-xs" /> = <PercentageDisplay value={4.25} className="text-xs" /> USDC
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className={cn(
+                          "rounded-xl p-5 border",
+                          isDark 
+                            ? "bg-gray-800/50 border-gray-700/50" 
+                            : "bg-white/80 border-gray-200/80"
+                        )}>
+                          <h3 className={cn(
+                            "text-lg font-['NT_Brick_Sans'] mb-3",
+                            isDark ? "text-white" : "text-gray-900"
+                          )}>
+                            Payment Process
+                          </h3>
+                          
+                          <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-full shrink-0 text-white font-['NT_Brick_Sans'] font-bold",
+                                "bg-shield-purple"
+                              )}>
+                                1
+                              </div>
+                              <div>
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Review Details
+                                </h4>
+                                <p className={cn(
+                                  "text-sm",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Verify your project details and premium calculation
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-start gap-3">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-full shrink-0 text-white font-['NT_Brick_Sans'] font-bold",
+                                "bg-shield-purple"
+                              )}>
+                                2
+                              </div>
+                              <div>
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Approve Transaction
+                                </h4>
+                                <p className={cn(
+                                  "text-sm",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Confirm the transaction in your Solana wallet
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-start gap-3">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-full shrink-0 text-white font-['NT_Brick_Sans'] font-bold",
+                                "bg-shield-purple"
+                              )}>
+                                3
+                              </div>
+                              <div>
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Receive Policy NFT
+                                </h4>
+                                <p className={cn(
+                                  "text-sm",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Your policy is minted as an NFT in your wallet
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-4 pt-4 border-t border-dashed">
+                            <Button 
+                              className="w-full bg-shield-purple hover:bg-shield-purple/90 text-white font-['NT_Brick_Sans']"
+                            >
+                              Pay Premium
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className={cn(
+                        "p-4 rounded-lg mb-4",
+                        isDark 
+                          ? "bg-gray-800/30 border border-shield-purple/10" 
+                          : "bg-gray-100/50 border border-shield-purple/5"
+                      )}>
+                        <div className="flex items-start gap-3">
+                          <div className={cn(
+                            "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
+                            isDark 
+                              ? "bg-shield-purple/20 text-shield-purple" 
+                              : "bg-shield-purple/10 text-shield-purple"
+                          )}>
+                            <Sparkles className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className={cn(
+                              "text-sm font-semibold mb-1 font-['NT_Brick_Sans']",
+                              isDark ? "text-white" : "text-gray-900"
+                            )}>
+                              Reputation Discounts
+                            </h3>
+                            <p className={cn(
+                              "text-sm",
+                              isDark ? "text-gray-400" : "text-gray-600"
+                            )}>
+                              Your Ethos reputation score can reduce your premium by up to <PercentageDisplay value={25} />. Build your reputation by completing projects successfully and receiving positive reviews.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <Button 
+                          variant="outline"
+                          onClick={() => scrollToSection('choose-plan')}
+                          className={cn(
+                            "font-['NT_Brick_Sans']",
+                            isDark
+                              ? "border-gray-700 text-gray-300 hover:bg-gray-800"
+                              : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                          )}
+                        >
+                          <ArrowLeft className="mr-2 w-4 h-4" />
+                          Previous: Choose Plan
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => scrollToSection('risk-pool')}
+                          className="bg-shield-purple hover:bg-shield-purple/90 text-white font-['NT_Brick_Sans']"
+                        >
+                          Next: Risk Pool
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              
+              {/* Risk Pool Section */}
+              <div 
+                ref={riskPoolRef}
+                id="risk-pool" 
+                className={cn(
+                  "mb-12 p-6 rounded-xl",
+                  isDark 
+                    ? "bg-gray-900/50 border border-shield-purple/20" 
+                    : "bg-gray-50/80 border border-shield-purple/10"
+                )}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "flex items-center justify-center w-10 h-10 rounded-lg shrink-0",
+                      isDark 
+                        ? "bg-shield-purple/20 text-shield-purple" 
+                        : "bg-shield-purple/10 text-shield-purple"
+                    )}>
+                      <Database className="w-5 h-5" />
+                    </div>
+                    <h2 className={cn(
+                      "text-2xl font-['NT_Brick_Sans']",
+                      isDark ? "text-white" : "text-gray-900"
+                    )}>
+                      4. Risk Pool
+                    </h2>
+                  </div>
+                  <button 
+                    onClick={() => toggleSection('risk-pool')}
+                    className={cn(
+                      "p-2 rounded-full",
+                      isDark 
+                        ? "hover:bg-gray-800" 
+                        : "hover:bg-gray-200"
+                    )}
+                  >
+                    <ChevronDown className={cn(
+                      "w-5 h-5 transition-transform",
+                      expandedSections['risk-pool'] ? "rotate-180" : "",
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    )} />
+                  </button>
+                </div>
+                
+                <AnimatePresence>
+                  {expandedSections['risk-pool'] && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <p className={cn(
+                        "mb-4",
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      )}>
+                        All premiums are pooled into a decentralized risk pool that provides the funds for claim payouts. The risk pool is managed by smart contracts and community governance.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div className={cn(
+                          "rounded-xl p-5 border",
+                          isDark 
+                            ? "bg-gray-800/50 border-gray-700/50" 
+                            : "bg-white/80 border-gray-200/80"
+                        )}>
+                          <h3 className={cn(
+                            "text-lg font-['NT_Brick_Sans'] mb-3",
+                            isDark ? "text-white" : "text-gray-900"
+                          )}>
+                            Risk Pool Metrics
+                          </h3>
+                          
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <span className={cn(
+                                "text-sm font-['NT_Brick_Sans']",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Total Value Locked
+                              </span>
+                              <span className={cn(
+                                "text-lg font-['NT_Brick_Sans'] font-bold",
+                                "text-shield-purple"
+                              )}>
+                                $ 2,145,780
+                              </span>
+                            </div>
+                            
+                            <div className="w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                              <div className="h-1 bg-shield-purple rounded-full w-[85%]"></div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4 pt-2">
+                              <div>
+                                <div className={cn(
+                                  "text-sm font-['NT_Brick_Sans']",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Active Policies
+                                </div>
+                                <div className={cn(
+                                  "text-lg font-['NT_Brick_Sans'] font-bold",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  3,578
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <div className={cn(
+                                  "text-sm font-['NT_Brick_Sans']",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Solvency Ratio
+                                </div>
+                                <div className={cn(
+                                  "text-lg font-['NT_Brick_Sans'] font-bold text-green-500",
+                                  isDark ? "text-green-400" : "text-green-600"
+                                )}>
+                                  <PercentageDisplay value={175} />
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <div className={cn(
+                                  "text-sm font-['NT_Brick_Sans']",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Claim Success Rate
+                                </div>
+                                <div className={cn(
+                                  "text-lg font-['NT_Brick_Sans'] font-bold",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  <PercentageDisplay value={99.5} />
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <div className={cn(
+                                  "text-sm font-['NT_Brick_Sans']",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Average Payout Time
+                                </div>
+                                <div className={cn(
+                                  "text-lg font-['NT_Brick_Sans'] font-bold",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  24 hours
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className={cn(
+                          "rounded-xl p-5 border",
+                          isDark 
+                            ? "bg-gray-800/50 border-gray-700/50" 
+                            : "bg-white/80 border-gray-200/80"
+                        )}>
+                          <h3 className={cn(
+                            "text-lg font-['NT_Brick_Sans'] mb-3",
+                            isDark ? "text-white" : "text-gray-900"
+                          )}>
+                            Risk Management
+                          </h3>
+                          
+                          <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
+                                isDark 
+                                  ? "bg-shield-purple/20 text-shield-purple" 
+                                  : "bg-shield-purple/10 text-shield-purple"
+                              )}>
+                                <Shield className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Diversified Risk Categories
+                                </h4>
+                                <p className={cn(
+                                  "text-sm",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Risks are spread across different project types, sizes, and durations to ensure stability.
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-start gap-3">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
+                                isDark 
+                                  ? "bg-shield-purple/20 text-shield-purple" 
+                                  : "bg-shield-purple/10 text-shield-purple"
+                              )}>
+                                <BarChart4 className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Dynamic Premium Adjustment
+                                </h4>
+                                <p className={cn(
+                                  "text-sm",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Premium rates adjust based on pool performance and market conditions.
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-start gap-3">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
+                                isDark 
+                                  ? "bg-shield-purple/20 text-shield-purple" 
+                                  : "bg-shield-purple/10 text-shield-purple"
+                              )}>
+                                <TrendingUp className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Yield Generation
+                                </h4>
+                                <p className={cn(
+                                  "text-sm",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Idle funds are deployed in DeFi protocols to generate additional yield for the pool.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className={cn(
+                        "p-4 rounded-lg mb-4",
+                        isDark 
+                          ? "bg-gray-800/30 border border-shield-purple/10" 
+                          : "bg-gray-100/50 border border-shield-purple/5"
+                      )}>
+                        <h3 className={cn(
+                          "text-sm font-semibold mb-2 font-['NT_Brick_Sans']",
+                          isDark ? "text-white" : "text-gray-900"
+                        )}>
+                          Staking Opportunities
+                        </h3>
+                        <p className={cn(
+                          "text-sm",
+                          isDark ? "text-gray-400" : "text-gray-600"
+                        )}>
+                          You can earn passive income by staking USDC or SHIELD tokens in the risk pool. Stakers earn a portion of premium payments and have governance rights over the protocol.
+                        </p>
+                        <Button 
+                          variant="link" 
+                          onClick={() => scrollToSection('staking-governance')}
+                          className={cn(
+                            "p-0 h-auto text-sm font-['NT_Brick_Sans'] mt-2",
+                            "text-shield-purple"
+                          )}
+                        >
+                          Learn more about staking
+                          <ArrowRight className="ml-1 w-3 h-3" />
+                        </Button>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <Button 
+                          variant="outline"
+                          onClick={() => scrollToSection('pay-premium')}
+                          className={cn(
+                            "font-['NT_Brick_Sans']",
+                            isDark
+                              ? "border-gray-700 text-gray-300 hover:bg-gray-800"
+                              : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                          )}
+                        >
+                          <ArrowLeft className="mr-2 w-4 h-4" />
+                          Previous: Pay Premium
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => scrollToSection('submit-claim')}
+                          className="bg-shield-purple hover:bg-shield-purple/90 text-white font-['NT_Brick_Sans']"
+                        >
+                          Next: Submit Claim
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              
+              {/* Submit Claim Section */}
+              <div 
+                ref={submitClaimRef}
+                id="submit-claim" 
+                className={cn(
+                  "mb-12 p-6 rounded-xl",
+                  isDark 
+                    ? "bg-gray-900/50 border border-shield-purple/20" 
+                    : "bg-gray-50/80 border border-shield-purple/10"
+                )}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "flex items-center justify-center w-10 h-10 rounded-lg shrink-0",
+                      isDark 
+                        ? "bg-shield-purple/20 text-shield-purple" 
+                        : "bg-shield-purple/10 text-shield-purple"
+                    )}>
+                      <FileQuestion className="w-5 h-5" />
+                    </div>
+                    <h2 className={cn(
+                      "text-2xl font-['NT_Brick_Sans']",
+                      isDark ? "text-white" : "text-gray-900"
+                    )}>
+                      5. Submit Claim
+                    </h2>
+                  </div>
+                  <button 
+                    onClick={() => toggleSection('submit-claim')}
+                    className={cn(
+                      "p-2 rounded-full",
+                      isDark 
+                        ? "hover:bg-gray-800" 
+                        : "hover:bg-gray-200"
+                    )}
+                  >
+                    <ChevronDown className={cn(
+                      "w-5 h-5 transition-transform",
+                      expandedSections['submit-claim'] ? "rotate-180" : "",
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    )} />
+                  </button>
+                </div>
+                
+                <AnimatePresence>
+                  {expandedSections['submit-claim'] && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <p className={cn(
+                        "mb-4",
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      )}>
+                        If you experience a covered event such as a project cancellation or payment dispute, you can submit a claim to receive compensation from the risk pool.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
+                        <div className={cn(
+                          "md:col-span-7 rounded-xl p-5 border",
+                          isDark 
+                            ? "bg-gray-800/50 border-gray-700/50" 
+                            : "bg-white/80 border-gray-200/80"
+                        )}>
+                          <h3 className={cn(
+                            "text-lg font-['NT_Brick_Sans'] mb-3",
+                            isDark ? "text-white" : "text-gray-900"
+                          )}>
+                            Claim Process
+                          </h3>
+                          
+                          <div className="space-y-6">
+                            <div className="flex items-start gap-4">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-full shrink-0 text-white font-['NT_Brick_Sans'] font-bold",
+                                "bg-shield-purple"
+                              )}>
+                                1
+                              </div>
+                              <div className="flex-1">
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans'] mb-1",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Submit Claim
+                                </h4>
+                                <p className={cn(
+                                  "text-sm mb-2",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Fill out the claim form with details about the incident and provide supporting evidence.
+                                </p>
+                                <div className={cn(
+                                  "text-xs rounded-md p-2",
+                                  isDark ? "bg-gray-700" : "bg-gray-100"
+                                )}>
+                                  <strong>Required Evidence:</strong> Project contract, communication logs, payment records, and any relevant documentation.
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-start gap-4">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-full shrink-0 text-white font-['NT_Brick_Sans'] font-bold",
+                                "bg-shield-purple"
+                              )}>
+                                2
+                              </div>
+                              <div className="flex-1">
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans'] mb-1",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Automated Verification
+                                </h4>
+                                <p className={cn(
+                                  "text-sm mb-2",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Our smart contracts verify your claim against policy terms and on-chain evidence.
+                                </p>
+                                <div className={cn(
+                                  "text-xs rounded-md p-2",
+                                  isDark ? "bg-gray-700" : "bg-gray-100"
+                                )}>
+                                  <strong>Verification Checks:</strong> Policy validity, coverage limits, waiting periods, and event criteria.
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-start gap-4">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-full shrink-0 text-white font-['NT_Brick_Sans'] font-bold",
+                                "bg-shield-purple"
+                              )}>
+                                3
+                              </div>
+                              <div className="flex-1">
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans'] mb-1",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Claim Resolution
+                                </h4>
+                                <p className={cn(
+                                  "text-sm mb-2",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  For straightforward claims, payment is processed automatically. Complex claims may require arbitration.
+                                </p>
+                                <div className={cn(
+                                  "text-xs rounded-md p-2",
+                                  isDark ? "bg-gray-700" : "bg-gray-100"
+                                )}>
+                                  <strong>Resolution Time:</strong> <PercentageDisplay value={70} /> of claims are resolved within 24 hours. Complex claims may take 3-5 days.
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-start gap-4">
+                              <div className={cn(
+                                "flex items-center justify-center w-8 h-8 rounded-full shrink-0 text-white font-['NT_Brick_Sans'] font-bold",
+                                "bg-shield-purple"
+                              )}>
+                                4
+                              </div>
+                              <div className="flex-1">
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans'] mb-1",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Receive Payment
+                                </h4>
+                                <p className={cn(
+                                  "text-sm mb-2",
+                                  isDark ? "text-gray-400" : "text-gray-600"
+                                )}>
+                                  Approved claims are paid directly to your wallet in USDC.
+                                </p>
+                                <div className={cn(
+                                  "text-xs rounded-md p-2",
+                                  isDark ? "bg-gray-700" : "bg-gray-100"
+                                )}>
+                                  <strong>Payment Method:</strong> Direct transfer to your connected Solana wallet.
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className={cn(
+                          "md:col-span-5 rounded-xl p-5 border",
+                          isDark 
+                            ? "bg-gray-800/50 border-gray-700/50" 
+                            : "bg-white/80 border-gray-200/80"
+                        )}>
+                          <h3 className={cn(
+                            "text-lg font-['NT_Brick_Sans'] mb-3",
+                            isDark ? "text-white" : "text-gray-900"
+                          )}>
+                            Covered Events
+                          </h3>
+                          
+                          <div className="space-y-3">
+                            <div className={cn(
+                              "p-3 rounded-lg",
+                              isDark ? "bg-gray-700/50" : "bg-gray-50"
+                            )}>
+                              <div className="flex items-center gap-2 mb-1">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Project Cancellation
+                                </h4>
+                              </div>
+                              <p className={cn(
+                                "text-xs",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Client cancels the project after work has begun but before completion.
+                              </p>
+                            </div>
+                            
+                            <div className={cn(
+                              "p-3 rounded-lg",
+                              isDark ? "bg-gray-700/50" : "bg-gray-50"
+                            )}>
+                              <div className="flex items-center gap-2 mb-1">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Payment Disputes
+                                </h4>
+                              </div>
+                              <p className={cn(
+                                "text-xs",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Client refuses to pay for completed work that meets agreed specifications.
+                              </p>
+                            </div>
+                            
+                            <div className={cn(
+                              "p-3 rounded-lg",
+                              isDark ? "bg-gray-700/50" : "bg-gray-50"
+                            )}>
+                              <div className="flex items-center gap-2 mb-1">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Scope Creep
+                                </h4>
+                              </div>
+                              <p className={cn(
+                                "text-xs",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Significant changes to project requirements without compensation (Premium plan only).
+                              </p>
+                            </div>
+                            
+                            <div className={cn(
+                              "p-3 rounded-lg",
+                              isDark ? "bg-gray-700/50" : "bg-gray-50"
+                            )}>
+                              <div className="flex items-center gap-2 mb-1">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <h4 className={cn(
+                                  "text-sm font-semibold font-['NT_Brick_Sans']",
+                                  isDark ? "text-white" : "text-gray-900"
+                                )}>
+                                  Client Insolvency
+                                </h4>
+                              </div>
+                              <p className={cn(
+                                "text-xs",
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              )}>
+                                Client becomes unable to pay due to bankruptcy or financial distress.
+                              </p>
+                            </div>
+                            
+                            <div className="mt-4">
+                              <Button 
+                                className="w-full bg-shield-purple hover:bg-shield-purple/90 text-white font-['NT_Brick_Sans']"
+                              >
+                                Submit a Claim
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className={cn(
+                        "p-4 rounded-lg mb-4",
+                        isDark 
+                          ? "bg-gray-800/30 border border-shield-purple/10" 
+                          : "bg-gray-100/50 border border-shield-purple/5"
+                      )}>
+                        <div className="flex items-start gap-3">
+                          <div className={cn(
+                            "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
+                            isDark 
+                              ? "bg-shield-purple/20 text-shield-purple" 
+                              : "bg-shield-purple/10 text-shield-purple"
+                          )}>
+                            <Gavel className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className={cn(
+                              "text-sm font-semibold mb-1 font-['NT_Brick_Sans']",
+                              isDark ? "text-white" : "text-gray-900"
+                            )}>
+                              Dispute Resolution
+                            </h3>
+                            <p className={cn(
+                              "text-sm",
+                              isDark ? "text-gray-400" : "text-gray-600"
+                            )}>
+                              If your claim is denied or disputed, you can request arbitration by our decentralized network of arbitrators. Arbitrators are selected from the community and have expertise in freelance work and smart contracts.
+                            </p>
+                            <Button 
+                              variant="link" 
+                              onClick={() => scrollToSection('arbitration')}
+                              className={cn(
+                                "p-0 h-auto text-sm font-['NT_Brick_Sans'] mt-2",
+                                "text-shield-purple"
+                              )}
+                            >
+                              Learn more about arbitration
+                              <ArrowRight className="ml-1 w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <Button 
+                          variant="outline"
+                          onClick={() => scrollToSection('risk-pool')}
+                          className={cn(
+                            "font-['NT_Brick_Sans']",
+                            isDark
+                              ? "border-gray-700 text-gray-300 hover:bg-gray-800"
+                              : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                          )}
+                        >
+                          <ArrowLeft className="mr-2 w-4 h-4" />
+                          Previous: Risk Pool
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => scrollToSection('staking-governance')}
+                          className="bg-shield-purple hover:bg-shield-purple/90 text-white font-['NT_Brick_Sans']"
+                        >
+                          Next: Staking & Governance
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              
+              {/* Rest of the sections would follow the same pattern */}
+              
+              {/* Footer CTA */}
+              <div 
+                ref={ctaRef}
+                className={cn(
+                  "mt-16 p-8 rounded-xl text-center",
+                  isDark 
+                    ? "bg-gray-900/70 border border-shield-purple/20" 
+                    : "bg-white/80 border border-shield-purple/10"
+                )}
+              >
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={ctaInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6 }}
+                >
+                  <h2 className={cn(
+                    "text-3xl font-['NT_Brick_Sans'] mb-4",
+                    isDark ? "text-white" : "text-gray-900"
+                  )}>
+                    Ready to <span className="text-shield-purple">Get Protected</span>?
+                  </h2>
+                  <p className={cn(
+                    "mb-6 max-w-2xl mx-auto",
+                    isDark ? "text-gray-400" : "text-gray-600"
+                  )}>
+                    Join thousands of freelancers who trust FreelanceShield for secure, decentralized protection against project risks.
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    <Button 
+                      size="lg" 
+                      className="px-8 py-3 rounded-md font-medium text-white bg-shield-purple hover:bg-shield-purple/90 transition-colors shadow-lg hover:shadow-xl hover:shadow-shield-purple/20 border border-white/10 font-['NT_Brick_Sans']"
+                    >
+                      Get Started Now
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      className="px-8 py-3 rounded-md font-medium border border-shield-purple/30 text-shield-purple hover:bg-shield-purple/10 transition-colors hover:shadow-lg font-['NT_Brick_Sans']"
+                    >
+                      View Pricing Plans
+                    </Button>
+                  </div>
+                </motion.div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { usePrivy } from '@privy-io/react-auth';
 import { Connection, Transaction, PublicKey, SendOptions } from '@solana/web3.js';
 import { toast } from 'sonner';
 import { TransactionDialog } from '@/components/wallet/TransactionDialog';
@@ -29,9 +29,7 @@ interface TransactionContextType {
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
 
 export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Use our custom wallet hook that's compatible with Privy
-  const wallet = useWallet();
-  const publicKey = wallet.publicKey;
+  const { user, authenticated } = usePrivy();
   
   const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
   const [isTransactionPending, setIsTransactionPending] = useState(false);
@@ -46,8 +44,22 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
     isBatch: boolean;
   } | null>(null);
 
+  // Get the wallet address from Privy user
+  const walletAddress = user?.linkedAccounts?.find(account => 
+    account.type === 'wallet' && (account as any).walletClientType === 'solana'
+  );
+  
+  // If no Solana wallet, check for embedded wallet
+  const embeddedWallet = user?.linkedAccounts?.find(account => 
+    account.type === 'wallet' && (account as any).walletType === 'embedded-wallet'
+  );
+  
+  // Use the first available wallet
+  const activeWallet = walletAddress || embeddedWallet;
+  const publicKey = activeWallet ? new PublicKey((activeWallet as any).address) : null;
+
   const handleConfirmTransaction = async () => {
-    if (!pendingTransaction || !publicKey) {
+    if (!pendingTransaction || !authenticated || !publicKey) {
       setIsTransactionDialogOpen(false);
       return;
     }
@@ -108,7 +120,7 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
     connection: Connection,
     options?: SendOptions
   ): Promise<string | null> => {
-    if (!publicKey) {
+    if (!authenticated || !publicKey) {
       toast.error('Wallet not connected');
       return null;
     }
@@ -147,7 +159,7 @@ export const TransactionProvider: React.FC<{ children: ReactNode }> = ({ childre
     connection: Connection,
     options?: SendOptions
   ): Promise<string[] | null> => {
-    if (!publicKey) {
+    if (!authenticated || !publicKey) {
       toast.error('Wallet not connected');
       return null;
     }

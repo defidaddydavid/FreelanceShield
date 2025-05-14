@@ -1,5 +1,6 @@
 import { usePrivy } from '@privy-io/react-auth';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { PublicKey } from '@solana/web3.js';
 
 /**
  * Custom hook for Privy authentication that provides simplified access to auth state and methods
@@ -19,12 +20,12 @@ export const usePrivyAuth = () => {
   }, [privy]);
   
   const loginWithEmail = useCallback((email: string) => {
-    // Use standard login and let Privy UI handle the email input
+    // Use the standard login method and let Privy handle the email input
     privy.login();
   }, [privy]);
   
   const loginWithWallet = useCallback(() => {
-    // Use standard login and let Privy UI handle wallet selection
+    // Use the standard login method and let Privy handle wallet selection
     privy.login();
   }, [privy]);
   
@@ -34,26 +35,37 @@ export const usePrivyAuth = () => {
   }, [privy]);
   
   // Get wallet information from the user object
-  const wallets = user?.linkedAccounts?.filter(account => 
-    account.type === 'wallet'
-  ) || [];
+  const wallets = useMemo(() => {
+    return user?.linkedAccounts?.filter(account => 
+      account.type === 'wallet'
+    ) || [];
+  }, [user?.linkedAccounts]);
   
   // Get connected wallets
-  const connectedWallets = wallets || [];
+  const connectedWallets = wallets;
   
   // Get the active wallet (first one)
   const activeWallet = connectedWallets[0];
   
   // Get Solana wallet if available
-  const solanaWallet = connectedWallets.find(wallet => 
-    wallet.walletClientType === 'solana'
-  );
+  const solanaWallet = useMemo(() => {
+    return connectedWallets.find(wallet => 
+      (wallet as any).walletClientType === 'solana'
+    );
+  }, [connectedWallets]);
   
-  // Connect wallet - this is a placeholder as Privy handles wallet connections
-  const connectWallet = useCallback(() => {
-    // In Privy, you use the login method to connect wallets
-    privy.login();
-  }, [privy]);
+  // Get Solana public key if available
+  const solanaPublicKey = useMemo(() => {
+    if (solanaWallet && (solanaWallet as any).address) {
+      try {
+        return new PublicKey((solanaWallet as any).address);
+      } catch (error) {
+        console.error('Invalid Solana address:', error);
+        return null;
+      }
+    }
+    return null;
+  }, [solanaWallet]);
   
   return {
     isAuthenticated,
@@ -66,7 +78,7 @@ export const usePrivyAuth = () => {
     connectedWallets,
     activeWallet,
     solanaWallet,
-    connectWallet,
+    solanaPublicKey,
     ready: privy.ready,
     // Expose the original privy object for advanced usage
     privy

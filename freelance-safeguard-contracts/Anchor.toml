@@ -1,29 +1,30 @@
 [toolchain]
 anchor_version = "0.31.0"
-solana_version = "2.1.0"
+solana_version = "1.16.0"
 
 [features]
 resolution = true
 skip-lint = false
 
 [programs.devnet]
-claims_processor = "5RUxNojf6fWZoU1pX81gXYXi46YyWa6SsrDhdYdNrHre"
-dao_governance = "CFNr5WS1mBkizDCWtQ274jy6ia7AuUmG8FX72ZKHNk1P"
-enhanced_claims = "GwQjPaQXnWMGa47t2gQTiiQ9UPuGR3ZyafohmZRXqvjG"
-enhanced_cover = "JDqeugm1U4qFkzqNAHQvkynHCZSb8vrrgpff116Ki9XK"
-escrow_program = "HtBkourGdwBByviX576nyfXj4h8XZFchefKraZpDhHHR"
-freelance_insurance = "GaAfdpvY2uVmoxoxmMdzA4pWbRAtUqC5TmfmayFNmZ57"
-insurance_program = "3kPLKUmAatsTybjtysJGxeBTVsMxLSPxYhcK1aiJuTqJ"
-policy_nft = "B1nWN26ugavxGX4gFDHuUN8Jib7ypYvAWuKYFworpkD3"
-reputation_program = "CQFYdGCbRf4bZ8dFd4123sBB4o83KWMMBKKz1AUkdnFs"
-risk_pool_program = "6XfRdPTe7xA34TVurpBau6U2L1gh2c9eYfM1aFiDhKja"
+claims_processor = "GRySeLQy7do9nMfJWbH9YmBRS1MHGF79AnmAHKFiJRaN"
+core = "BWop9ejaeHDK9ktZivqzqwgZMN8kituGYM7cKqrpNiaE"
+dao_governance = "48r3FuT5gr4wrfr2qr4sP8yEggyXCqML6CmyB8t3EnEA"
+enhanced_claims = "7sNGFjKYPUK1fgguDsbN96R6m6BZJs11KPFSYq3KGBXX"
+enhanced_cover = "5y4aVEFhEznVoZo1VNfM13CYKZcFmT8Z97N4UXHpaJGj"
+escrow_program = "HbRjXVmWEkbjCejgGLaPsWpECgwoHhXVH1gV5NUzGVSH"
+freelance_insurance = "HuZwzjsdGdDUuvAf3GV59FASxx5V2gHRckhFsWcksECd"
+insurance_program = "BcZfN4TJYzWZsNXpLFjgEiZSqV124W2uJPEgFHdsp9TD"
+policy_nft = "6tcTn7aHDLRmy1u1aQ7WiLJJmfzz9BSUHRmo2Zj5Eyi9"
+reputation_program = "ErqSUDAvmuZicGV9zBBAV9eSUo6sJoj7zjuWgASJQxD9"
+risk_pool_program = "2nxmHdqSuwVoyae1PpKRgJrKPTVPy59crNJZnqXNbVL2"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "devnet"
-wallet = "./devnet-deploy.json"
+wallet = "./deploy-keypair.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

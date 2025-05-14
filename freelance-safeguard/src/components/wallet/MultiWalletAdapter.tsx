@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useWallet } from '../../lib/solana/wallet-adapter-compat';
 import { usePhantomWallet } from '../../lib/solana/PhantomWalletProvider';
-import { useUnifiedWallet, WalletType } from '../../lib/solana/UnifiedWalletService';
+import { useUnifiedWallet } from '../../hooks/useUnifiedWallet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -10,6 +9,7 @@ import { Card, CardContent } from '../ui/card';
 import { Loader2, ChevronDown, ExternalLink, LogOut, RefreshCw } from 'lucide-react';
 import { formatCurrency, shortenAddress } from '../../utils/formatters';
 import { toast } from 'sonner';
+import { usePrivy } from '@privy-io/react-auth';
 
 // Import wallet icons
 import PhantomIcon from '../../assets/wallets/phantom.svg';
@@ -17,6 +17,9 @@ import SolflareIcon from '../../assets/wallets/solflare.svg';
 import BackpackIcon from '../../assets/wallets/backpack.svg';
 import LedgerIcon from '../../assets/wallets/ledger.svg';  
 import TorusIcon from '../../assets/wallets/torus.svg';
+
+// Define wallet types
+type WalletType = 'privy' | 'phantom-adapter' | 'solflare' | 'other' | 'ledger' | 'torus';
 
 interface WalletOption {
   id: WalletType;
@@ -27,6 +30,12 @@ interface WalletOption {
 }
 
 const walletOptions: WalletOption[] = [
+  {
+    id: 'privy',
+    name: 'Privy',
+    description: 'Connect with Privy authentication',
+    icon: PhantomIcon
+  },
   {
     id: 'phantom-adapter',
     name: 'Phantom',
@@ -60,103 +69,83 @@ const walletOptions: WalletOption[] = [
 ];
 
 export const MultiWalletAdapter: React.FC = () => {
-  const [walletInfo, walletActions] = useUnifiedWallet();
-  const { select, wallets } = useWallet();
+  const { 
+    walletInfo, 
+    walletStatus, 
+    isConnected, 
+    publicKey, 
+    balance,
+    refreshBalance,
+    walletService,
+    connect,
+    disconnect
+  } = useUnifiedWallet();
+  
+  const wallet = useWallet();
   const phantomWallet = usePhantomWallet();
+  const privy = usePrivy();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState<WalletOption | null>(null);
 
+  // Get current wallet from options
+  const currentWallet = walletInfo?.walletType 
+    ? walletOptions.find(w => w.id === walletInfo.walletType as WalletType) 
+    : null;
+
   // Handle wallet selection
   const handleWalletSelect = useCallback(async (option: WalletOption) => {
     try {
-      if (option.isEmbedded) {
-        // Handle embedded wallet (Phantom SDK)
-        if (option.id === 'phantom-embedded') {
-          await phantomWallet.connectWallet();
-        }
-      } else {
-        // Handle adapter-based wallets
-        const selectedWallet = wallets.find(wallet => {
-          const walletName = wallet.adapter.name.toLowerCase();
-          if (option.id === 'phantom-adapter' && walletName.includes('phantom')) return true;
-          if (option.id === 'solflare' && walletName.includes('solflare')) return true;
-          if (option.id === 'backpack' && walletName.includes('backpack')) return true;
-          if (option.id === 'ledger' && walletName.includes('ledger')) return true;
-          if (option.id === 'torus' && walletName.includes('torus')) return true;
-          return false;
-        });
-        
-        if (selectedWallet) {
-          select(selectedWallet.adapter.name);
-        }
-      }
+      // With Privy integration, we'll use the privy.login() method for all wallet types
+      privy.login();
       
       // Close dialog after selection
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error selecting wallet:', error);
     }
-  }, [wallets, select, phantomWallet]);
+  }, [privy]);
 
   // Set up wallet connection handlers
   const handleConnectWallet = async (walletOption: WalletOption) => {
     setConnecting(true);
     setSelectedWallet(walletOption);
     try {
-      if (walletOption.isEmbedded) {
-        // For embedded wallets like Phantom SDK
-        const success = await walletActions.connect(walletOption.id);
-        if (!success) {
-          throw new Error(`Failed to connect to ${walletOption.name}`);
-        }
-      } else {
-        // For standard wallet adapters, just close the dialog
-        // The actual connection happens when the user clicks the adapter button
-        await walletActions.connect(walletOption.id);
+      // With Privy integration, we'll use the connect method from our unified wallet
+      const success = await connect(walletOption.id);
+      if (!success) {
+        toast.error(`Failed to connect to ${walletOption.name}`);
       }
-      
-      // Close the dialog after successful connection
-      setIsDialogOpen(false);
     } catch (error) {
-      console.error(`Error connecting to ${walletOption.name}:`, error);
-      toast.error(`Failed to connect to ${walletOption.name}. Please try again.`);
+      console.error('Error connecting wallet:', error);
+      toast.error(`Error connecting to ${walletOption.name}`);
     } finally {
       setConnecting(false);
+      setIsDialogOpen(false);
     }
   };
 
-  // Refresh balance
-  const refreshBalance = useCallback(async () => {
-    if (!walletInfo.connected) return;
+  // Refresh wallet balance
+  const handleRefreshBalance = async () => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
     
     setIsRefreshing(true);
     try {
-      await walletActions.refreshBalance();
+      await refreshBalance();
+      toast.success('Balance refreshed');
     } catch (error) {
       console.error('Error refreshing balance:', error);
+      toast.error('Failed to refresh balance');
     } finally {
       setIsRefreshing(false);
     }
-  }, [walletInfo.connected, walletActions]);
-  
-  // Auto-refresh balance when wallet changes
-  useEffect(() => {
-    if (walletInfo.connected) {
-      refreshBalance();
-    }
-  }, [walletInfo.connected, walletInfo.publicKey]);
-  
-  // Get current wallet option
-  const getCurrentWalletOption = useCallback(() => {
-    if (!walletInfo.walletType) return null;
-    return walletOptions.find(option => option.id === walletInfo.walletType) || null;
-  }, [walletInfo.walletType]);
-  
-  const currentWallet = getCurrentWalletOption();
-  
+  };
+
   // Render wallet selection dialog
   const renderWalletDialog = () => (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -164,7 +153,7 @@ export const MultiWalletAdapter: React.FC = () => {
         <DialogHeader>
           <DialogTitle>Connect Wallet</DialogTitle>
           <DialogDescription>
-            Select a wallet to connect to FreelanceShield
+            Select a wallet to connect to this application
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -202,8 +191,8 @@ export const MultiWalletAdapter: React.FC = () => {
             <div>
               <div className="font-medium">{currentWallet?.name || 'Wallet'}</div>
               <div className="text-xs text-muted-foreground">
-                {walletInfo.publicKey ? 
-                  `${walletInfo.publicKey.substring(0, 4)}...${walletInfo.publicKey.substring(walletInfo.publicKey.length - 4)}` : 
+                {publicKey ? 
+                  shortenAddress(publicKey.toString()) : 
                   'Unknown'
                 }
               </div>
@@ -214,7 +203,7 @@ export const MultiWalletAdapter: React.FC = () => {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={refreshBalance}
+              onClick={handleRefreshBalance}
               disabled={isRefreshing}
             >
               {isRefreshing ? (
@@ -227,7 +216,7 @@ export const MultiWalletAdapter: React.FC = () => {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => walletActions.disconnect()}
+              onClick={() => disconnect()}
             >
               <LogOut className="h-4 w-4" />
             </Button>
@@ -236,8 +225,8 @@ export const MultiWalletAdapter: React.FC = () => {
         
         <div className="mt-4 text-center">
           <div className="text-2xl font-bold">
-            {walletInfo.balance !== null ? 
-              formatCurrency(walletInfo.balance, 'SOL') : 
+            {balance !== null ? 
+              formatCurrency(balance, 'SOL') : 
               '-.-- SOL'
             }
           </div>
@@ -279,17 +268,12 @@ export const MultiWalletAdapter: React.FC = () => {
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      
-      {/* Standard Solana wallet adapter button as fallback */}
-      <div className="hidden">
-        <WalletMultiButton />
-      </div>
     </div>
   );
   
   return (
     <div className="wallet-adapter-container">
-      {walletInfo.connected ? renderConnectedWallet() : renderWalletSelector()}
+      {isConnected ? renderConnectedWallet() : renderWalletSelector()}
       {renderWalletDialog()}
     </div>
   );

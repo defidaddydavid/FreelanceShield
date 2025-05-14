@@ -1,9 +1,9 @@
 import React from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { usePrivy } from "@privy-io/react-auth";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, ShieldCheck } from "lucide-react";
-import ConnectWalletDialog from "./ConnectWalletDialog";
+import { AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
+import { PrivyAuth } from "@/components/auth/PrivyAuth";
 
 interface WalletRequiredProps {
   children: React.ReactNode;
@@ -14,7 +14,7 @@ interface WalletRequiredProps {
 
 /**
  * Component that requires a wallet connection to display its children
- * Shows a fallback UI with connect wallet button if not connected
+ * Shows a fallback UI with Privy authentication if not connected
  */
 const WalletRequired: React.FC<WalletRequiredProps> = ({
   children,
@@ -22,9 +22,17 @@ const WalletRequired: React.FC<WalletRequiredProps> = ({
   message = "Please connect your wallet to access this feature",
   title = "Wallet Connection Required",
 }) => {
-  const { connected } = useWallet();
+  const { authenticated, ready } = usePrivy();
 
-  if (connected) {
+  if (!ready) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-shield-purple" />
+      </div>
+    );
+  }
+
+  if (authenticated) {
     return <>{children}</>;
   }
 
@@ -38,14 +46,9 @@ const WalletRequired: React.FC<WalletRequiredProps> = ({
       <AlertTitle className="font-heading text-lg text-shield-purple">{title}</AlertTitle>
       <AlertDescription className="mt-2">
         <p className="mb-4">{message}</p>
-        <ConnectWalletDialog
-          trigger={
-            <Button className="bg-shield-purple hover:bg-shield-purple/90 text-white">
-              <ShieldCheck className="mr-2 h-4 w-4" />
-              Connect Wallet
-            </Button>
-          }
-        />
+        <div className="w-full max-w-sm">
+          <PrivyAuth />
+        </div>
       </AlertDescription>
     </Alert>
   );

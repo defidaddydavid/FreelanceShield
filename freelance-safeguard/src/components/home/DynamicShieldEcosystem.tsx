@@ -1,6 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, CheckCircle, Sparkles, Lock, Coins, FileCheck, Users, ArrowRight, ExternalLink } from 'lucide-react';
+import { 
+  Shield, 
+  CheckCircle, 
+  Sparkles, 
+  Lock, 
+  Coins, 
+  FileCheck, 
+  Users, 
+  ArrowRight, 
+  ExternalLink,
+  Zap
+} from 'lucide-react';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
 
 // Token price simulation - in a real implementation, this would come from your data fetching utilities
@@ -22,6 +33,7 @@ const EnhancedDynamicShieldEcosystem: React.FC = () => {
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
   const [showTokenDetails, setShowTokenDetails] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   // Simulate protection stats
   const protectionStats = {
@@ -40,6 +52,28 @@ const EnhancedDynamicShieldEcosystem: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Add parallax effect
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      
+      const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+      const x = (e.clientX - left) / width - 0.5;
+      const y = (e.clientY - top) / height - 0.5;
+      
+      const elements = containerRef.current.querySelectorAll('.parallax-element');
+      elements.forEach((el) => {
+        const depth = parseFloat(el.getAttribute('data-depth') || '0');
+        const moveX = x * depth * 30;
+        const moveY = y * depth * 30;
+        (el as HTMLElement).style.transform = `translate(${moveX}px, ${moveY}px)`;
+      });
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   // Format number with commas
   const formatNumber = (num: number): string => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -53,18 +87,18 @@ const EnhancedDynamicShieldEcosystem: React.FC = () => {
   };
 
   return (
-    <div className="relative w-[500px] h-[500px] mx-auto">
-      {/* Background glow effect with enhanced Solana gradient */}
+    <div ref={containerRef} className="relative w-[550px] h-[550px] mx-auto">
+      {/* Enhanced background glow effect with animated Solana gradient */}
       <motion.div 
         className="absolute inset-0 rounded-full blur-3xl"
         style={{
           background: isDark 
-            ? 'radial-gradient(circle, rgba(148,85,255,0.3) 0%, rgba(20,241,149,0.1) 70%, transparent 100%)'
-            : 'radial-gradient(circle, rgba(148,85,255,0.2) 0%, rgba(20,241,149,0.05) 70%, transparent 100%)'
+            ? 'radial-gradient(circle, rgba(148,85,255,0.4) 0%, rgba(20,241,149,0.15) 70%, transparent 100%)'
+            : 'radial-gradient(circle, rgba(148,85,255,0.3) 0%, rgba(20,241,149,0.1) 70%, transparent 100%)'
         }}
         animate={{ 
           scale: [1, 1.05, 1],
-          opacity: [0.6, 0.8, 0.6]
+          opacity: [0.7, 0.9, 0.7]
         }}
         transition={{ 
           duration: 5, 
@@ -73,7 +107,37 @@ const EnhancedDynamicShieldEcosystem: React.FC = () => {
         }}
       />
       
-      {/* Retro grid background with improved contrast */}
+      {/* Animated geometric shapes */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={`shape-${i}`}
+            className="absolute rounded-lg parallax-element"
+            data-depth={0.5 + (i * 0.1)}
+            style={{
+              width: 60 + (i * 15),
+              height: 60 + (i * 15),
+              border: `1px solid rgba(148, 85, 255, ${0.1 + (i * 0.05)})`,
+              background: `linear-gradient(135deg, rgba(148, 85, 255, ${0.05 + (i * 0.01)}) 0%, rgba(20, 241, 149, ${0.05 + (i * 0.01)}) 100%)`,
+              left: `${10 + (i * 15)}%`,
+              top: `${15 + (i * 12)}%`,
+              transform: 'rotate(45deg)',
+              backdropFilter: 'blur(5px)',
+            }}
+            animate={{
+              rotate: [45, 45 + (i * 5), 45],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{
+              duration: 8 + (i * 2),
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+          />
+        ))}
+      </div>
+      
+      {/* Enhanced retro grid background with improved contrast and animation */}
       <div className="absolute inset-0 rounded-full overflow-hidden">
         <div className="absolute inset-0 bg-black/10 dark:bg-black/30"></div>
         <div className="w-full h-full grid grid-cols-12 grid-rows-12">
@@ -89,9 +153,10 @@ const EnhancedDynamicShieldEcosystem: React.FC = () => {
         </div>
       </div>
       
-      {/* 3D Shield with enhanced Solana gradient */}
+      {/* Enhanced 3D Shield with improved Solana gradient and glow effects */}
       <motion.div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 z-10"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 z-10 parallax-element"
+        data-depth="0.2"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
@@ -102,387 +167,200 @@ const EnhancedDynamicShieldEcosystem: React.FC = () => {
           className="w-full h-full drop-shadow-2xl"
         >
           <defs>
-            <linearGradient id="solanaShieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#9455FF" />
-              <stop offset="50%" stopColor="#7B61FF" />
-              <stop offset="100%" stopColor="#14F195" />
-            </linearGradient>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <radialGradient id="solanaShieldGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+              <stop offset="0%" stopColor="#9455FF" stopOpacity="0.8" />
+              <stop offset="70%" stopColor="#14F195" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#9455FF" stopOpacity="0.4" />
+            </radialGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="3" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
-            <pattern id="gridPattern" width="10" height="10" patternUnits="userSpaceOnUse">
-              <rect width="10" height="10" fill="none" />
-              <path d="M 10 0 L 0 0 0 10" stroke="rgba(148,85,255,0.3)" strokeWidth="0.5" fill="none" />
-            </pattern>
           </defs>
           
-          {/* Shield body with enhanced Solana gradient and pattern overlay */}
-          <motion.path 
-            d="M50,5 L95,30 C95,70 75,90 50,95 C25,90 5,70 5,30 L50,5 Z" 
+          {/* Shield base with enhanced gradient */}
+          <path 
+            d="M50,5 L95,25 L95,60 C95,75 75,95 50,95 C25,95 5,75 5,60 L5,25 L50,5 Z" 
             fill="url(#solanaShieldGradient)"
+            stroke="#9455FF"
+            strokeWidth="0.5"
             filter="url(#glow)"
-            initial={{ pathLength: 0, fillOpacity: 0 }}
-            animate={{ pathLength: 1, fillOpacity: 0.9 }}
-            transition={{ duration: 1.5, delay: 0.8, ease: "easeInOut" }}
           />
           
-          {/* Pattern overlay for texture */}
-          <motion.path 
-            d="M50,5 L95,30 C95,70 75,90 50,95 C25,90 5,70 5,30 L50,5 Z" 
-            fill="url(#gridPattern)"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.15 }}
-            transition={{ duration: 1.5, delay: 1.5 }}
+          {/* Inner shield details */}
+          <path 
+            d="M50,15 L85,30 L85,60 C85,70 70,85 50,85 C30,85 15,70 15,60 L15,30 L50,15 Z" 
+            fill="none"
+            stroke="rgba(255,255,255,0.5)"
+            strokeWidth="0.5"
+            strokeDasharray="1,1"
           />
           
-          {/* Lock icon with animation */}
-          <motion.g
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.5 }}
-          >
-            <rect x="38" y="45" width="24" height="22" rx="3" fill="white" />
-            <rect x="44" y="35" width="12" height="15" rx="6" stroke="white" strokeWidth="4" fill="none" />
-          </motion.g>
+          {/* Shield emblem */}
+          <g transform="translate(35, 35) scale(0.3)">
+            <path d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h320.3c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z" fill="#9945FF"/>
+            <path d="M64.6 3.8C67.1 1.4 70.4 0 73.8 0h320.3c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z" fill="#03E1FF"/>
+            <path d="M332.4 120.9c-2.4-2.4-5.7-3.8-9.2-3.8H2.9c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h320.3c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z" fill="#7C5CFF"/>
+          </g>
         </svg>
         
-        {/* Multiple pulsing halo rings */}
-        {[...Array(3)].map((_, i) => (
-          <motion.div
-            key={`ring-${i}`}
-            className="absolute inset-0 border-2 rounded-full"
-            style={{ 
-              borderColor: isDark ? 'rgba(148,85,255,0.4)' : 'rgba(148,85,255,0.3)',
-              scale: 1 + (i * 0.1)
-            }}
-            animate={{ 
-              scale: [1 + (i * 0.1), 1.15 + (i * 0.1), 1 + (i * 0.1)],
-              opacity: [0.7, 0, 0.7]
-            }}
-            transition={{ 
-              duration: 3 + i, 
-              delay: i * 0.5,
-              repeat: Infinity,
-              repeatType: "reverse" 
-            }}
-          />
-        ))}
+        {/* Animated glow ring */}
+        <motion.div 
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(148,85,255,0.3) 0%, rgba(20,241,149,0.1) 70%, transparent 100%)',
+            filter: 'blur(15px)'
+          }}
+          animate={{ 
+            scale: [1, 1.1, 1],
+            opacity: [0.4, 0.7, 0.4]
+          }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity,
+            repeatType: "reverse" 
+          }}
+        />
       </motion.div>
       
-      {/* Document elements (increased to 2) */}
-      <motion.div
-        className="absolute top-[25%] left-[15%] z-10"
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1, duration: 0.6 }}
-        whileHover={{ scale: 1.1, rotate: 5 }}
-        onHoverStart={() => setActiveFeature('contract')}
-        onHoverEnd={() => setActiveFeature(null)}
-      >
-        <div className="flex items-center justify-center w-14 h-14 bg-background/90 dark:bg-gray-800/90 rounded-md shadow-lg border border-shield-purple/30">
-          <FileCheck className="h-8 w-8 text-shield-purple" />
-        </div>
-        
-        {/* Tooltip for document */}
-        <AnimatePresence>
-          {activeFeature === 'contract' && (
-            <motion.div
-              className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white dark:bg-gray-800 rounded-md shadow-lg p-2 z-20 w-48"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-            >
-              <h4 className="font-['NT_Brick_Sans'] text-sm font-bold text-shield-purple">Smart Contracts</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-300">Secure escrow contracts with automatic verification and dispute resolution</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-      
-      <motion.div
-        className="absolute top-[35%] left-[10%] z-10"
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.1, duration: 0.6 }}
-        whileHover={{ scale: 1.1, rotate: -5 }}
-        onHoverStart={() => setActiveFeature('verification')}
-        onHoverEnd={() => setActiveFeature(null)}
-      >
-        <div className="flex items-center justify-center w-12 h-12 bg-background/90 dark:bg-gray-800/90 rounded-md shadow-lg border border-shield-purple/30">
-          <Users className="h-6 w-6 text-shield-blue" />
-        </div>
-        
-        {/* Tooltip for verification */}
-        <AnimatePresence>
-          {activeFeature === 'verification' && (
-            <motion.div
-              className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white dark:bg-gray-800 rounded-md shadow-lg p-2 z-20 w-48"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-            >
-              <h4 className="font-['NT_Brick_Sans'] text-sm font-bold text-shield-blue">Verification</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-300">Multi-party verification ensures work meets requirements</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-      
-      {/* Token components (enhanced with price data) */}
-      <motion.div
-        className="absolute top-[25%] right-[15%] z-10"
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.2, duration: 0.6 }}
-        whileHover={{ scale: 1.1, rotate: -5 }}
-        onClick={() => setShowTokenDetails(!showTokenDetails)}
-      >
-        <div className="flex items-center justify-center w-14 h-14 bg-[#14F195]/90 rounded-full shadow-lg border border-[#14F195]/30 cursor-pointer">
-          <span className="font-bold text-black text-sm">SOL</span>
-        </div>
-        
-        {/* SOL price indicator */}
-        <motion.div
-          className="absolute -top-2 -right-2 bg-white dark:bg-gray-800 rounded-full px-2 py-0.5 text-xs font-bold shadow-md border border-shield-purple/20"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 2, duration: 0.3 }}
-        >
-          ${tokenPrices.SOL.price}
-        </motion.div>
-      </motion.div>
-      
-      <motion.div
-        className="absolute top-[35%] right-[10%] z-10"
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.3, duration: 0.6 }}
-        whileHover={{ scale: 1.1, rotate: 5 }}
-        onClick={() => setShowTokenDetails(!showTokenDetails)}
-      >
-        <div className="flex items-center justify-center w-12 h-12 bg-[#2775CA]/90 rounded-full shadow-lg border border-[#2775CA]/30 cursor-pointer">
-          <span className="font-bold text-white text-xs">USDC</span>
-        </div>
-      </motion.div>
-      
-      {/* Token details panel */}
-      <AnimatePresence>
-        {showTokenDetails && (
-          <motion.div
-            className="absolute top-[15%] right-[5%] bg-white dark:bg-gray-800 rounded-lg shadow-xl p-3 z-30 w-64 border border-shield-purple/20"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-          >
-            <h3 className="font-['NT_Brick_Sans'] text-sm font-bold text-foreground dark:text-white mb-2">Protection Tokens</h3>
-            
-            {/* Token list */}
-            <div className="space-y-2">
-              {Object.entries(tokenPrices).map(([symbol, data]) => {
-                const change = formatPriceChange(data.change);
-                return (
-                  <div key={symbol} className="flex items-center justify-between p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                        symbol === 'SOL' ? 'bg-[#14F195]' : 
-                        symbol === 'USDC' ? 'bg-[#2775CA]' : 
-                        'bg-[#F0B90B]'
-                      }`}>
-                        <span className={`text-xs font-bold ${symbol === 'SOL' ? 'text-black' : 'text-white'}`}>{symbol.substring(0, 1)}</span>
-                      </div>
-                      <span className="text-sm font-medium text-foreground dark:text-gray-200">{symbol}</span>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-foreground dark:text-gray-200">
-                        ${symbol === 'BONK' ? data.price.toFixed(8) : data.price.toFixed(2)}
-                      </div>
-                      <div className={`text-xs ${change.color}`}>{change.text}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            
-            <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-              <button className="w-full flex items-center justify-center space-x-1 text-xs text-shield-purple hover:text-shield-blue transition-colors">
-                <span>View all tokens</span>
-                <ExternalLink className="h-3 w-3" />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
-      {/* Connection lines with animated particles */}
-      <svg className="absolute inset-0 w-full h-full">
-        <defs>
-          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#9455FF" stopOpacity="0.2" />
-            <stop offset="50%" stopColor="#9455FF" />
-            <stop offset="100%" stopColor="#9455FF" stopOpacity="0.2" />
-          </linearGradient>
+      {/* Enhanced token cards with improved styling and animations */}
+      <div className="absolute inset-0">
+        {Object.entries(tokenPrices).map(([token, data], index) => {
+          const angle = (index * (360 / Object.keys(tokenPrices).length)) * (Math.PI / 180);
+          const radius = 180;
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * radius;
+          const priceChange = formatPriceChange(data.change);
           
-          <filter id="glow2" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        </defs>
-        
-        {/* Document to shield connection */}
-        <motion.path
-          d={`M80 140 L200 200`}
-          stroke="url(#lineGradient)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          fill="none"
-          filter="url(#glow2)"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ delay: 1.4, duration: 0.8 }}
-        />
-        
-        {/* Second document to shield connection */}
-        <motion.path
-          d={`M60 170 L200 200`}
-          stroke="url(#lineGradient)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          fill="none"
-          filter="url(#glow2)"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ delay: 1.5, duration: 0.8 }}
-        />
-        
-        {/* SOL to shield connection */}
-        <motion.path
-          d={`M320 140 L200 200`}
-          stroke="url(#lineGradient)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          fill="none"
-          filter="url(#glow2)"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ delay: 1.6, duration: 0.8 }}
-        />
-        
-        {/* USDC to shield connection */}
-        <motion.path
-          d={`M340 170 L200 200`}
-          stroke="url(#lineGradient)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          fill="none"
-          filter="url(#glow2)"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ delay: 1.7, duration: 0.8 }}
-        />
-        
-        {/* Animated particles on paths */}
-        {animationComplete && (
-          <>
-            {/* Document path particle */}
-            <motion.circle
-              r="3"
-              fill="#9455FF"
-              filter="url(#glow2)"
-              initial={{ opacity: 0 }}
+          return (
+            <motion.div
+              key={token}
+              className="absolute top-1/2 left-1/2 bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-lg p-3 backdrop-blur-md border border-shield-purple/20 z-20 parallax-element"
+              data-depth={0.4 + (index * 0.1)}
+              style={{ 
+                width: 120,
+                marginLeft: -60,
+                marginTop: -40,
+              }}
+              initial={{ opacity: 0, x, y }}
               animate={{ 
-                opacity: [0, 1, 0],
-                offsetDistance: ['0%', '100%']
+                opacity: 1, 
+                x, 
+                y,
+                scale: activeFeature === token ? 1.1 : 1,
+                boxShadow: activeFeature === token ? '0 0 20px rgba(148,85,255,0.5)' : '0 0 10px rgba(0,0,0,0.1)'
               }}
-              style={{ offsetPath: 'path(M80 140 L200 200)' }}
               transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                repeatDelay: 1
+                delay: 0.8 + (index * 0.2),
+                duration: 0.5,
+                type: "spring"
               }}
-            />
-            
-            {/* SOL path particle */}
-            <motion.circle
-              r="3"
-              fill="#14F195"
-              filter="url(#glow2)"
-              initial={{ opacity: 0 }}
-              animate={{ 
-                opacity: [0, 1, 0],
-                offsetDistance: ['0%', '100%']
-              }}
-              style={{ offsetPath: 'path(M320 140 L200 200)' }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                repeatDelay: 1.5
-              }}
-            />
-          </>
-        )}
-      </svg>
-      
-      {/* Feature badges (enhanced with hover effects) */}
-      <div className="absolute top-0 left-0 w-full h-full">
-        {[
-          { icon: <Shield className="h-5 w-5 text-shield-purple" />, label: "Protection", position: "top-3 left-1/2 -translate-x-1/2", id: "protection" },
-          { icon: <CheckCircle className="h-5 w-5 text-shield-purple" />, label: "Guaranteed", position: "bottom-1/4 right-3 translate-x-1/2", id: "guaranteed" },
-          { icon: <Sparkles className="h-5 w-5 text-shield-blue" />, label: "On Solana", position: "bottom-1/4 left-3 -translate-x-1/2", id: "solana" },
-          { icon: <Coins className="h-5 w-5 text-[#14F195]" />, label: "Instant Payouts", position: "bottom-10 left-1/2 -translate-x-1/2", id: "payouts" },
-        ].map((feature, index) => (
-          <motion.div
-            key={index}
-            className={`absolute ${feature.position} bg-background/90 dark:bg-gray-800/90 rounded-full py-1 px-3 shadow-lg flex items-center space-x-1.5 backdrop-blur-sm border border-shield-purple/20 dark:border-shield-purple/30 cursor-pointer`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ 
-              duration: 0.5, 
-              delay: 0.8 + (index * 0.15),
-              type: "spring",
-              stiffness: 100
-            }}
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: "0 0 15px rgba(148, 85, 255, 0.5)"
-            }}
-            onHoverStart={() => setActiveFeature(feature.id)}
-            onHoverEnd={() => setActiveFeature(null)}
-          >
-            {feature.icon}
-            <span className="font-['NT_Brick_Sans'] text-xs text-foreground dark:text-gray-300">{feature.label}</span>
-          </motion.div>
-        ))}
+              whileHover={{ scale: 1.1 }}
+              onHoverStart={() => setActiveFeature(token)}
+              onHoverEnd={() => setActiveFeature(null)}
+            >
+              <div className="flex items-center mb-2">
+                <div className="w-8 h-8 rounded-full bg-shield-purple/20 flex items-center justify-center mr-2">
+                  <Coins className="w-4 h-4 text-shield-purple" />
+                </div>
+                <span className="font-['NT_Brick_Sans'] font-bold text-foreground dark:text-white">{token}</span>
+              </div>
+              
+              <div className="flex justify-between items-baseline">
+                <div className="text-lg font-bold text-foreground dark:text-white">
+                  ${token === 'BONK' ? data.price.toFixed(8) : data.price.toFixed(2)}
+                </div>
+                <div className={`text-xs font-medium ${priceChange.color}`}>
+                  {priceChange.text}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
       
-      {/* Protection stats panel */}
+      {/* Enhanced feature icons with improved positioning and animations */}
+      <div className="absolute inset-0">
+        {[
+          { id: 'protection', icon: <Shield className="w-5 h-5 text-shield-purple" />, label: 'Protection', angle: 45 },
+          { id: 'verification', icon: <CheckCircle className="w-5 h-5 text-shield-purple" />, label: 'Verification', angle: 135 },
+          { id: 'rewards', icon: <Sparkles className="w-5 h-5 text-shield-purple" />, label: 'Rewards', angle: 225 },
+          { id: 'security', icon: <Lock className="w-5 h-5 text-shield-purple" />, label: 'Security', angle: 315 },
+        ].map((feature, index) => {
+          const angle = (feature.angle) * (Math.PI / 180);
+          const radius = 220;
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * radius;
+          
+          return (
+            <motion.div
+              key={feature.id}
+              className="absolute top-1/2 left-1/2 flex flex-col items-center justify-center z-20 parallax-element"
+              data-depth="0.3"
+              style={{ 
+                marginLeft: -40,
+                marginTop: -40,
+                width: 80
+              }}
+              initial={{ opacity: 0, x, y }}
+              animate={{ 
+                opacity: 1, 
+                x, 
+                y,
+                scale: activeFeature === feature.id ? 1.1 : 1
+              }}
+              transition={{ 
+                delay: 1.2 + (index * 0.2),
+                duration: 0.5
+              }}
+              whileHover={{ 
+                scale: 1.1,
+                filter: 'drop-shadow(0 0 8px rgba(148,85,255,0.5))'
+              }}
+              onHoverStart={() => setActiveFeature(feature.id)}
+              onHoverEnd={() => setActiveFeature(null)}
+            >
+              <div className="w-10 h-10 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md flex items-center justify-center mb-2 shadow-lg border border-shield-purple/20">
+                {feature.icon}
+              </div>
+              <span className="font-['NT_Brick_Sans'] text-xs text-foreground dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 px-2 py-1 rounded-full backdrop-blur-sm">{feature.label}</span>
+            </motion.div>
+          );
+        })}
+      </div>
+      
+      {/* Enhanced protection stats panel with improved styling */}
       <AnimatePresence>
         {activeFeature === 'protection' && (
           <motion.div
-            className="absolute top-16 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-3 z-30 w-64 border border-shield-purple/20"
+            className="absolute top-16 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-gray-800/95 rounded-lg shadow-xl p-4 z-30 w-72 border border-shield-purple/30 backdrop-blur-md parallax-element"
+            data-depth="0.1"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            <h3 className="font-['NT_Brick_Sans'] text-sm font-bold text-shield-purple mb-2">Protection Stats</h3>
+            <h3 className="font-['NT_Brick_Sans'] text-sm font-bold text-shield-purple mb-3 flex items-center">
+              <Shield className="w-4 h-4 mr-1" />
+              Protection Stats
+            </h3>
             
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-md">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-gray-50/80 dark:bg-gray-700/50 p-2 rounded-md">
                 <div className="text-xs text-gray-500 dark:text-gray-400">Protected Projects</div>
                 <div className="text-lg font-bold text-foreground dark:text-white">{formatNumber(protectionStats.protected)}</div>
               </div>
               
-              <div className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-md">
+              <div className="bg-gray-50/80 dark:bg-gray-700/50 p-2 rounded-md">
                 <div className="text-xs text-gray-500 dark:text-gray-400">Success Rate</div>
                 <div className="text-lg font-bold text-[#14F195]">{protectionStats.successRate}%</div>
               </div>
               
-              <div className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-md">
+              <div className="bg-gray-50/80 dark:bg-gray-700/50 p-2 rounded-md">
                 <div className="text-xs text-gray-500 dark:text-gray-400">Avg Response</div>
                 <div className="text-lg font-bold text-foreground dark:text-white">{protectionStats.avgResponse}</div>
               </div>
               
-              <div className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-md">
+              <div className="bg-gray-50/80 dark:bg-gray-700/50 p-2 rounded-md">
                 <div className="text-xs text-gray-500 dark:text-gray-400">Total Value</div>
                 <div className="text-lg font-bold text-shield-blue">{protectionStats.totalValue}</div>
               </div>
@@ -491,18 +369,19 @@ const EnhancedDynamicShieldEcosystem: React.FC = () => {
         )}
       </AnimatePresence>
       
-      {/* Orbiting particles with enhanced effects */}
-      {[...Array(8)].map((_, index) => (
+      {/* Enhanced orbiting particles with improved effects */}
+      {[...Array(12)].map((_, index) => (
         <motion.div
           key={`particle-${index}`}
-          className="absolute top-1/2 left-1/2 rounded-full"
+          className="absolute top-1/2 left-1/2 rounded-full parallax-element"
+          data-depth={0.6 + (index * 0.05)}
           style={{ 
             x: -4, 
             y: -4,
             width: index % 3 === 0 ? '8px' : '6px',
             height: index % 3 === 0 ? '8px' : '6px',
             background: index % 3 === 0 ? '#14F195' : index % 2 === 0 ? '#7B61FF' : '#9455FF',
-            boxShadow: `0 0 10px ${index % 3 === 0 ? '#14F195' : index % 2 === 0 ? '#7B61FF' : '#9455FF'}`
+            boxShadow: `0 0 ${index % 3 === 0 ? '15' : '10'}px ${index % 3 === 0 ? '#14F195' : index % 2 === 0 ? '#7B61FF' : '#9455FF'}`
           }}
           animate={{
             x: [0, 0],
@@ -511,8 +390,8 @@ const EnhancedDynamicShieldEcosystem: React.FC = () => {
             opacity: [0.7, 1, 0.7],
           }}
           transition={{
-            duration: 4,
-            delay: index * 0.5,
+            duration: 4 + (index % 3),
+            delay: index * 0.3,
             repeat: Infinity,
             repeatType: "reverse",
             times: [0, 0.5, 1],
@@ -525,18 +404,51 @@ const EnhancedDynamicShieldEcosystem: React.FC = () => {
         />
       ))}
       
-      {/* Call-to-action button */}
+      {/* Connection lines between elements */}
+      <svg className="absolute inset-0 w-full h-full z-5 opacity-30">
+        <motion.path
+          d="M275,275 L350,200 L425,275 L350,350 Z"
+          stroke="#9455FF"
+          strokeWidth="1"
+          fill="none"
+          strokeDasharray="5,5"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 0.5 }}
+          transition={{ duration: 2, delay: 1.5 }}
+        />
+        <motion.path
+          d="M275,275 L200,200 L125,275 L200,350 Z"
+          stroke="#14F195"
+          strokeWidth="1"
+          fill="none"
+          strokeDasharray="5,5"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 0.5 }}
+          transition={{ duration: 2, delay: 1.8 }}
+        />
+      </svg>
+      
+      {/* Enhanced call-to-action button with improved styling */}
       <motion.div
-        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20"
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 parallax-element"
+        data-depth="0.2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2, duration: 0.5 }}
       >
-        <button className="bg-shield-purple hover:bg-shield-purple/90 text-white font-['NT_Brick_Sans'] font-medium py-2 px-4 rounded-full flex items-center space-x-2 shadow-lg">
+        <button className="bg-shield-purple hover:bg-shield-purple/90 text-white font-['NT_Brick_Sans'] font-medium py-2.5 px-5 rounded-full flex items-center space-x-2 shadow-lg border border-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-shield-purple/20">
           <span>Get Protected</span>
           <ArrowRight className="h-4 w-4" />
         </button>
       </motion.div>
+      
+      {/* Noise texture overlay */}
+      <div 
+        className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay"
+        style={{
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")"
+        }}
+      />
     </div>
   );
 };

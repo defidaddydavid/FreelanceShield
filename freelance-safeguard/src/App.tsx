@@ -1,9 +1,7 @@
-import { SolanaThemeProvider } from './contexts/SolanaThemeProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { Toaster } from './components/ui/toaster';
-import { clusterApiUrl } from '@solana/web3.js';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { TransactionProvider } from './contexts/TransactionContext';
 import { FreelanceInsuranceSDKProvider } from './lib/solana/sdk/context';
 import { Home } from './pages/Home';
@@ -14,51 +12,65 @@ import AIPremiumCalculator from './pages/AIPremiumCalculator';
 import Index from './pages/Index';
 import HowItWorksPage from './pages/HowItWorksPage';
 import PricingPage from './pages/Pricing';
-import StakingPage from './pages/StakingPage';
 import RiskPoolDashboard from './pages/RiskPoolDashboard';
 import ReputationScorePage from './pages/ReputationScorePage';
 import RegulatoryCompliancePage from './pages/RegulatoryCompliancePage';
-import SolanaTestPage from './pages/SolanaTestPage';
 import ClaimsSystem from './pages/ClaimsSystem';
 import ComingSoonPage from './pages/ComingSoonPage';
+import PrivyTestPage from './pages/PrivyTestPage';
+import EthosTestPage from './pages/EthosTestPage';
 import { Toaster as SonnerToaster } from 'sonner';
 import { ErrorBoundary } from 'react-error-boundary';
 import { cn } from "@/lib/utils";
-import { SolanaErrorBoundary } from './components/SolanaErrorBoundary';
-import { useSolanaTheme } from './contexts/SolanaThemeProvider';
 import { initializeTheme } from './utils/theme-utils';
+import MainLogo from '@/assets/wallets/Main logo.png';
+import PhantomIcon from '@/assets/wallets/phantom.svg';
 
 // Import Privy authentication
-import { PrivyProvider } from '@privy-io/react-auth';
 import { usePrivyAuth } from './hooks/usePrivyAuth';
-
-// Unified SolanaProviders component
-const SolanaProviders = ({ children }) => {
-  // Set up network for Solana connection
-  const network = import.meta.env.VITE_SOLANA_NETWORK || 'devnet';
-  const endpoint = useMemo(() => {
-    return import.meta.env.VITE_SOLANA_RPC_URL || clusterApiUrl(network);
-  }, [network]);
-
-  return (
-    <SolanaThemeProvider>
-      {children}
-    </SolanaThemeProvider>
-  );
-};
+import { useAuthRedirect } from './hooks/useAuthRedirect';
+import { PrivyProvider } from '@privy-io/react-auth';
 
 // Protected route component that redirects to home if not authenticated with Privy
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, ready } = usePrivyAuth();
   
-  // Show nothing while Privy is initializing
+  // Show loading indicator while Privy is initializing
   if (!ready) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
   }
   
   // Redirect to home if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// Simple auth redirect component to handle redirecting authenticated users to dashboard
+const AuthRedirect = ({ children }) => {
+  const { isAuthenticated, ready } = usePrivyAuth();
+  const navigate = useNavigate();
+  
+  // Only redirect if authenticated and ready
+  useEffect(() => {
+    if (ready && isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [ready, isAuthenticated, navigate]);
+  
+  // Show loading spinner while Privy is initializing
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
   }
   
   return <>{children}</>;
@@ -76,7 +88,7 @@ const queryClient = new QueryClient({
 
 // Improved error fallback with theme support
 function ErrorFallback({ error }) {
-  const { isDark } = useSolanaTheme();
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   
   return (
     <div className={cn(
@@ -100,26 +112,18 @@ function ErrorFallback({ error }) {
           "mb-4",
           isDark ? "text-gray-300" : "text-gray-600"
         )}>
-          An error occurred while rendering the application:
+          We apologize for the inconvenience. Please try refreshing the page or contact support if the issue persists.
         </p>
-        <pre className={cn(
-          "p-4 rounded overflow-auto text-sm",
-          isDark 
-            ? "bg-gray-900 text-gray-300" 
-            : "bg-gray-100 text-gray-800"
-        )}>
-          {error.message}
-        </pre>
-        <button 
+        <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
+          <p className="text-sm text-red-800 font-mono whitespace-pre-wrap break-all">
+            {error.message}
+          </p>
+        </div>
+        <button
           onClick={() => window.location.reload()}
-          className={cn(
-            "mt-4 px-4 py-2 rounded-md text-white font-medium",
-            isDark 
-              ? "bg-shield-blue hover:bg-shield-blue/90" 
-              : "bg-shield-purple hover:bg-shield-purple/90"
-          )}
+          className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors"
         >
-          Reload Page
+          Refresh Page
         </button>
       </div>
     </div>
@@ -129,155 +133,142 @@ function ErrorFallback({ error }) {
 // Launch gate component to redirect all traffic to coming soon page
 // Set isPreLaunch to false when ready to launch the full app
 const LaunchGate = () => {
-  // Set to false to show the actual app, true to show the coming soon page
   const isPreLaunch = false;
-  
-  // Check if developer mode is enabled via localStorage
-  const bypassEnabled = localStorage.getItem('freelanceShield_devBypass') === 'true';
-  
-  // An allowlist of paths that bypass the gate (for development/testing)
-  const allowedPaths = ['/coming-soon'];
-  
-  // Skip the gate if we're on an allowed path or developer bypass is enabled
-  const pathname = window.location.pathname;
-  const isAllowedPath = allowedPaths.includes(pathname);
-  
-  if (isPreLaunch && !isAllowedPath && !bypassEnabled) {
-    return <Navigate to="/coming-soon" replace />;
-  }
-  
-  return <Outlet />;
+  return isPreLaunch ? <ComingSoonPage /> : <Outlet />;
 };
 
-export default function App() {
-  const { isDark, setTheme } = useSolanaTheme();
-
-  // Initialize the application with dark mode as default
+function App() {
+  // Initialize theme on app load
   useEffect(() => {
-    // Apply the theme immediately to prevent flash of light theme
     initializeTheme();
-    
-    // Ensure dark mode is set as the default theme
-    setTheme('dark');
-    
-    // Add dark mode meta tag for better mobile integration
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (!meta) {
-      const newMeta = document.createElement('meta');
-      newMeta.name = 'theme-color';
-      newMeta.content = '#0a0a0a'; // Dark background color
-      document.head.appendChild(newMeta);
-    }
-  }, [setTheme]);
+  }, []);
 
   // Privy configuration
-  const privyAppId = import.meta.env.VITE_PRIVY_APP_ID || '';
-
+  const privyAppId = import.meta.env.VITE_PRIVY_APP_ID || 'clqd6kcfk00ztl80fpw2l6pmn';
+  
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <div className={cn(
-        "min-h-screen",
-        isDark ? "bg-[#0a0a0a]" : "bg-white"
-      )}>
-        <Router>
+      <div className="app">
+        <PrivyProvider
+          appId={privyAppId}
+          config={{
+            appearance: {
+              accentColor: "#9945FF",
+              theme: "dark",
+              showWalletLoginFirst: true,
+              logo: MainLogo,
+              walletChainType: "solana-only",
+            },
+            loginMethods: ['email', 'google', 'twitter', 'github', 'wallet'],
+            embeddedWallets: {
+              createOnLogin: 'users-without-wallets',
+            },
+            externalWallets: {
+              solana: {
+                connectors: ['phantom', 'solflare', 'backpack', 'solana'],
+              },
+            },
+          }}
+        >
           <QueryClientProvider client={queryClient}>
-            <PrivyProvider
-              appId={privyAppId}
-              config={{
-                loginMethods: ['email', 'wallet'],
-                appearance: {
-                  theme: isDark ? 'dark' : 'light',
-                  accentColor: '#9945FF',
-                  logo: '/logo.svg',
-                },
-                embeddedWallets: {
-                  createOnLogin: 'users-without-wallets',
-                },
-              }}
-            >
-              <SolanaProviders>
+            <Router>
+              <TransactionProvider>
                 <FreelanceInsuranceSDKProvider>
-                  <TransactionProvider>
-                    <Routes>
-                      {/* Coming Soon page */}
-                      <Route path="/coming-soon" element={<ComingSoonPage />} />
+                  <Routes>
+                    <Route element={<LaunchGate />}>
+                      {/* Public routes wrapped in AuthRedirect to handle authenticated users */}
+                      <Route path="/" element={
+                        <AuthRedirect>
+                          <Index />
+                        </AuthRedirect>
+                      } />
+                      <Route path="/how-it-works" element={
+                        <AuthRedirect>
+                          <HowItWorksPage />
+                        </AuthRedirect>
+                      } />
+                      <Route path="/pricing" element={
+                        <AuthRedirect>
+                          <PricingPage />
+                        </AuthRedirect>
+                      } />
                       
-                      {/* All other routes are wrapped in the LaunchGate */}
-                      <Route element={<LaunchGate />}>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/how-it-works" element={<HowItWorksPage />} />
-                        <Route path="/pricing" element={<PricingPage />} />
-                        
-                        {/* Risk Pool Dashboard is public for transparency */}
-                        <Route path="/risk-pool" element={<RiskPoolDashboard />} />
-                        
-                        {/* Solana Integration Test Page */}
-                        <Route path="/solana-test" element={<SolanaTestPage />} />
-                        
-                        {/* All routes below require wallet connection */}
-                        <Route path="/reputation-score" element={
-                          <ProtectedRoute>
-                            <ReputationScorePage />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/dashboard" element={
-                          <ProtectedRoute>
-                            <Dashboard />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/risk-analysis" element={
-                          <ProtectedRoute>
-                            <RiskAnalysis />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/claims-system" element={
-                          <ProtectedRoute>
-                            <ClaimsSystem />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/new-policy" element={
-                          <ProtectedRoute>
-                            <NewPolicy />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/ai-premium-calculator" element={
-                          <ProtectedRoute>
-                            <AIPremiumCalculator />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/staking" element={
-                          <ProtectedRoute>
-                            <StakingPage />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/regulatory-compliance" element={
-                          <ProtectedRoute>
-                            <Navigate to="/regulatory-compliance/new" replace />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/regulatory-compliance/new" element={
-                          <ProtectedRoute>
-                            <RegulatoryCompliancePage />
-                          </ProtectedRoute>
-                        } />
-                        {/* Redirect all unknown routes to home */}
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                      </Route>
-                    </Routes>
-                    
-                    {/* Unified toast system */}
-                    <SonnerToaster 
-                      position="top-right" 
-                      richColors 
-                      className="toaster-wrapper" 
-                    />
-                  </TransactionProvider>
+                      {/* Risk Pool Dashboard is public for transparency */}
+                      <Route path="/risk-pool" element={<RiskPoolDashboard />} />
+                      
+                      {/* Privy Integration Test Page */}
+                      <Route path="/privy-test" element={<PrivyTestPage />} />
+                      
+                      {/* Ethos Integration Test Page */}
+                      <Route path="/ethos-test" element={<EthosTestPage />} />
+                      
+                      {/* All routes below require wallet connection */}
+                      <Route path="/reputation-score" element={
+                        <ProtectedRoute>
+                          <ReputationScorePage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/dashboard" element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/risk-analysis" element={
+                        <ProtectedRoute>
+                          <RiskAnalysis />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/claims-system" element={
+                        <ProtectedRoute>
+                          <ClaimsSystem />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/new-policy" element={
+                        <ProtectedRoute>
+                          <NewPolicy />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/ai-premium-calculator" element={
+                        <ProtectedRoute>
+                          <AIPremiumCalculator />
+                        </ProtectedRoute>
+                      } />
+                      {/* [DISABLED] Staking route removed for initial launch
+                      <Route path="/staking" element={
+                        <ProtectedRoute>
+                          <StakingPage />
+                        </ProtectedRoute>
+                      } />
+                      */}
+                      <Route path="/regulatory-compliance" element={
+                        <ProtectedRoute>
+                          <Navigate to="/regulatory-compliance/new" replace />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/regulatory-compliance/new" element={
+                        <ProtectedRoute>
+                          <RegulatoryCompliancePage />
+                        </ProtectedRoute>
+                      } />
+                      {/* Redirect all unknown routes to home */}
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Route>
+                  </Routes>
+                  
+                  {/* Unified toast system */}
+                  <SonnerToaster 
+                    position="top-right" 
+                    richColors 
+                    className="toaster-wrapper" 
+                  />
                 </FreelanceInsuranceSDKProvider>
-              </SolanaProviders>
-            </PrivyProvider>
+              </TransactionProvider>
+            </Router>
           </QueryClientProvider>
-        </Router>
+        </PrivyProvider>
       </div>
     </ErrorBoundary>
   );
 }
+
+export default App;

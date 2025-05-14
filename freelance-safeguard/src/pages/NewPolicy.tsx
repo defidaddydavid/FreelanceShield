@@ -9,11 +9,10 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, DollarSign, Calendar, Briefcase, Building, Star, AlertCircle, Loader2 } from 'lucide-react';
-import { JobType, Industry } from '@/hooks/useSolanaInsurance';
+import { JobType, Industry } from '@/types';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { NETWORK_CONFIG, RISK_WEIGHTS } from '@/lib/solana/constants';
 import { toast } from 'sonner';
-import WalletConnect from '@/components/wallet/WalletConnect';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useFreelanceInsurance } from '@/lib/solana/hooks/useFreelanceInsurance';
 import { usePremiumCalculation } from '@/lib/solana/hooks/usePremiumCalculation';
@@ -30,7 +29,7 @@ const NewPolicy = () => {
     clientName: '',
     coverageAmount: 1000,
     coveragePeriod: 30,
-    jobType: JobType.SOFTWARE_DEVELOPMENT,
+    jobType: JobType.DEVELOPMENT,
     industry: Industry.TECHNOLOGY,
     description: ''
   });
@@ -194,28 +193,77 @@ const NewPolicy = () => {
 
   // Map job type enum to display names
   const getJobTypeDisplayName = (jobType) => {
-    const displayNames = {
-      [JobType.SOFTWARE_DEVELOPMENT]: 'Software Development',
-      [JobType.DESIGN]: 'Design',
-      [JobType.WRITING]: 'Content Writing',
-      [JobType.MARKETING]: 'Marketing',
-      [JobType.CONSULTING]: 'Consulting',
-      [JobType.OTHER]: 'Other'
-    };
-    return displayNames[jobType] || jobType;
+    switch (jobType) {
+      case JobType.DEVELOPMENT:
+        return 'Software Development';
+      case JobType.DESIGN:
+        return 'Design';
+      case JobType.WRITING:
+        return 'Content Writing';
+      case JobType.MARKETING:
+        return 'Marketing';
+      case JobType.CONSULTING:
+        return 'Consulting';
+      case JobType.ENGINEERING:
+        return 'Engineering';
+      default:
+        return 'Other';
+    }
   };
 
   // Map industry enum to display names
   const getIndustryDisplayName = (industry) => {
-    const displayNames = {
-      [Industry.TECHNOLOGY]: 'Technology',
-      [Industry.FINANCE]: 'Finance',
-      [Industry.HEALTHCARE]: 'Healthcare',
-      [Industry.EDUCATION]: 'Education',
-      [Industry.RETAIL]: 'Retail',
-      [Industry.OTHER]: 'Other'
+    switch (industry) {
+      case Industry.TECHNOLOGY:
+        return 'Technology';
+      case Industry.HEALTHCARE:
+        return 'Healthcare';
+      case Industry.FINANCE:
+        return 'Finance';
+      case Industry.EDUCATION:
+        return 'Education';
+      case Industry.ECOMMERCE:
+        return 'E-commerce';
+      case Industry.ENTERTAINMENT:
+        return 'Entertainment';
+      case Industry.MANUFACTURING:
+        return 'Manufacturing';
+      default:
+        return 'Other';
+    }
+  };
+
+  const getRiskFactorForJobType = (jobType) => {
+    // Map JobType enum values to the keys used in RISK_WEIGHTS.jobTypes
+    const jobTypeMap = {
+      [JobType.DEVELOPMENT]: 'development',
+      [JobType.DESIGN]: 'design',
+      [JobType.WRITING]: 'writing',
+      [JobType.MARKETING]: 'marketing',
+      [JobType.CONSULTING]: 'consulting',
+      [JobType.ENGINEERING]: 'other', // Map to 'other' as there's no direct match
+      [JobType.OTHER]: 'other'
     };
-    return displayNames[industry] || industry;
+    
+    const jobTypeKey = jobTypeMap[jobType] || 'other';
+    return RISK_WEIGHTS.jobTypes[jobTypeKey] ? RISK_WEIGHTS.jobTypes[jobTypeKey].toFixed(2) : '1.00';
+  };
+
+  const getRiskFactorForIndustry = (industry) => {
+    // Map Industry enum values to the keys used in RISK_WEIGHTS.industries
+    const industryMap = {
+      [Industry.TECHNOLOGY]: 'infrastructure', // Closest match
+      [Industry.HEALTHCARE]: 'other',
+      [Industry.FINANCE]: 'defi',
+      [Industry.EDUCATION]: 'other',
+      [Industry.ECOMMERCE]: 'other',
+      [Industry.ENTERTAINMENT]: 'gaming', // Closest match
+      [Industry.MANUFACTURING]: 'other',
+      [Industry.OTHER]: 'other'
+    };
+    
+    const industryKey = industryMap[industry] || 'other';
+    return RISK_WEIGHTS.industries[industryKey] ? RISK_WEIGHTS.industries[industryKey].toFixed(2) : '1.00';
   };
 
   return (
@@ -229,9 +277,6 @@ const NewPolicy = () => {
             <AlertTitle>Wallet not connected</AlertTitle>
             <AlertDescription>
               Please connect your wallet to create an insurance policy.
-              <div className="mt-4">
-                <WalletConnect />
-              </div>
             </AlertDescription>
           </Alert>
         )}
@@ -363,7 +408,7 @@ const NewPolicy = () => {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Risk factor: {RISK_WEIGHTS.jobType[formData.jobType]?.toFixed(2) || '1.00'}x
+                    Risk factor: {getRiskFactorForJobType(formData.jobType)}x
                   </p>
                 </div>
                 
@@ -385,7 +430,7 @@ const NewPolicy = () => {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Risk factor: {RISK_WEIGHTS.industry[formData.industry]?.toFixed(2) || '1.00'}x
+                    Risk factor: {getRiskFactorForIndustry(formData.industry)}x
                   </p>
                 </div>
               </CardContent>

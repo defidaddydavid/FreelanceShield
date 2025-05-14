@@ -1,12 +1,11 @@
 [package]
 name = "risk-pool-program"
 version = "0.1.0"
-description = "Risk pool management for FreelanceShield"
+description = "FreelanceShield smart contract"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "risk_pool_program"
 
 [features]
 no-entrypoint = []
@@ -14,14 +13,11 @@ no-idl = []
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
 default = []
-idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 
 [dependencies]
-anchor-lang = { workspace = true }
-anchor-spl = { workspace = true }
-spl-token = { workspace = true }
+solana-program = { workspace = true }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
-proc-macro2 = { workspace = true }
-quote = { workspace = true }
-syn = { workspace = true }
+borsh = { workspace = true }
+
+# Removed direct solana-program dependency for Anchor compatibility

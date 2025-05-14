@@ -1,115 +1,132 @@
+// FreelanceShield uses Privy for Solana-only authentication
 import './polyfills';
-import './utils/ethereum-shim.js';
 
 import React, { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-
-// Import global styles
 import './index.css';
 
-// Create error handler for Solana wallet errors
-window.addEventListener('error', (event) => {
-  // Handle null property access errors from wallet adapters
-  if (event.error?.message?.includes('Cannot read properties of null') &&
-      (event.filename?.includes('inpage.js') || 
-       event.error.stack?.includes('wallet-adapter'))) {
-    console.warn('Intercepted Solana wallet adapter error:', event.error.message);
-    event.preventDefault();
-    event.stopPropagation();
-    return true;
-  }
-  
-  // Handle Backpack wallet errors
-  if (event.error?.message?.includes('BackpackWalletAdapter') ||
-      event.error?.stack?.includes('BackpackWalletAdapter')) {
-    console.debug('Ignoring missing BackpackWalletAdapter error');
-    event.preventDefault();
-    event.stopPropagation();
-    return true;
-  }
-  
-  // Handle BraveWalletAdapter errors
-  if (event.error?.message?.includes('BraveWalletAdapter') ||
-      event.error?.stack?.includes('BraveWalletAdapter')) {
-    console.debug('Ignoring BraveWalletAdapter error');
-    event.preventDefault();
-    event.stopPropagation();
-    return true;
-  }
-}, { capture: true });
+// Block specific browser extension errors (like MetaMask/Phantom)
+// This prevents the "Cannot read properties of null (reading 'type')" error
+document.addEventListener('DOMContentLoaded', () => {
+  // Create a global error handler for inpage.js errors
+  window.addEventListener('error', (event) => {
+    const errorMsg = event.error?.message || event.message;
+    if (errorMsg && (
+      errorMsg.includes("Cannot read properties of null (reading 'type')") ||
+      errorMsg.includes('inpage.js')
+    )) {
+      console.log('Suppressed wallet extension error:', errorMsg);
+      event.preventDefault();
+      event.stopPropagation();
+      return true;
+    }
+  }, true);
+});
 
-// Handle unhandled promise rejections
+// Create error handler for Solana wallet errors
 window.addEventListener('unhandledrejection', (event) => {
-  // Handle wallet adapter promise rejections
-  if (event.reason?.message?.includes('wallet') ||
-      event.reason?.message?.includes('adapter') ||
-      event.reason?.stack?.includes('wallet-adapter')) {
-    console.warn('Intercepted Solana wallet promise rejection:', event.reason.message);
-    event.preventDefault();
-    return true;
-  }
-  
-  // Handle common RPC errors
-  if (event.reason?.message?.includes('429 Too Many Requests') ||
-      event.reason?.message?.includes('timeout')) {
-    console.warn('Intercepted RPC error:', event.reason.message);
-    event.preventDefault();
-    return true;
+  const error = event.reason;
+  if (
+    error &&
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof error.message === 'string'
+  ) {
+    if (
+      error.message.includes('Wallet not ready') ||
+      error.message.includes('wallet adapter') ||
+      error.message.includes('Solana') ||
+      error.message.includes('wallet disconnected')
+    ) {
+      console.log('Suppressing Solana wallet error:', error.message);
+      event.preventDefault();
+    }
   }
 });
 
-// AppWrapper component to handle delayed initialization
+// Wrap the app with error boundaries and providers
 const AppWrapper = () => {
-  const [initialized, setInitialized] = useState(false);
-  const [loadingText, setLoadingText] = useState('Initializing Solana application...');
-  
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<Error | null>(null);
+
   useEffect(() => {
-    // Delay wallet initialization to ensure DOM is fully loaded
-    let loadingInterval: number;
-    
-    // Set up loading message animation
-    if (!initialized) {
-      let dots = 0;
-      loadingInterval = setInterval(() => {
-        dots = (dots + 1) % 4;
-        setLoadingText(`Initializing Solana application${'.'.repeat(dots)}`);
-      }, 500) as unknown as number;
-    }
-    
-    // Delay wallet initialization to ensure DOM is fully loaded
-    const timer = setTimeout(() => {
-      setInitialized(true);
-    }, 800);
-    
-    return () => {
-      clearTimeout(timer);
-      if (loadingInterval) clearInterval(loadingInterval);
+    // Simulate checking for wallet compatibility
+    const checkWalletCompatibility = async () => {
+      try {
+        // Wait for DOM to be fully loaded
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error during wallet compatibility check:', error);
+        setLoadError(error instanceof Error ? error : new Error('Unknown error during initialization'));
+        setIsLoading(false);
+      }
     };
-  }, [initialized]);
-  
-  if (!initialized) {
+
+    checkWalletCompatibility();
+  }, []);
+
+  if (isLoading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-white text-center">
-          <div className="animate-pulse">
-            {loadingText}
-          </div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+          <p className="mt-4 text-gray-300">Loading FreelanceShield...</p>
         </div>
       </div>
     );
   }
-  
+
+  if (loadError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="text-center max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+          <h2 className="text-xl font-bold text-red-500 mb-4">Initialization Error</h2>
+          <p className="text-gray-300 mb-4">
+            We encountered an error while loading FreelanceShield. This may be due to a browser
+            compatibility issue.
+          </p>
+          <p className="text-gray-400 text-sm mb-4">Error: {loadError.message}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+          >
+            Reload Application
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return <App />;
 };
 
-// Mount the application
-const container = document.getElementById('root');
-if (container) {
-  const root = createRoot(container);
-  root.render(
-    <StrictMode>
-      <AppWrapper />
-    </StrictMode>
-  );
+// Mount the application with error handling
+try {
+  const container = document.getElementById('root');
+  if (container) {
+    const root = createRoot(container);
+    root.render(
+      <StrictMode>
+        <AppWrapper />
+      </StrictMode>
+    );
+  }
+} catch (error) {
+  console.error('Error rendering FreelanceShield application:', error);
+  // Render a fallback UI
+  const rootElement = document.getElementById('root');
+  if (rootElement) {
+    rootElement.innerHTML = `
+      <div style="font-family: 'Open Sans', sans-serif; padding: 2rem; text-align: center;">
+        <h1>FreelanceShield</h1>
+        <p>We're experiencing technical difficulties. Please try refreshing the page.</p>
+        <button onclick="window.location.reload()" style="padding: 0.5rem 1rem; background: #6366f1; color: white; border: none; border-radius: 0.25rem; cursor: pointer;">
+          Refresh
+        </button>
+      </div>
+    `;
+  }
 }

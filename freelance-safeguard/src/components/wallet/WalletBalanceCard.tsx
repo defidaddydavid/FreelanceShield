@@ -1,5 +1,6 @@
-import React from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import React, { useEffect, useState } from "react";
+import { useWallet } from "@/hooks/useWallet";
+import { useConnection } from "@/hooks/useConnection";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -21,8 +22,16 @@ const WalletBalanceCard: React.FC<WalletBalanceCardProps> = ({
   showProgress = false,
   targetBalance = 10,
 }) => {
-  const { connected, balance } = useWallet();
-  
+  const { connected, publicKey } = useWallet();
+  const { connection } = useConnection();
+  const [balance, setBalance] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (connected && publicKey && connection) {
+      connection.getBalance(publicKey).then(setBalance).catch(() => setBalance(undefined));
+    }
+  }, [connected, publicKey, connection]);
+
   // Format SOL balance with proper decimals
   const formatBalance = (lamports: number | undefined) => {
     if (lamports === undefined) return "0";

@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  # Service for building and deploying contracts
+  deploy-and-integrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+      - solana-keypairs:/app/keypairs
+      - ./idl:/app/idl
+      - ../freelance-safeguard:/frontend
+    environment:
+      - ANCHOR_WALLET=/app/deploy-keypair.json
+      - SOLANA_URL=https://api.devnet.solana.com
+    command: >
+      bash -c "
+        echo 'Setting up deployment keypair...' &&
+        if [ ! -f /app/keypairs/deploy-keypair.json ]; then
+          solana-keygen new --no-bip39-passphrase -o /app/keypairs/deploy-keypair.json &&
+          cp /app/keypairs/deploy-keypair.json /app/deploy-keypair.json &&
+          PUBKEY=$(solana-keygen pubkey /app/deploy-keypair.json) &&
+          echo 'Requesting airdrop for new keypair: '$PUBKEY &&
+          solana airdrop 2 $PUBKEY --url devnet &&
+          sleep 2 &&
+          solana airdrop 2 $PUBKEY --url devnet
+        else
+          cp /app/keypairs/deploy-keypair.json /app/deploy-keypair.json &&
+          PUBKEY=$(solana-keygen pubkey /app/deploy-keypair.json) &&
+          echo 'Using existing keypair: '$PUBKEY &&
+          BALANCE=$(solana balance $PUBKEY --url devnet) &&
+          echo 'Current balance: '$BALANCE &&
+          if (( $(echo \"$BALANCE < 1\" | bc -l) )); then
+            echo 'Balance is low. Requesting airdrop...' &&
+            solana airdrop 2 $PUBKEY --url devnet
+          fi
+        fi &&
+        echo 'Building and deploying contracts...' &&
+        /usr/local/bin/docker-entrypoint.sh build all &&
+        /usr/local/bin/docker-entrypoint.sh deploy all &&
+        /usr/local/bin/docker-entrypoint.sh generate-idl &&
+        echo 'Setting up frontend integration...' &&
+        chmod +x /app/scripts/setup-frontend-integration.sh &&
+        /app/scripts/setup-frontend-integration.sh --frontend-dir /frontend
+      "
+
+  # Service for testing the frontend with Privy and Ethos
+  test-frontend:
+    image: node:16
+    working_dir: /frontend
+    volumes:
+      - ../freelance-safeguard:/frontend
+      - ./idl:/frontend/src/lib/solana/idl
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_PRIVY_APP_ID=${NEXT_PUBLIC_PRIVY_APP_ID:-your-privy-app-id}
+      - NEXT_PUBLIC_USE_ETHOS_REPUTATION=true
+      - NEXT_PUBLIC_SOLANA_NETWORK=devnet
+    command: >
+      bash -c "
+        echo 'Installing frontend dependencies...' &&
+        yarn install &&
+        echo 'Setting up Privy and Ethos configuration...' &&
+        if [ ! -f .env.local ]; then
+          echo '# Privy Authentication' > .env.local &&
+          echo 'NEXT_PUBLIC_PRIVY_APP_ID=${NEXT_PUBLIC_PRIVY_APP_ID:-your-privy-app-id}' >> .env.local &&
+          echo '# Ethos Reputation' >> .env.local &&
+          echo 'NEXT_PUBLIC_USE_ETHOS_REPUTATION=true' >> .env.local &&
+          echo '# Solana Network' >> .env.local &&
+          echo 'NEXT_PUBLIC_SOLANA_NETWORK=devnet' >> .env.local &&
+          echo 'Created .env.local file with Privy and Ethos configuration'
+        else
+          echo 'Using existing .env.local configuration'
+        fi &&
+        echo 'Starting frontend application...' &&
+        yarn dev
+      "
+    depends_on:
+      - deploy-and-integrate
+
+  # Service for running a local validator for testing
+  local-validator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8899:8899"
+      - "8900:8900"
+    volumes:
+      - ./:/app
+      - solana-keypairs:/app/keypairs
+    command: >
+      bash -c "
+        echo 'Starting local Solana validator...' &&
+        solana-test-validator --reset --quiet --bind-address 0.0.0.0
+      "
+
+  # Service for testing with local validator
+  test-local:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+      - solana-keypairs:/app/keypairs
+      - ./idl:/app/idl
+      - ../freelance-safeguard:/frontend
+    environment:
+      - ANCHOR_WALLET=/app/deploy-keypair.json
+      - SOLANA_URL=http://local-validator:8899
+    command: >
+      bash -c "
+        echo 'Setting up local testing environment...' &&
+        if [ ! -f /app/keypairs/deploy-keypair.json ]; then
+          solana-keygen new --no-bip39-passphrase -o /app/keypairs/deploy-keypair.json &&
+          cp /app/keypairs/deploy-keypair.json /app/deploy-keypair.json
+        else
+          cp /app/keypairs/deploy-keypair.json /app/deploy-keypair.json
+        fi &&
+        solana config set --url http://local-validator:8899 &&
+        PUBKEY=$(solana-keygen pubkey /app/deploy-keypair.json) &&
+        echo 'Requesting airdrop for keypair: '$PUBKEY &&
+        solana airdrop 1000 $PUBKEY &&
+        echo 'Building and deploying contracts to local validator...' &&
+        /usr/local/bin/docker-entrypoint.sh build all &&
+        /usr/local/bin/docker-entrypoint.sh deploy all &&
+        /usr/local/bin/docker-entrypoint.sh generate-idl &&
+        echo 'Setting up frontend integration...' &&
+        chmod +x /app/scripts/setup-frontend-integration.sh &&
+        /app/scripts/setup-frontend-integration.sh --frontend-dir /frontend
+      "
+    depends_on:
+      - local-validator
+
+volumes:
+  solana-keypairs:

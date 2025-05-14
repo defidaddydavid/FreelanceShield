@@ -1,5 +1,4 @@
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { usePrivy } from '@privy-io/react-auth';
 import { Button } from '@/components/ui/button';
 import { 
   Wallet, 
@@ -10,7 +9,8 @@ import {
   Coins, 
   Unlock, 
   RefreshCw, 
-  Loader2 
+  Loader2,
+  User
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { LAMPORTS_PER_SOL, Connection, clusterApiUrl, PublicKey, Transaction, Commitment } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, Connection, PublicKey } from '@solana/web3.js';
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -40,8 +40,9 @@ export interface TransactionDialogProps {
   onConfirm: () => void;
   title: string;
   description: string;
-  isLoading: boolean;
+  isPending: boolean;
   transactionType: 'stake' | 'unstake' | 'claim' | 'policy' | 'other';
+  isBatch?: boolean;
 }
 
 export const TransactionDialog: React.FC<TransactionDialogProps> = ({
@@ -50,8 +51,9 @@ export const TransactionDialog: React.FC<TransactionDialogProps> = ({
   onConfirm,
   title,
   description,
-  isLoading,
-  transactionType
+  isPending,
+  transactionType,
+  isBatch = false
 }) => {
   const getIcon = () => {
     switch (transactionType) {
@@ -83,17 +85,17 @@ export const TransactionDialog: React.FC<TransactionDialogProps> = ({
         <div className="p-4 bg-muted/50 rounded-md text-sm">
           <p className="font-medium mb-2">This action requires your approval:</p>
           <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-            <li>You'll need to approve this transaction with your wallet</li>
+            <li>You'll need to approve {isBatch ? 'these transactions' : 'this transaction'} with your wallet</li>
             <li>Transaction fees will be paid from your wallet balance</li>
-            <li>You can reject this transaction at any time</li>
+            <li>You can reject {isBatch ? 'these transactions' : 'this transaction'} at any time</li>
           </ul>
         </div>
         <DialogFooter className="flex flex-row justify-between sm:justify-between">
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+          <Button variant="outline" onClick={onClose} disabled={isPending}>
             Cancel
           </Button>
-          <Button onClick={onConfirm} disabled={isLoading}>
-            {isLoading ? (
+          <Button onClick={onConfirm} disabled={isPending}>
+            {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Confirming...
@@ -109,10 +111,9 @@ export const TransactionDialog: React.FC<TransactionDialogProps> = ({
 };
 
 const WalletConnect = () => {
-  const { publicKey, disconnect, connected, signTransaction, signAllTransactions } = useWallet();
+  const { login, logout, authenticated, ready, user } = usePrivy();
   const [balance, setBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [hasConnected, setHasConnected] = useState<boolean>(false);
   const [networkStatus, setNetworkStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [showWalletPrompt, setShowWalletPrompt] = useState<boolean>(false);
@@ -121,36 +122,41 @@ const WalletConnect = () => {
   // Create a Solana connection to Devnet with proper configuration
   const connection = useMemo(() => new Connection(
     NETWORK_CONFIG.endpoint, 
-    { commitment: NETWORK_CONFIG.connectionConfig.commitment as Commitment }
+    { commitment: NETWORK_CONFIG.connectionConfig.commitment as any }
   ), []);
+
+  // Get the wallet address from Privy user
+  const walletAddress = useMemo(() => {
+    if (!user) return null;
+    
+    // Find Solana wallet in linked accounts
+    const solanaWallet = user.linkedAccounts?.find(account => 
+      account.type === 'wallet' && (account as any).walletClientType === 'solana'
+    );
+    
+    // If no Solana wallet, check for embedded wallet
+    const embeddedWallet = user.linkedAccounts?.find(account => 
+      account.type === 'wallet' && (account as any).walletType === 'embedded-wallet'
+    );
+    
+    // Return the address of the first available wallet
+    if (solanaWallet) {
+      return (solanaWallet as any).address;
+    } else if (embeddedWallet) {
+      return (embeddedWallet as any).address;
+    }
+    
+    return null;
+  }, [user]);
 
   const shortenAddress = (address: string) => {
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
 
   useEffect(() => {
-    const storedConnected = localStorage.getItem('walletConnected');
-    if (storedConnected === 'true') {
-      setHasConnected(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (connected && !hasConnected) {
-      toast.success('Wallet Connected Successfully!');
-      setHasConnected(true);
-      localStorage.setItem('walletConnected', 'true');
-      setNetworkStatus('connected');
-    } else if (!connected) {
-      localStorage.removeItem('walletConnected');
-      setNetworkStatus('disconnected');
-    }
-  }, [connected, hasConnected]);
-
-  useEffect(() => {
-    if (connected && publicKey) {
+    if (authenticated && walletAddress) {
       // Fetch user data when connected
-      console.log('Wallet connected:', publicKey.toBase58());
+      console.log('Wallet connected:', walletAddress);
       // Get wallet balance when connected
       fetchBalance();
 
@@ -162,14 +168,16 @@ const WalletConnect = () => {
       return () => clearInterval(intervalId);
     } else {
       console.log('Wallet disconnected');
+      setNetworkStatus('disconnected');
     }
-  }, [connected, publicKey]);
+  }, [authenticated, walletAddress]);
 
   const fetchBalance = async () => {
-    if (!publicKey || !connected) return;
+    if (!authenticated || !walletAddress) return;
 
     setIsLoading(true);
     try {
+      const publicKey = new PublicKey(walletAddress);
       const bal = await connection.getBalance(publicKey);
       setBalance(bal / LAMPORTS_PER_SOL);
       setLastRefreshed(new Date());
@@ -186,9 +194,8 @@ const WalletConnect = () => {
   const handleDisconnect = async () => {
     try {
       setIsLoading(true);
-      await disconnect();
+      await logout();
       toast.success('Wallet Disconnected');
-      setHasConnected(false);
       navigate('/'); // Redirect to home page on disconnect
     } catch (error) {
       console.error('Error disconnecting wallet:', error);
@@ -199,7 +206,7 @@ const WalletConnect = () => {
   };
 
   const handleDashboardClick = () => {
-    if (connected) {
+    if (authenticated) {
       navigate('/dashboard');
     } else {
       setShowWalletPrompt(true);
@@ -208,7 +215,7 @@ const WalletConnect = () => {
   };
 
   const handleStakingClick = () => {
-    if (connected) {
+    if (authenticated) {
       navigate('/staking');
     } else {
       setShowWalletPrompt(true);
@@ -217,13 +224,14 @@ const WalletConnect = () => {
   };
 
   const handleRequestAirdrop = async () => {
-    if (!publicKey || !connected) {
+    if (!authenticated || !walletAddress) {
       toast.error('Please connect your wallet first');
       return;
     }
 
     setIsLoading(true);
     try {
+      const publicKey = new PublicKey(walletAddress);
       const signature = await connection.requestAirdrop(publicKey, 1 * LAMPORTS_PER_SOL);
       await connection.confirmTransaction(signature);
       toast.success('Airdrop successful! 1 SOL received');
@@ -236,11 +244,37 @@ const WalletConnect = () => {
     }
   };
 
-  if (!connected) {
+  if (!ready) {
     return (
-      <WalletMultiButton 
+      <Button variant="outline" disabled>
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        Loading...
+      </Button>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <Button 
+        onClick={() => login()} 
         className="bg-primary hover:bg-primary/90"
-      />
+      >
+        <Wallet className="mr-2 h-4 w-4" />
+        Connect
+      </Button>
+    );
+  }
+
+  // No wallet connected yet but user is authenticated
+  if (authenticated && !walletAddress) {
+    return (
+      <Button 
+        onClick={() => login()} 
+        className="bg-primary hover:bg-primary/90"
+      >
+        <Wallet className="mr-2 h-4 w-4" />
+        Connect Wallet
+      </Button>
     );
   }
 
@@ -256,7 +290,7 @@ const WalletConnect = () => {
           )}
         >
           <div className={`w-2 h-2 rounded-full ${networkStatus === 'connected' ? 'bg-green-500' : networkStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'}`} />
-          <span className="hidden md:inline-block">{shortenAddress(publicKey.toBase58())}</span>
+          <span className="hidden md:inline-block">{shortenAddress(walletAddress)}</span>
           <span className="md:hidden">Wallet</span>
           <span className="hidden md:inline-block text-muted-foreground ml-1">
             ({balance.toFixed(2)} SOL)
@@ -266,7 +300,7 @@ const WalletConnect = () => {
       <DropdownMenuContent align="end" className="w-56">
         <div className="flex flex-col space-y-1 p-2">
           <p className="text-xs font-medium text-muted-foreground">Connected to {NETWORK_CONFIG.name}</p>
-          <p className="text-xs text-muted-foreground truncate">{publicKey.toBase58()}</p>
+          <p className="text-xs text-muted-foreground truncate">{walletAddress}</p>
         </div>
         <div className="p-2 bg-muted/50 rounded-md mx-2">
           <div className="flex justify-between items-center">

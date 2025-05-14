@@ -1,5 +1,5 @@
 import React from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@/hooks/useWallet";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ const WalletInfoCard: React.FC<WalletInfoCardProps> = ({
   className = "", 
   showActions = true 
 }) => {
-  const { publicKey, connected, wallet, balance } = useWallet();
+  const { publicKey, connected } = useWallet();
   
   // Format SOL balance with proper decimals
   const formatBalance = (lamports: number | undefined) => {
@@ -67,6 +67,18 @@ const WalletInfoCard: React.FC<WalletInfoCardProps> = ({
     );
   }
 
+  // Remove references to wallet.balance and wallet.wallet (legacy from wallet adapter)
+  // Use balance fetching logic similar to WalletBalanceCard if balance is needed.
+
+  // Example: import { useEffect, useState } from "react";
+  // import { useConnection } from "@/hooks/useConnection";
+  // ...
+  // const { publicKey, connected } = useWallet();
+  // const { connection } = useConnection();
+  // const [balance, setBalance] = useState<number | undefined>();
+  // useEffect(() => { if (connected && publicKey && connection) { connection.getBalance(publicKey).then(setBalance).catch(() => setBalance(undefined)); } }, [connected, publicKey, connection]);
+  // ...
+
   return (
     <Card className={cn(
       "border-shield-purple/20 bg-white dark:bg-gray-900",
@@ -79,7 +91,7 @@ const WalletInfoCard: React.FC<WalletInfoCardProps> = ({
           Wallet Connected
         </CardTitle>
         <CardDescription className="text-shield-purple dark:text-shield-blue">
-          {wallet?.adapter.name || "Unknown Wallet"}
+          Unknown Wallet
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -89,12 +101,6 @@ const WalletInfoCard: React.FC<WalletInfoCardProps> = ({
             <h3 className="font-heading text-lg font-medium">
               {shortenAddress(publicKey.toBase58())}
             </h3>
-            <div className="flex items-center mt-1">
-              <Coins className="h-4 w-4 text-shield-blue mr-1" />
-              <span className="font-numeric text-lg">
-                {formatBalance(balance)} SOL
-              </span>
-            </div>
           </div>
         </div>
         

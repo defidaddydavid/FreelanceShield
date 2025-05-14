@@ -1,12 +1,11 @@
 [package]
 name = "escrow-program"
 version = "0.1.0"
-description = "Escrow program for FreelanceShield"
+description = "FreelanceShield smart contract"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "escrow_program"
 
 [features]
 no-entrypoint = []
@@ -16,8 +15,9 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = { workspace = true }
-anchor-spl = { workspace = true, default-features = false }
-spl-token = { workspace = true }
+solana-program = { workspace = true }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
+borsh = { workspace = true }
+
+# Removed direct solana-program dependency for Anchor compatibility

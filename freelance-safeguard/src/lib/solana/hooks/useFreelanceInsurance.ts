@@ -3,7 +3,7 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { FreelanceInsuranceSDK } from '../sdk';
 import { NETWORK_CONFIG, parseUSDC, formatUSDC } from '../constants';
-import { Policy, Claim, RiskPoolMetrics, JobType, Industry } from '@/types/insurance';
+import { Policy, Claim, RiskPoolMetrics, JobType, Industry } from '@/types';
 
 export interface CreatePolicyResult {
   success: boolean;

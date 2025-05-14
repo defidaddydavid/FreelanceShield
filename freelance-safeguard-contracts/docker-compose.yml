@@ -1,0 +1,114 @@
+# Docker compose configuration for FreelanceShield contract development and deployment
+
+services:
+  # Base service with common configuration
+  base:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    volumes:
+      - ./:/app
+      - keypairs:/app/keypairs
+      - ./idl:/app/idl
+    environment:
+      - ANCHOR_WALLET=/app/deploy-keypair.json
+      - SOLANA_URL=https://api.devnet.solana.com
+      # Agave compatibility variables
+      - AGAVE_COMPATIBILITY=true
+      - AGAVE_TRANSITION_MODE=hybrid # Options: solana, agave, hybrid
+
+  # Interactive shell for development
+  shell:
+    extends:
+      service: base
+    stdin_open: true
+    tty: true
+    command: bash
+
+  # Solana validator for local testing
+  validator:
+    extends:
+      service: base
+    ports:
+      - "8899:8899"
+      - "8900:8900"
+    command: >
+      bash -c "
+        solana-test-validator --reset --quiet --bind-address 0.0.0.0
+      "
+
+  # Service for building all contracts
+  build-contracts:
+    extends:
+      service: base
+    command: build all
+
+  # Service for deploying all contracts to devnet
+  deploy-contracts:
+    extends:
+      service: base
+    command: deploy all
+
+  # Service for generating IDL files
+  generate-idl:
+    extends:
+      service: base
+    command: generate-idl
+
+  # Service for syncing IDL files to frontend
+  sync-frontend:
+    extends:
+      service: base
+    command: bash -c "cd /app && ./scripts/sync-idl-to-frontend.sh"
+
+  # Service for creating a keypair
+  create-keypair:
+    extends:
+      service: base
+    command: bash -c "solana-keygen new --no-bip39-passphrase -o /app/keypairs/deploy-keypair.json || true"
+
+  # Service for airdropping SOL to the keypair
+  airdrop:
+    extends:
+      service: base
+    command: >
+      bash -c "
+        PUBKEY=\$(solana-keygen pubkey /app/keypairs/deploy-keypair.json) &&
+        echo \"Requesting airdrop for: \$PUBKEY\" &&
+        solana airdrop 2 \$PUBKEY --url devnet &&
+        sleep 2 &&
+        solana airdrop 2 \$PUBKEY --url devnet &&
+        solana balance \$PUBKEY --url devnet
+      "
+
+  # Service for Agave compatibility check
+  check-agave-compatibility:
+    extends:
+      service: base
+    command: check-compatibility
+
+  # Service for Agave transition testing
+  test-agave-transition:
+    extends:
+      service: base
+    environment:
+      - ANCHOR_WALLET=/app/deploy-keypair.json
+      - SOLANA_URL=https://api.devnet.solana.com
+      - AGAVE_COMPATIBILITY=true
+      - AGAVE_TRANSITION_MODE=hybrid
+    command: >
+      bash -c "
+        echo 'Testing Agave compatibility...' &&
+        echo 'Checking for command availability:' &&
+        which solana || echo 'solana not found' &&
+        which agave || echo 'agave not found' &&
+        echo 'Checking for library compatibility:' &&
+        grep -r 'solana-' --include='Cargo.toml' /app || echo 'No solana- dependencies found' &&
+        ./scripts/sync-idl-to-frontend.sh &&
+        echo 'Agave transition test complete'
+      "
+
+volumes:
+  keypairs:

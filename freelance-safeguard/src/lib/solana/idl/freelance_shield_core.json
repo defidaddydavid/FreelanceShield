@@ -1,0 +1,281 @@
+{
+  "version": "0.1.0",
+  "name": "freelance_shield_core",
+  "instructions": [
+    {
+      "name": "initialize",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "programState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "InitializeProgramParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "enableFeature",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "programState",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "feature",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "disableFeature",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "programState",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "feature",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "fetchEthosScore",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "programState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "FetchEthosScoreParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "simulateEthosReputation",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "programState",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SimulateEthosReputationParams"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ProgramState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "featureFlags",
+            "type": {
+              "defined": "FeatureFlags"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "InitializeProgramParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeatureFlags",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "useEthosReputation",
+            "type": "bool"
+          },
+          {
+            "name": "usePrivyAuth",
+            "type": "bool"
+          },
+          {
+            "name": "useEnhancedClaims",
+            "type": "bool"
+          },
+          {
+            "name": "useEnhancedRiskPool",
+            "type": "bool"
+          },
+          {
+            "name": "usePolicyNft",
+            "type": "bool"
+          },
+          {
+            "name": "useDaoGovernance",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FetchEthosScoreParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "externalUserId",
+            "type": {
+              "option": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SimulateEthosReputationParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "successfulTransactions",
+            "type": "u32"
+          },
+          {
+            "name": "transactionVolume",
+            "type": "u64"
+          },
+          {
+            "name": "disputes",
+            "type": "u32"
+          },
+          {
+            "name": "disputesAtFault",
+            "type": "u32"
+          },
+          {
+            "name": "claimsSubmitted",
+            "type": "u32"
+          },
+          {
+            "name": "claimsApproved",
+            "type": "u32"
+          },
+          {
+            "name": "privyUserId",
+            "type": {
+              "option": "string"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "You are not authorized to perform this action"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidFeature",
+      "msg": "The specified feature is not valid"
+    },
+    {
+      "code": 6002,
+      "name": "FeatureNotEnabled",
+      "msg": "This feature is not currently enabled"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidAuthentication",
+      "msg": "Invalid authentication credentials"
+    },
+    {
+      "code": 6004,
+      "name": "UnsupportedAuthProvider",
+      "msg": "The specified authentication provider is not supported"
+    }
+  ]
+}

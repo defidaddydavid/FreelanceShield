@@ -1,8 +1,6 @@
-import React from "react";
+i didhow prompimport React from "react";
 import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { createAvatar } from "@dicebear/core";
-import { identicon } from "@dicebear/collection";
+import { useWallet } from "@/hooks/useWallet";
 
 interface AvatarProps {
   publicKey?: string;
@@ -29,15 +27,11 @@ const WalletAvatar: React.FC<AvatarProps> = ({
     lg: "h-12 w-12",
   };
 
-  // Generate identicon avatar based on public key
-  const generateAvatar = (seed: string) => {
-    const avatar = createAvatar(identicon, {
-      seed,
-      backgroundColor: ["#5e35b1", "#2979ff"],
-    });
-    
-    return avatar.toDataUriSync();
-  };
+  // Fix DiceBear identicon generation: install @dicebear/core and @dicebear/collection or replace with a fallback avatar.
+  // For now, show initials if DiceBear is unavailable.
+  // Remove import of @dicebear/core and @dicebear/collection if not installed.
+  // Replace generateAvatar to always return undefined (forcing fallback to initials).
+  const generateAvatar = (seed: string) => undefined;
 
   // Get initials from public key
   const getInitials = (key: string) => {

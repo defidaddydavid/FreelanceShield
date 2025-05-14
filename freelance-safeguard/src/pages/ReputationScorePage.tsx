@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Navbar from '@/components/layout/Navbar';
@@ -51,8 +51,14 @@ import {
   Users
 } from 'lucide-react';
 import { ReputationScoreCard } from '@/components/insurance/ReputationScoreCard';
+import { EthosReputationCard } from '@/components/reputation/EthosReputationCard';
 import { UserReputationData } from '@/lib/insurance/calculations';
 import { cn } from '@/lib/utils';
+import { FEATURES } from '@/lib/featureFlags';
+import { useEthosService } from '@/lib/ethos/ethosService';
+import { usePrivyAuth } from '@/hooks/usePrivyAuth';
+import { ReputationScore } from '@/components/dashboard/ReputationScore';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const defaultUserData: UserReputationData = {
   onTimePayments: 18,
@@ -70,11 +76,35 @@ const defaultUserData: UserReputationData = {
 export default function ReputationScorePage() {
   const [userData, setUserData] = useState<UserReputationData>(defaultUserData);
   const [activeTab, setActiveTab] = useState('overview');
+  const { user, isAuthenticated } = usePrivyAuth();
+  const ethosService = useEthosService();
+  const [ethosScore, setEthosScore] = useState<any>(null);
+  const [isLoadingEthosScore, setIsLoadingEthosScore] = useState<boolean>(false);
   
   const { ref: heroRef, inView: heroInView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+  
+  // Fetch Ethos score when user is authenticated and feature flag is enabled
+  useEffect(() => {
+    const fetchEthosScore = async () => {
+      if (FEATURES.USE_ETHOS_REPUTATION && isAuthenticated && user?.wallet?.address) {
+        setIsLoadingEthosScore(true);
+        try {
+          const userKey = `address:${user.wallet.address}`;
+          const scoreData = await ethosService.getUserScore(userKey);
+          setEthosScore(scoreData);
+        } catch (error) {
+          console.error('Error fetching Ethos score:', error);
+        } finally {
+          setIsLoadingEthosScore(false);
+        }
+      }
+    };
+    
+    fetchEthosScore();
+  }, [isAuthenticated, user, ethosService]);
   
   // Helper function to update user data
   const updateUserData = (key: keyof UserReputationData, value: number | boolean) => {
@@ -210,258 +240,272 @@ export default function ReputationScorePage() {
               </div>
               
               <TabsContent value="overview" className="space-y-8">
-                <Card className="border-2">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      Work & Payment History
-                    </CardTitle>
-                    <CardDescription>
-                      Your track record of completed work and payments
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label>On-time Payments/Deliveries</Label>
-                        <span className="text-sm font-medium">
-                          {userData.onTimePayments} / {userData.totalTransactions} 
-                          ({Math.round((userData.onTimePayments / userData.totalTransactions) * 100)}%)
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Reputation Score Card */}
+                  <div className="lg:col-span-2">
+                    {FEATURES.USE_ETHOS_REPUTATION ? (
+                      <EthosReputationCard />
+                    ) : (
+                      <ReputationScoreCard userData={userData} />
+                    )}
+                  </div>
+                  
+                  {/* Controls */}
+                  <div className="lg:col-span-1 space-y-6">
+                    <Card className="border-2">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <CheckCircle className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                          Work & Payment History
+                        </CardTitle>
+                        <CardDescription>
+                          Your track record of completed work and payments
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
                         <div>
-                          <Label className="text-xs">On-time</Label>
-                          <Input 
-                            type="number" 
-                            min="0"
-                            max={userData.totalTransactions}
-                            value={userData.onTimePayments}
-                            onChange={(e) => updateUserData('onTimePayments', parseInt(e.target.value) || 0)}
-                          />
+                          <div className="flex justify-between mb-2">
+                            <Label>On-time Payments/Deliveries</Label>
+                            <span className="text-sm font-medium">
+                              {userData.onTimePayments} / {userData.totalTransactions} 
+                              ({Math.round((userData.onTimePayments / userData.totalTransactions) * 100)}%)
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-xs">On-time</Label>
+                              <Input 
+                                type="number" 
+                                min="0"
+                                max={userData.totalTransactions}
+                                value={userData.onTimePayments}
+                                onChange={(e) => updateUserData('onTimePayments', parseInt(e.target.value) || 0)}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs">Total</Label>
+                              <Input 
+                                type="number" 
+                                min={userData.onTimePayments}
+                                value={userData.totalTransactions}
+                                onChange={(e) => {
+                                  const newTotal = parseInt(e.target.value) || 0;
+                                  updateUserData('totalTransactions', newTotal);
+                                  if (userData.onTimePayments > newTotal) {
+                                    updateUserData('onTimePayments', newTotal);
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
+                        
                         <div>
-                          <Label className="text-xs">Total</Label>
-                          <Input 
-                            type="number" 
-                            min={userData.onTimePayments}
-                            value={userData.totalTransactions}
-                            onChange={(e) => {
-                              const newTotal = parseInt(e.target.value) || 0;
-                              updateUserData('totalTransactions', newTotal);
-                              if (userData.onTimePayments > newTotal) {
-                                updateUserData('onTimePayments', newTotal);
-                              }
-                            }}
+                          <div className="flex justify-between mb-2">
+                            <Label>Disputes</Label>
+                            <span className="text-sm font-medium">{userData.disputes}</span>
+                          </div>
+                          <Slider
+                            value={[userData.disputes]}
+                            min={0}
+                            max={5}
+                            step={1}
+                            onValueChange={(value) => updateUserData('disputes', value[0])}
                           />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>0 (Best)</span>
+                            <span>5 (Worst)</span>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                        
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <Label>Completed Contracts</Label>
+                            <span className="text-sm font-medium">{userData.completedContracts}</span>
+                          </div>
+                          <Slider
+                            value={[userData.completedContracts]}
+                            min={0}
+                            max={20}
+                            step={1}
+                            onValueChange={(value) => updateUserData('completedContracts', value[0])}
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>0</span>
+                            <span>20+</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                     
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label>Disputes</Label>
-                        <span className="text-sm font-medium">{userData.disputes}</span>
-                      </div>
-                      <Slider
-                        value={[userData.disputes]}
-                        min={0}
-                        max={5}
-                        step={1}
-                        onValueChange={(value) => updateUserData('disputes', value[0])}
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>0 (Best)</span>
-                        <span>5 (Worst)</span>
-                      </div>
-                    </div>
+                    <Card className="border-2">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Star className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                          User Feedback & Ratings
+                        </CardTitle>
+                        <CardDescription>
+                          How others rate your work and interactions
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <Label>Average Rating</Label>
+                            <span className="text-sm font-medium">
+                              {userData.avgRating.toFixed(1)} / 5.0
+                            </span>
+                          </div>
+                          <Slider
+                            value={[userData.avgRating * 10]}
+                            min={10}
+                            max={50}
+                            step={1}
+                            onValueChange={(value) => updateUserData('avgRating', value[0] / 10)}
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>1.0</span>
+                            <span>5.0</span>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <Label>Positive Feedback Percentage</Label>
+                            <span className="text-sm font-medium">{userData.positiveFeedbackPct}%</span>
+                          </div>
+                          <Slider
+                            value={[userData.positiveFeedbackPct]}
+                            min={0}
+                            max={100}
+                            step={1}
+                            onValueChange={(value) => updateUserData('positiveFeedbackPct', value[0])}
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>0%</span>
+                            <span>100%</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                     
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label>Completed Contracts</Label>
-                        <span className="text-sm font-medium">{userData.completedContracts}</span>
-                      </div>
-                      <Slider
-                        value={[userData.completedContracts]}
-                        min={0}
-                        max={20}
-                        step={1}
-                        onValueChange={(value) => updateUserData('completedContracts', value[0])}
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>0</span>
-                        <span>20+</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-2">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Star className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      User Feedback & Ratings
-                    </CardTitle>
-                    <CardDescription>
-                      How others rate your work and interactions
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label>Average Rating</Label>
-                        <span className="text-sm font-medium">
-                          {userData.avgRating.toFixed(1)} / 5.0
-                        </span>
-                      </div>
-                      <Slider
-                        value={[userData.avgRating * 10]}
-                        min={10}
-                        max={50}
-                        step={1}
-                        onValueChange={(value) => updateUserData('avgRating', value[0] / 10)}
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>1.0</span>
-                        <span>5.0</span>
-                      </div>
-                    </div>
+                    <Card className="border-2">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                          Tenure & Activity
+                        </CardTitle>
+                        <CardDescription>
+                          Your account age and recent activity
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <Label>Account Age (Months)</Label>
+                            <span className="text-sm font-medium">
+                              {userData.accountAgeMonths} {userData.accountAgeMonths === 1 ? 'month' : 'months'}
+                            </span>
+                          </div>
+                          <Slider
+                            value={[userData.accountAgeMonths]}
+                            min={0}
+                            max={48}
+                            step={1}
+                            onValueChange={(value) => updateUserData('accountAgeMonths', value[0])}
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>New</span>
+                            <span>4+ years</span>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <Label>Months Since Last Activity</Label>
+                            <span className="text-sm font-medium">
+                              {userData.lastActiveMonths} {userData.lastActiveMonths === 1 ? 'month' : 'months'}
+                            </span>
+                          </div>
+                          <Slider
+                            value={[userData.lastActiveMonths]}
+                            min={0}
+                            max={12}
+                            step={1}
+                            onValueChange={(value) => updateUserData('lastActiveMonths', value[0])}
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>Active now</span>
+                            <span>1+ year inactive</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                     
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label>Positive Feedback Percentage</Label>
-                        <span className="text-sm font-medium">{userData.positiveFeedbackPct}%</span>
-                      </div>
-                      <Slider
-                        value={[userData.positiveFeedbackPct]}
-                        min={0}
-                        max={100}
-                        step={1}
-                        onValueChange={(value) => updateUserData('positiveFeedbackPct', value[0])}
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>0%</span>
-                        <span>100%</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-2">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      Tenure & Activity
-                    </CardTitle>
-                    <CardDescription>
-                      Your account age and recent activity
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label>Account Age (Months)</Label>
-                        <span className="text-sm font-medium">
-                          {userData.accountAgeMonths} {userData.accountAgeMonths === 1 ? 'month' : 'months'}
-                        </span>
-                      </div>
-                      <Slider
-                        value={[userData.accountAgeMonths]}
-                        min={0}
-                        max={48}
-                        step={1}
-                        onValueChange={(value) => updateUserData('accountAgeMonths', value[0])}
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>New</span>
-                        <span>4+ years</span>
-                      </div>
-                    </div>
+                    <Card className="border-2">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Shield className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                          Claims & Compliance
+                        </CardTitle>
+                        <CardDescription>
+                          Your insurance claims history and policy compliance
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <Label>Claims Made (Last 12 Months)</Label>
+                            <span className="text-sm font-medium">{userData.claimsMade}</span>
+                          </div>
+                          <Slider
+                            value={[userData.claimsMade]}
+                            min={0}
+                            max={5}
+                            step={1}
+                            onValueChange={(value) => updateUserData('claimsMade', value[0])}
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>0 (Best)</span>
+                            <span>5+ (Worst)</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 pt-2">
+                          <Switch 
+                            id="fraud-flag"
+                            checked={userData.fraudFlagged}
+                            onCheckedChange={(checked) => updateUserData('fraudFlagged', checked)}
+                          />
+                          <Label htmlFor="fraud-flag" className="text-sm">
+                            Account has fraud or policy violation flags
+                          </Label>
+                        </div>
+                      </CardContent>
+                    </Card>
                     
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label>Months Since Last Activity</Label>
-                        <span className="text-sm font-medium">
-                          {userData.lastActiveMonths} {userData.lastActiveMonths === 1 ? 'month' : 'months'}
-                        </span>
-                      </div>
-                      <Slider
-                        value={[userData.lastActiveMonths]}
-                        min={0}
-                        max={12}
-                        step={1}
-                        onValueChange={(value) => updateUserData('lastActiveMonths', value[0])}
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>Active now</span>
-                        <span>1+ year inactive</span>
-                      </div>
+                    <div className="flex flex-wrap gap-4">
+                      <Button variant="outline" onClick={resetToDefault}>
+                        Reset to Default
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
+                        onClick={setHighRiskProfile}
+                      >
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                        High Risk Profile
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="border-green-200 text-green-600 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/30"
+                        onClick={setLowRiskProfile}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Low Risk Profile
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-2">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Shield className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      Claims & Compliance
-                    </CardTitle>
-                    <CardDescription>
-                      Your insurance claims history and policy compliance
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <Label>Claims Made (Last 12 Months)</Label>
-                        <span className="text-sm font-medium">{userData.claimsMade}</span>
-                      </div>
-                      <Slider
-                        value={[userData.claimsMade]}
-                        min={0}
-                        max={5}
-                        step={1}
-                        onValueChange={(value) => updateUserData('claimsMade', value[0])}
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>0 (Best)</span>
-                        <span>5+ (Worst)</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 pt-2">
-                      <Switch 
-                        id="fraud-flag"
-                        checked={userData.fraudFlagged}
-                        onCheckedChange={(checked) => updateUserData('fraudFlagged', checked)}
-                      />
-                      <Label htmlFor="fraud-flag" className="text-sm">
-                        Account has fraud or policy violation flags
-                      </Label>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <div className="flex flex-wrap gap-4">
-                  <Button variant="outline" onClick={resetToDefault}>
-                    Reset to Default
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/30"
-                    onClick={setHighRiskProfile}
-                  >
-                    <AlertTriangle className="h-4 w-4 mr-2" />
-                    High Risk Profile
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="border-green-200 text-green-600 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-900/30"
-                    onClick={setLowRiskProfile}
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Low Risk Profile
-                  </Button>
+                  </div>
                 </div>
               </TabsContent>
               
@@ -871,7 +915,11 @@ export default function ReputationScorePage() {
                   
                   {/* Results */}
                   <div className="space-y-6">
-                    <ReputationScoreCard userData={userData} showDetails={true} />
+                    {FEATURES.USE_ETHOS_REPUTATION ? (
+                      <EthosReputationCard />
+                    ) : (
+                      <ReputationScoreCard userData={userData} showDetails={true} />
+                    )}
                     
                     <Card className="border-2">
                       <CardHeader>

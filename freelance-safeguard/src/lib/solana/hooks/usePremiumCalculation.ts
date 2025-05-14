@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useReputationProgram } from './useReputationProgram';
+import { useReputationSystem } from '@/lib/hooks/useReputationSystem';
 import { PREMIUM_RATES, NETWORK_CONFIG, RISK_WEIGHTS } from '../constants';
 
 // Define premium calculation constants
@@ -34,7 +34,7 @@ interface PremiumCalculationResult {
 export function usePremiumCalculation() {
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { getReputationFactor } = useReputationProgram();
+  const { getReputationFactor } = useReputationSystem();
 
   const calculatePremium = useCallback(
     async ({

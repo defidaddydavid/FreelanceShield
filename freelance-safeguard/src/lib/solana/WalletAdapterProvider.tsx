@@ -1,54 +1,45 @@
-import React, { ReactNode, useMemo } from 'react';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { 
-  PhantomWalletAdapter, 
-  SolflareWalletAdapter,
-  TorusWalletAdapter,
-  LedgerWalletAdapter,
-  CloverWalletAdapter,
-  SolongWalletAdapter
-} from '@solana/wallet-adapter-wallets';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl } from '@solana/web3.js';
+import React, { ReactNode, useMemo, createContext, useContext } from 'react';
+import { Connection, clusterApiUrl, Commitment } from '@solana/web3.js';
 import { NETWORK_CONFIG } from './constants';
 
-// Import wallet adapter styles
-import '@solana/wallet-adapter-react-ui/styles.css';
+// Create a context for the Solana connection
+interface SolanaConnectionContextType {
+  connection: Connection;
+}
+
+const SolanaConnectionContext = createContext<SolanaConnectionContextType | null>(null);
+
+// Hook to use the Solana connection
+export const useSolanaConnection = () => {
+  const context = useContext(SolanaConnectionContext);
+  if (!context) {
+    throw new Error('useSolanaConnection must be used within a SolanaConnectionProvider');
+  }
+  return context.connection;
+};
 
 interface WalletAdapterProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Simplified WalletAdapterProvider that only provides the Solana connection
+ * without any wallet adapter dependencies, since we're using Privy for wallet management
+ */
 export const WalletAdapterProvider: React.FC<WalletAdapterProviderProps> = ({ children }) => {
-  // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'
-  const network = WalletAdapterNetwork.Devnet;
-
-  // You can also provide a custom RPC endpoint
-  const endpoint = useMemo(() => NETWORK_CONFIG.endpoint || clusterApiUrl(network), [network]);
-
-  // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking
-  // so only the wallets you configure here will be compiled into your application
-  const wallets = useMemo(
-    () => [
-      new PhantomWalletAdapter(),
-      new SolflareWalletAdapter(),
-      new TorusWalletAdapter(),
-      new LedgerWalletAdapter(),
-      new CloverWalletAdapter(),
-      new SolongWalletAdapter()
-    ],
-    [network]
-  );
+  // Create a connection to the Solana network
+  const connection = useMemo(() => {
+    const endpoint = NETWORK_CONFIG.endpoint || clusterApiUrl('devnet');
+    return new Connection(endpoint, {
+      commitment: NETWORK_CONFIG.connectionConfig.commitment as Commitment,
+      confirmTransactionInitialTimeout: 60000
+    });
+  }, []);
 
   return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          {children}
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
+    <SolanaConnectionContext.Provider value={{ connection }}>
+      {children}
+    </SolanaConnectionContext.Provider>
   );
 };
 

@@ -1,12 +1,11 @@
 [package]
 name = "reputation-program"
 version = "0.1.0"
-description = "Reputation program for FreelanceShield"
+description = "FreelanceShield smart contract"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "reputation_program"
 
 [features]
 no-entrypoint = []
@@ -16,8 +15,6 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = { workspace = true }
-anchor-spl = { workspace = true, default-features = false }
-spl-token = { workspace = true }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
+borsh = { workspace = true }

@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
+import PrivyLogo from '@/components/icons/PrivyLogo';
 
 interface PrivyAuthButtonProps {
   className?: string;
@@ -27,11 +28,12 @@ export const PrivyAuthButton: React.FC<PrivyAuthButtonProps> = ({ className }) =
       <Button 
         onClick={login}
         className={cn(
-          "bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:opacity-90",
+          "font-['NT_Brick_Sans'] inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-purple focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-shield-purple text-white hover:bg-shield-purple/90 h-10 px-4 py-2 bg-gradient-to-r from-[#9945FF] to-[#9945FF] hover:opacity-90 shadow-lg",
           className
         )}
       >
-        Connect
+        <span className="mr-2">Connect</span>
+        <PrivyLogo width={40} height={16} />
       </Button>
     );
   }
@@ -43,10 +45,10 @@ export const PrivyAuthButton: React.FC<PrivyAuthButtonProps> = ({ className }) =
         <Button 
           variant="ghost" 
           className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-full border",
+            "font-['NT_Brick_Sans'] flex items-center gap-2 px-3 py-2 rounded-full border",
             isDark 
-              ? "border-gray-700 hover:bg-gray-800" 
-              : "border-gray-200 hover:bg-gray-100",
+              ? "border-shield-purple/30 hover:bg-gray-800/50" 
+              : "border-shield-purple/20 hover:bg-gray-100/50",
             className
           )}
         >
@@ -62,20 +64,28 @@ export const PrivyAuthButton: React.FC<PrivyAuthButtonProps> = ({ className }) =
         </Button>
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-56 font-['NT_Brick_Sans']">
+        <div className="px-2 py-1.5 flex items-center justify-between">
+          <DropdownMenuLabel className="font-['NT_Brick_Sans'] p-0">My Account</DropdownMenuLabel>
+          <div className={cn(
+            "p-1 rounded",
+            !isDark && "bg-gray-800"
+          )}>
+            <PrivyLogo width={40} height={16} />
+          </div>
+        </div>
         
         <DropdownMenuSeparator />
         
         {user?.email?.address && (
-          <DropdownMenuItem className="flex items-center gap-2">
+          <DropdownMenuItem className="flex items-center gap-2 font-['NT_Brick_Sans']">
             <UserCircle className="h-4 w-4" />
             <span className="truncate">{user.email.address}</span>
           </DropdownMenuItem>
         )}
         
         {activeWallet && (
-          <DropdownMenuItem className="flex items-center gap-2">
+          <DropdownMenuItem className="flex items-center gap-2 font-['NT_Brick_Sans']">
             <Wallet className="h-4 w-4" />
             <span className="truncate">{activeWallet.address.slice(0, 6)}...{activeWallet.address.slice(-4)}</span>
           </DropdownMenuItem>
@@ -85,7 +95,7 @@ export const PrivyAuthButton: React.FC<PrivyAuthButtonProps> = ({ className }) =
         
         <DropdownMenuItem 
           onClick={logout}
-          className="text-red-500 focus:text-red-500 flex items-center gap-2"
+          className="text-red-500 focus:text-red-500 flex items-center gap-2 font-['NT_Brick_Sans']"
         >
           <LogOut className="h-4 w-4" />
           <span>Logout</span>

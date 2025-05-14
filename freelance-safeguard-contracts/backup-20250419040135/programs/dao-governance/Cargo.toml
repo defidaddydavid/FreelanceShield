@@ -1,0 +1,25 @@
+[package]
+name = "dao-governance"
+version = "0.1.0"
+description = "FreelanceShield smart contract"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = { workspace = true }
+anchor-spl = { workspace = true }
+solana-program = { workspace = true }
+spl-token = { workspace = true }
+spl-associated-token-account = { workspace = true }
+thiserror = { workspace = true }
+zeroize = { workspace = true }
+borsh = { workspace = true }

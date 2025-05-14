@@ -1,286 +1,236 @@
-import { useWallet } from '@solana/wallet-adapter-react';
-import { usePhantomWallet } from './PhantomWalletProvider';
+import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { NETWORK_CONFIG } from './constants';
-import { PublicKey, Transaction, Connection, Commitment } from '@solana/web3.js';
-import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
-export type WalletType = 'phantom-embedded' | 'phantom-adapter' | 'solflare' | 'ledger' | 'torus' | 'other' | null;
+export type WalletType = 'privy-embedded' | 'privy-external' | 'unknown';
 
-export interface UnifiedWalletInfo {
-  connected: boolean;
-  publicKey: string | null;
-  walletType: WalletType;
-  balance: number | null;
-  isLoading: boolean;
+export interface WalletInfo {
+  address: string;
+  publicKey: PublicKey;
+  type: WalletType;
+  balance: number;
+  label?: string;
 }
 
-export interface UnifiedWalletActions {
-  connect: (walletType: WalletType | null) => Promise<boolean>;
-  disconnect: () => Promise<void>;
-  signTransaction: (transaction: Transaction) => Promise<Transaction | null>;
-  signAllTransactions: (transactions: Transaction[]) => Promise<Transaction[] | null>;
-  sendTransaction: (transaction: Transaction) => Promise<string | null>;
-  refreshBalance: () => Promise<number | null>;
+export interface WalletStatus {
+  isConnected: boolean;
+  isReady: boolean;
+  hasError: boolean;
+  errorMessage?: string;
 }
 
 /**
- * UnifiedWalletService provides a consistent interface for interacting with
- * different wallet providers (Phantom, Solflare, etc.)
+ * UnifiedWalletService provides a consistent interface for wallet operations
+ * regardless of the underlying wallet provider (Privy in this case)
  */
-export const useUnifiedWallet = (): [UnifiedWalletInfo, UnifiedWalletActions] => {
-  // Get wallet contexts
-  const { 
-    publicKey, 
-    connected, 
-    signTransaction: adapterSignTransaction,
-    signAllTransactions: adapterSignAllTransactions,
-    sendTransaction: adapterSendTransaction,
-    disconnect: adapterDisconnect,
-    wallet
-  } = useWallet();
-  
-  const phantomWallet = usePhantomWallet();
-  
-  // State
-  const [walletInfo, setWalletInfo] = useState<UnifiedWalletInfo>({
-    connected: false,
-    publicKey: null,
-    walletType: null,
-    balance: null,
-    isLoading: false
-  });
-  
-  // Create connection
-  const connection = new Connection(
-    NETWORK_CONFIG.endpoint,
-    { commitment: NETWORK_CONFIG.connectionConfig.commitment as Commitment }
-  );
-  
-  // No longer checking for Ethereum provider conflicts since we're handling that in main.tsx
-  // by temporarily removing the ethereum property
-  
-  // Determine current wallet type
-  useEffect(() => {
-    let walletType: WalletType = null;
-    let isConnected = false;
-    let pubKey: string | null = null;
-    
-    // Check standard wallet adapter connection
-    if (connected && wallet && publicKey) {
-      isConnected = true;
-      pubKey = publicKey.toBase58();
-      
-      // Determine wallet type based on adapter name
-      const walletName = wallet.adapter.name.toLowerCase();
-      if (walletName.includes('phantom')) {
-        walletType = 'phantom-adapter';
-      } else if (walletName.includes('solflare')) {
-        walletType = 'solflare';
-      } else if (walletName.includes('ledger')) {
-        walletType = 'ledger';
-      } else if (walletName.includes('torus')) {
-        walletType = 'torus';
-      } else {
-        walletType = 'other';
-      }
-    } 
-    // Check Phantom SDK connection
-    else if (phantomWallet.isConnected && phantomWallet.publicKey) {
-      isConnected = true;
-      pubKey = phantomWallet.publicKey;
-      walletType = 'phantom-embedded';
-    }
-    
-    setWalletInfo(prev => ({
-      ...prev,
-      connected: isConnected,
-      publicKey: pubKey,
-      walletType: walletType
-    }));
-    
-    // Fetch balance if connected
-    if (isConnected && pubKey) {
-      refreshBalance();
-    }
-  }, [connected, wallet, publicKey, phantomWallet.isConnected, phantomWallet.publicKey]);
-  
-  // Refresh balance
-  const refreshBalance = useCallback(async (): Promise<number | null> => {
-    if (!walletInfo.connected || !walletInfo.publicKey) return null;
-    
-    setWalletInfo(prev => ({ ...prev, isLoading: true }));
-    
+export class UnifiedWalletService {
+  private connection: Connection;
+  private walletInfo: WalletInfo | null = null;
+  private status: WalletStatus = {
+    isConnected: false,
+    isReady: false,
+    hasError: false,
+  };
+
+  constructor() {
+    // Initialize Solana connection
+    this.connection = new Connection(
+      NETWORK_CONFIG.endpoint,
+      { commitment: NETWORK_CONFIG.connectionConfig.commitment as any }
+    );
+  }
+
+  /**
+   * Initialize wallet from Privy user data
+   */
+  public async initializeFromPrivyUser(user: any): Promise<boolean> {
     try {
-      let balance: number | null = null;
+      if (!user || !user.linkedAccounts) {
+        this.resetWalletState();
+        return false;
+      }
+
+      // Find Solana wallet in linked accounts
+      const solanaWallet = user.linkedAccounts.find((account: any) => 
+        account.type === 'wallet' && account.walletClientType === 'solana'
+      );
       
-      if (walletInfo.walletType === 'phantom-embedded') {
-        // Use Phantom SDK
-        balance = await phantomWallet.refreshBalance();
-      } else {
-        // Use wallet adapter connection
-        const pubKey = new PublicKey(walletInfo.publicKey);
-        const balanceInLamports = await connection.getBalance(pubKey);
-        balance = balanceInLamports / NETWORK_CONFIG.lamportsPerSol;
+      // If no Solana wallet, check for embedded wallet
+      const embeddedWallet = user.linkedAccounts.find((account: any) => 
+        account.type === 'wallet' && account.walletType === 'embedded-wallet'
+      );
+      
+      // Use the first available wallet
+      let walletAddress: string | null = null;
+      let walletType: WalletType = 'unknown';
+      
+      if (solanaWallet) {
+        walletAddress = solanaWallet.address;
+        walletType = 'privy-external';
+      } else if (embeddedWallet) {
+        walletAddress = embeddedWallet.address;
+        walletType = 'privy-embedded';
       }
       
-      setWalletInfo(prev => ({ ...prev, balance, isLoading: false }));
-      return balance;
-    } catch (error) {
-      console.error('Error refreshing balance:', error);
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
-      return null;
-    }
-  }, [walletInfo.connected, walletInfo.publicKey, walletInfo.walletType, connection, phantomWallet]);
-  
-  // Connect wallet
-  const connect = useCallback(async (walletType: WalletType = null): Promise<boolean> => {
-    setWalletInfo(prev => ({ ...prev, isLoading: true }));
-    
-    try {
-      // For Phantom embedded wallet, we can initiate the connection
-      if (walletType === 'phantom-embedded' && !phantomWallet.isConnected) {
-        const connected = await phantomWallet.connectWallet();
-        if (!connected) {
-          throw new Error('Failed to connect to Phantom wallet');
-        }
+      if (!walletAddress) {
+        this.resetWalletState();
+        return false;
       }
       
-      // For other wallet types, the connection is initiated by clicking
-      // the wallet adapter button, so we just return true
+      // Create PublicKey from address
+      const publicKey = new PublicKey(walletAddress);
       
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
+      // Fetch initial balance
+      const balance = await this.fetchBalance(publicKey);
+      
+      // Set wallet info
+      this.walletInfo = {
+        address: walletAddress,
+        publicKey,
+        type: walletType,
+        balance,
+        label: walletType === 'privy-embedded' ? 'Privy Embedded Wallet' : 'Connected Wallet'
+      };
+      
+      // Update status
+      this.status = {
+        isConnected: true,
+        isReady: true,
+        hasError: false
+      };
+      
       return true;
     } catch (error) {
-      console.error('Error connecting wallet:', error);
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
+      console.error('Error initializing wallet from Privy user:', error);
+      this.status = {
+        isConnected: false,
+        isReady: true,
+        hasError: true,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error initializing wallet'
+      };
       return false;
     }
-  }, [phantomWallet]);
-  
-  // Disconnect wallet
-  const disconnect = useCallback(async (): Promise<void> => {
-    setWalletInfo(prev => ({ ...prev, isLoading: true }));
-    
+  }
+
+  /**
+   * Reset wallet state
+   */
+  private resetWalletState(): void {
+    this.walletInfo = null;
+    this.status = {
+      isConnected: false,
+      isReady: true,
+      hasError: false
+    };
+  }
+
+  /**
+   * Get wallet information
+   */
+  public getWalletInfo(): WalletInfo | null {
+    return this.walletInfo;
+  }
+
+  /**
+   * Get wallet status
+   */
+  public getStatus(): WalletStatus {
+    return this.status;
+  }
+
+  /**
+   * Check if wallet is connected
+   */
+  public isConnected(): boolean {
+    return this.status.isConnected && !!this.walletInfo;
+  }
+
+  /**
+   * Fetch wallet balance
+   */
+  public async fetchBalance(publicKey?: PublicKey): Promise<number> {
     try {
-      if (walletInfo.walletType === 'phantom-embedded') {
-        // Use Phantom SDK
-        phantomWallet.disconnectWallet();
-      } else if (connected) {
-        // Use wallet adapter
-        await adapterDisconnect();
+      const keyToUse = publicKey || (this.walletInfo?.publicKey);
+      
+      if (!keyToUse) {
+        throw new Error('No public key available to fetch balance');
       }
       
-      // Reset wallet info
-      setWalletInfo({
-        connected: false,
-        publicKey: null,
-        walletType: null,
-        balance: null,
-        isLoading: false
-      });
+      const balance = await this.connection.getBalance(keyToUse);
+      const solBalance = balance / LAMPORTS_PER_SOL;
+      
+      // Update wallet info if this is for the current wallet
+      if (this.walletInfo && !publicKey) {
+        this.walletInfo.balance = solBalance;
+      }
+      
+      return solBalance;
     } catch (error) {
-      console.error('Error disconnecting wallet:', error);
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
+      console.error('Error fetching wallet balance:', error);
+      toast.error('Failed to fetch wallet balance');
+      throw error;
     }
-  }, [walletInfo.walletType, connected, adapterDisconnect, phantomWallet]);
-  
-  // Sign transaction
-  const signTransaction = useCallback(async (transaction: Transaction): Promise<Transaction | null> => {
-    if (!walletInfo.connected) return null;
-    
-    setWalletInfo(prev => ({ ...prev, isLoading: true }));
-    
+  }
+
+  /**
+   * Request airdrop of SOL to the wallet (devnet only)
+   */
+  public async requestAirdrop(amount: number = 1): Promise<string> {
     try {
-      let signedTransaction: Transaction | null = null;
-      
-      if (walletInfo.walletType === 'phantom-embedded') {
-        // Use Phantom SDK
-        signedTransaction = await phantomWallet.signTransaction(transaction);
-      } else if (adapterSignTransaction) {
-        // Use wallet adapter
-        signedTransaction = await adapterSignTransaction(transaction);
+      if (!this.walletInfo?.publicKey) {
+        throw new Error('No wallet connected');
       }
       
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
-      return signedTransaction;
-    } catch (error) {
-      console.error('Error signing transaction:', error);
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
-      return null;
-    }
-  }, [walletInfo.connected, walletInfo.walletType, adapterSignTransaction, phantomWallet]);
-  
-  // Sign all transactions
-  const signAllTransactions = useCallback(async (transactions: Transaction[]): Promise<Transaction[] | null> => {
-    if (!walletInfo.connected) return null;
-    
-    setWalletInfo(prev => ({ ...prev, isLoading: true }));
-    
-    try {
-      let signedTransactions: Transaction[] | null = null;
+      const signature = await this.connection.requestAirdrop(
+        this.walletInfo.publicKey,
+        amount * LAMPORTS_PER_SOL
+      );
       
-      if (walletInfo.walletType === 'phantom-embedded') {
-        // Use Phantom SDK - handle one by one
-        const results = await Promise.all(
-          transactions.map(tx => phantomWallet.signTransaction(tx))
-        );
-        
-        // Check if any transaction failed to sign
-        if (results.some(tx => tx === null)) {
-          throw new Error('Failed to sign one or more transactions');
-        }
-        
-        signedTransactions = results as Transaction[];
-      } else if (adapterSignAllTransactions) {
-        // Use wallet adapter
-        signedTransactions = await adapterSignAllTransactions(transactions);
-      }
+      await this.connection.confirmTransaction(signature);
       
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
-      return signedTransactions;
-    } catch (error) {
-      console.error('Error signing transactions:', error);
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
-      return null;
-    }
-  }, [walletInfo.connected, walletInfo.walletType, adapterSignAllTransactions, phantomWallet]);
-  
-  // Send transaction
-  const sendTransaction = useCallback(async (transaction: Transaction): Promise<string | null> => {
-    if (!walletInfo.connected) return null;
-    
-    setWalletInfo(prev => ({ ...prev, isLoading: true }));
-    
-    try {
-      let signature: string | null = null;
+      // Update balance after airdrop
+      await this.fetchBalance();
       
-      if (walletInfo.walletType === 'phantom-embedded') {
-        // Use Phantom SDK
-        signature = await phantomWallet.sendTransaction(transaction);
-      } else if (adapterSendTransaction) {
-        // Use wallet adapter
-        signature = await adapterSendTransaction(transaction, connection);
-      }
-      
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
       return signature;
     } catch (error) {
-      console.error('Error sending transaction:', error);
-      setWalletInfo(prev => ({ ...prev, isLoading: false }));
-      return null;
+      console.error('Error requesting airdrop:', error);
+      toast.error('Failed to request airdrop');
+      throw error;
     }
-  }, [walletInfo.connected, walletInfo.walletType, adapterSendTransaction, connection, phantomWallet]);
-  
-  return [
-    walletInfo,
-    {
-      connect,
-      disconnect,
-      signTransaction,
-      signAllTransactions,
-      sendTransaction,
-      refreshBalance
-    }
-  ];
-};
+  }
+
+  /**
+   * Get the Solana connection
+   */
+  public getConnection(): Connection {
+    return this.connection;
+  }
+
+  /**
+   * Get the wallet address as string
+   */
+  public getAddress(): string | null {
+    return this.walletInfo?.address || null;
+  }
+
+  /**
+   * Get the wallet public key
+   */
+  public getPublicKey(): PublicKey | null {
+    return this.walletInfo?.publicKey || null;
+  }
+
+  /**
+   * Format address for display (shortened)
+   */
+  public formatAddress(address?: string): string {
+    const addr = address || this.walletInfo?.address;
+    if (!addr) return '';
+    return `${addr.slice(0, 4)}...${addr.slice(-4)}`;
+  }
+}
+
+// Export a singleton instance
+export const walletService = new UnifiedWalletService();
+
+export default walletService;

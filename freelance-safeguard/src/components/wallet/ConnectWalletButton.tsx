@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useWallet } from '@/hooks/useWallet';
+import { WalletMultiButton } from '@/lib/solana/wallet-adapter-compat';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
 import { cn } from '@/lib/utils';
 

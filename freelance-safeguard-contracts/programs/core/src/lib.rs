@@ -6,6 +6,8 @@ pub mod state;
 pub mod utils;
 pub mod error_helpers;
 pub mod cpi_validation;
+pub mod interfaces;
+pub mod adapters;
 
 // Re-export important structs for easier imports in clients
 // Use specific imports instead of glob imports to avoid ambiguity
@@ -42,6 +44,10 @@ pub use instructions::{
         update::UpdateDomainTreasury,
         send_payment::SendPremiumToRiskPool,
     },
+    reputation::{
+        fetch_ethos_score::FetchEthosScore,
+        simulate_ethos_reputation::SimulateEthosReputation,
+    },
 };
 
 // Import parameter structs with specific namespaces
@@ -51,13 +57,19 @@ pub use state::policy::Policy;
 pub use state::claim::Claim;
 pub use state::risk_pool::RiskPool;
 pub use state::program_state::ProgramState;
+pub use state::feature_flags::FeatureFlags;
 
 // Add explicit exports for utility modules
 pub use crate::error_helpers::*;
 pub use crate::cpi_validation::*;
 
+// Export interfaces and adapters for client use
+pub use interfaces::reputation::{ReputationProvider, ReputationScore, ReputationFactors};
+pub use interfaces::authentication::{AuthenticationProvider, AuthorityLevel, AuthContext, AuthMetadata};
+pub use adapters::{get_reputation_provider, get_auth_provider};
+
 // Program ID - this will be updated once deployed
-declare_id!("BWop9ejaeHDK9ktZivqzqwgZMN8kituGYM7cKqrpNiaE");
+declare_id!("VLemBYrguAkGx1NUpviKW5epn9zJRTLKvfEzmVvpupD");
 
 const TIMELOCK_DURATION: i64 = 60 * 60 * 24; // 1 day
 
@@ -149,114 +161,162 @@ pub mod freelance_shield_core {
         // Set processing flag to prevent reentrancy
         claim.is_processing = true;
         
-        // Process the claim
         let result = instructions::claim::pay::handler(ctx, transaction_signature);
         
-        // Reset reentrancy guard regardless of result
+        // Reset processing flag regardless of result
         claim.is_processing = false;
         
         result
     }
     
-    /// Dispute a rejected claim
+    /// Arbitrate a disputed claim
+    pub fn arbitrate_claim(
+        ctx: Context<ArbitrateClaim>,
+        approved: bool,
+        reason: String,
+    ) -> Result<()> {
+        instructions::claim::arbitrate::handler(ctx, approved, reason)
+    }
+    
+    /// Dispute a claim
     pub fn dispute_claim(
         ctx: Context<DisputeClaim>,
         reason: String,
-        new_evidence: Option<Vec<String>>,
     ) -> Result<()> {
-        instructions::claim::dispute::handler(ctx, reason, new_evidence)
+        instructions::claim::dispute::handler(ctx, reason)
     }
     
-    /// Arbitrate a disputed or complex claim
-    pub fn arbitrate_claim(
-        ctx: Context<ArbitrateClaim>,
-        params: ArbitrateClaimParams, 
-    ) -> Result<()> {
-        instructions::claim::arbitrate::handler(ctx, params)
-    }
+    // ===== RISK POOL MANAGEMENT =====
     
-    // ===== RISK MANAGEMENT =====
-    
-    /// Initialize the risk pool
+    /// Initialize a new risk pool
     pub fn initialize_risk_pool(
         ctx: Context<InitializeRiskPool>,
-        max_auto_approve_amount: u64,
-        staking_allocation_percentage: u8,
-        treasury_allocation_percentage: u8,
-        treasury_wallet: Pubkey,
+        params: InitializeRiskPoolParams,
     ) -> Result<()> {
-        instructions::risk::initialize_pool::handler(
-            ctx,
-            max_auto_approve_amount,
-            staking_allocation_percentage,
-            treasury_allocation_percentage,
-            treasury_wallet
-        )
+        instructions::risk::initialize::handler(ctx, params)
     }
     
-    /// Deposit capital to the risk pool
+    /// Deposit capital into a risk pool
     pub fn deposit_capital(
         ctx: Context<DepositCapital>,
-        params: DepositCapitalParams,
+        amount: u64,
     ) -> Result<()> {
-        instructions::risk::deposit::handler(ctx, params)
+        instructions::risk::deposit::handler(ctx, amount)
     }
     
-    /// Withdraw capital from the risk pool
+    /// Withdraw capital from a risk pool
     pub fn withdraw_capital(
         ctx: Context<WithdrawCapital>,
-        params: WithdrawCapitalParams,
+        amount: u64,
     ) -> Result<()> {
-        instructions::risk::withdraw::handler(ctx, params)
-    }
-    
-    /// Run risk simulation
-    pub fn run_risk_simulation(
-        ctx: Context<SimulateRisk>,
-        params: RiskSimulationParams,
-    ) -> Result<()> {
-        instructions::risk::simulate::handler(ctx, params)
+        instructions::risk::withdraw::handler(ctx, amount)
     }
     
     /// Update risk metrics
     pub fn update_risk_metrics(
         ctx: Context<UpdateRiskMetrics>,
+        params: UpdateRiskMetricsParams,
     ) -> Result<()> {
-        instructions::risk::update_metrics::handler(ctx)
+        instructions::risk::update::handler(ctx, params)
     }
     
-    // ===== PROGRAM ADMINISTRATION =====
+    /// Simulate risk for a policy
+    pub fn simulate_risk(
+        ctx: Context<SimulateRisk>,
+        params: SimulateRiskParams,
+    ) -> Result<()> {
+        instructions::risk::simulate::handler(ctx, params)
+    }
     
-    /// Update core program parameters
+    // ===== TREASURY MANAGEMENT =====
+    
+    /// Initialize a domain treasury
+    pub fn initialize_domain_treasury(
+        ctx: Context<InitializeDomainTreasury>,
+        domain: String,
+        bump: u8,
+    ) -> Result<()> {
+        instructions::treasury::initialize::handler(ctx, domain, bump)
+    }
+    
+    /// Update a domain treasury
+    pub fn update_domain_treasury(
+        ctx: Context<UpdateDomainTreasury>,
+        params: UpdateDomainTreasuryParams,
+    ) -> Result<()> {
+        instructions::treasury::update::handler(ctx, params)
+    }
+    
+    /// Send premium to risk pool
+    pub fn send_premium_to_risk_pool(
+        ctx: Context<SendPremiumToRiskPool>,
+        amount: u64,
+    ) -> Result<()> {
+        instructions::treasury::send_payment::handler(ctx, amount)
+    }
+    
+    // ===== PROGRAM MANAGEMENT =====
+    
+    /// Update program parameters
     pub fn update_program_parameters(
         ctx: Context<UpdateProgramParameters>,
-        params: UpdateProgramParamsParams,
+        params: UpdateProgramParametersParams,
     ) -> Result<()> {
-        let program_state = &mut ctx.accounts.program_state;
+        instructions::program::update::handler(ctx, params)
+    }
+    
+    // ===== FEATURE FLAG MANAGEMENT =====
+    
+    /// Enable a feature flag
+    pub fn enable_feature(
+        ctx: Context<UpdateProgramParameters>,
+        feature: String,
+    ) -> Result<()> {
+        // Verify authority
+        require!(
+            ctx.accounts.program_state.authority == ctx.accounts.authority.key(),
+            FreelanceShieldError::Unauthorized
+        );
         
-        // Check if this is a proposal or execution
-        if program_state.pending_update_timestamp == 0 {
-            // This is a proposal, set the timelock
-            program_state.pending_update_params = params;
-            program_state.pending_update_timestamp = Clock::get()?.unix_timestamp + TIMELOCK_DURATION;
-            msg!("Parameter update proposed. Will be executable after timestamp: {}", 
-                 program_state.pending_update_timestamp);
-            return Ok(());
-        } else {
-            // This is an execution, check timelock
-            require!(
-                Clock::get()?.unix_timestamp >= program_state.pending_update_timestamp,
-                FreelanceShieldError::TimelockNotExpired
-            );
-            
-            // Apply the pending update
-            let result = instructions::program::update::handler(ctx, program_state.pending_update_params.clone());
-            
-            // Reset timelock
-            program_state.pending_update_timestamp = 0;
-            
-            result
-        }
+        // Enable the feature
+        ctx.accounts.program_state.enable_feature(&feature)?;
+        
+        Ok(())
+    }
+    
+    /// Disable a feature flag
+    pub fn disable_feature(
+        ctx: Context<UpdateProgramParameters>,
+        feature: String,
+    ) -> Result<()> {
+        // Verify authority
+        require!(
+            ctx.accounts.program_state.authority == ctx.accounts.authority.key(),
+            FreelanceShieldError::Unauthorized
+        );
+        
+        // Disable the feature
+        ctx.accounts.program_state.disable_feature(&feature)?;
+        
+        Ok(())
+    }
+    
+    // ===== ETHOS REPUTATION INTEGRATION =====
+    
+    /// Fetch a user's Ethos reputation score
+    pub fn fetch_ethos_score(
+        ctx: Context<FetchEthosScore>,
+        params: FetchEthosScoreParams,
+    ) -> Result<()> {
+        instructions::reputation::fetch_ethos_score::handler(ctx, params)
+    }
+    
+    /// Simulate Ethos reputation changes
+    pub fn simulate_ethos_reputation(
+        ctx: Context<SimulateEthosReputation>,
+        params: SimulateEthosReputationParams,
+    ) -> Result<()> {
+        instructions::reputation::simulate_ethos_reputation::handler(ctx, params)
     }
 }
 

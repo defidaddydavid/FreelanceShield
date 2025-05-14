@@ -1,0 +1,391 @@
+[Open in app](https://rsci.app.link/?%24canonical_url=https%3A%2F%2Fmedium.com%2Fp%2F18a1e1bdbb3b&%7Efeature=LoOpenInAppButton&%7Echannel=ShowPostUnderUser&source=post_page---top_nav_layout_nav-----------------------------------------)
+Sign up
+[Sign in](https://medium.com/m/signin?operation=login&redirect=https%3A%2F%2Fmedium.com%2F%40Anatolii_Zhadan%2Fthe-complete-guide-to-full-stack-solana-development-with-react-anchor-rust-and-phantom-18a1e1bdbb3b&source=post_page---top_nav_layout_nav-----------------------global_nav------------------)
+[Write](https://medium.com/m/signin?operation=register&redirect=https%3A%2F%2Fmedium.com%2Fnew-story&source=---top_nav_layout_nav-----------------------new_post_topnav------------------)
+Sign up
+[Sign in](https://medium.com/m/signin?operation=login&redirect=https%3A%2F%2Fmedium.com%2F%40Anatolii_Zhadan%2Fthe-complete-guide-to-full-stack-solana-development-with-react-anchor-rust-and-phantom-18a1e1bdbb3b&source=post_page---top_nav_layout_nav-----------------------global_nav------------------)
+
+# The Complete Guide to Full Stack Solana Development with React, Anchor, Rust, and Phantom
+[Anatolii Zhadan](https://medium.com/@Anatolii_Zhadan?source=post_page---byline--18a1e1bdbb3b---------------------------------------)
+[Follow](https://medium.com/m/signin?actionUrl=https%3A%2F%2Fmedium.com%2F_%2Fsubscribe%2Fuser%2F81b2f279763b%2F18a1e1bdbb3b&operation=register&redirect=https%3A%2F%2Fmedium.com%2F%40Anatolii_Zhadan%2Fthe-complete-guide-to-full-stack-solana-development-with-react-anchor-rust-and-phantom-18a1e1bdbb3b&user=Anatolii+Zhadan&userId=81b2f279763b&source=post_page-81b2f279763b--byline--18a1e1bdbb3b---------------------post_header------------------)
+--
+3
+Listen
+Share
+Full starting guide to Solana Development 2024 with Anchor and React
+If you are already familiar with Solana and know how it works, you can skip the introduction and move on to the development guide.
+
+# Table of Contents:
+1. Introduction:- Brief overview of Solana’s blockchain technology and its benefits (speed, low transaction fees, etc.).
+2. Preliminary requirements:- Programming Stack.- Basic Blockchain Concepts.- Necessary Software.
+3. Section 1: Understanding Solana:- Proof of History (PoH).- Solana architecture.
+4. Key concepts in Solana development (accounts, programs, transactions):- Accounts.- Programs.- Transactions.
+5. Section 2: Setting Up the Development Environment:- Installing Solana CLI tools.- Setting up the local Solana blockchain (test validator).- Introduction to Anchor framework: Why Anchor?
+6. Section 3: Building Your First Solana Program with Rust and Anchor:- Step 1: Create a new project with Anchor.- Step 2: Writing the Program Logic.- Step 3: Building the Program.- Compiling and Deploying the Program to the Local Solana Network.
+7. Section 4: Integrating with the Frontend using React and Anchor:- Setting up a React application.- Modifying the frontend.
+8. Section 5: Testing and Deployment:- Write tests.- Deploying applications to the devnet and mainnet.
+Introduction
+Brief overview of Solana’s blockchain technology and its benefits (speed, low transaction fees, etc.).
+Preliminary requirements
+Programming Stack.
+Basic Blockchain Concepts.
+Necessary Software.
+Section 1: Understanding Solana:
+Proof of History (PoH).
+Solana architecture.
+Key concepts in Solana development (accounts, programs, transactions)
+Accounts.
+Programs.
+Transactions.
+Section 2: Setting Up the Development Environment:
+Installing Solana CLI tools.
+Setting up the local Solana blockchain (test validator)
+Introduction to Anchor framework: Why Anchor?
+Section 3: Building Your First Solana Program with Rust and Anchor:
+Step 1: Create a new project with Anchor.
+Step 2: Writing the Program Logic.
+Step 3: Building the Program.
+Compiling and Deploying the Program to the Local Solana Network.
+Section 4: Integrating with the Frontend using React and Anchor:
+Setting up a React application.
+Modifying the frontend.
+Section 5: Testing and Deployment:
+Write tests.
+Deploying applications to the devnet and mainnet.
+
+## Brief overview of Solana’s blockchain technology and its benefits:
+
+Why do we use Solana? It’s cheap, fast and convenient! Solana is recognized for its blazing-fast transaction speeds of up to 65,000 transactions per second (TPS), surpassing traditional leaders such as Bitcoin and Ethereum. This performance is enabled by the unique Proof of History (PoH) consensus mechanism along with Proof of Stake (PoS), which significantly reduces transaction latency and improves overall network efficiency.
+Transaction costs on Solana are surprisingly low, with an average fee of around $0.00025, making it a cost-effective choice for developers and users. This efficiency does not come at the expense of the environment: Solana’s energy consumption is minimal and comparable to the energy used for a few Google searches, reflecting its commitment to sustainability.
+Solana’s ecosystem benefits from robust partnerships with tech giants and a commitment to constant innovation, as evidenced by updates such as Firedancer that further improve its performance and scalability. Despite challenges such as network instability, Solana’s continuous improvements and strategic collaborations emphasise its potential as a dominant force in blockchain technology.
+
+## Programming Stack:
+The prerequisites for developing Solana are programming knowledge and familiarity with blockchain concepts. Here’s a refined overview aimed at someone with previous blockchain experience:
+JavaScript- Need: Required to interact with the Solana blockchain through the Solana Web3.js library, which enables communications such as sending transactions and querying blockchain data.- Proficiency: A strong command of JavaScript, including modern ES6+ syntax and asynchronous programming, is critical for effective development on Solana.
+React- Essential: Highly recommended for creating user interfaces for decentralized applications (dApps) on Solana. React makes it easy to create dynamic and responsive web applications that interact with blockchain.- Proficiency level: Familiarity with React basics (components, hooks, state management) will be helpful. Integrating React applications with Solana requires an understanding of how to use Solana’s Web3.js library in the context of a React application.
+-Rust: For developing on-chain programs in Solana, knowledge of the Rust language will be very useful. Solana smart contracts (or programs) are mostly written in Rust, leveraging its performance and security.
+- Development tools and environment: Knowledge of Solana development tools, including the Anchor framework to simplify smart contract development, will be helpful. Understanding how to deploy applications on Solana networks (devnet, testnet, mainnet-beta) is critical for real-world deployment.
+Basic Blockchain Concepts:
+- Essential: An understanding of the basic principles of blockchain is fundamental. This includes knowledge of consensus mechanisms, smart contracts (called software in Solana), transactions, wallets, and cryptographic keys.
+- Solana Specific Concepts: Knowledge of Solana’s unique features such as Proof of History (PoH), consensus mechanism, and structure of Solana programs and accounts is a must. Familiarity with the Solana Programme Library (SPL) and command line tools such as Solana CLI for testing and deployment is also recommended.Additional Skills
+This information emphasizes that while familiarity with blockchain fundamentals is assumed, Solana development presents unique aspects and tools that developers must learn to effectively build on this platform. For those new to Solana, using existing Solana software and SDKs such as Solana-web3.js can be a practical starting point before delving into Rust software development.
+
+## Necessary Software:
+Setting up an environment with the necessary software is very important for Solana development. Basic software requirements include Node.js, Yarn, and Git. These tools are needed to run and manage Solana projects, run tests, and perform version control.
+Node.js is required to execute server-side JavaScript code and to interact with the Solana blockchain using various JavaScript libraries and frameworks. You can install Node.js from its [official website](https://nodejs.org/).
+Yarn is a package manager that helps manage project dependencies. It is used to install, update and manage the libraries and packages your project needs. Yarn can be installed via the npm package manager that comes with Node.js by running npm install -g yarn in the terminal. More information about Yarn can be found on its [official website](https://yarnpkg.com/).
+Git is a version control system that allows you to track changes to your codebase and collaborate with other users. It is essential for managing the development of complex projects. You can install Git from its [official website](https://git-scm.com/).
+In addition to these software tools, to develop Solana, you will also need to install the Solana CLI (command line interface), which is required to interact with the Solana blockchain. The instructions for installing the Solana CLI depend on your operating system, but usually involve executing a shell command that finds and installs the Solana tools directly. Detailed instructions for installing the Solana CLI can be found in the Solana documentation [here](https://docs.solana.com/cli/install-solana-cli-tools).
+These tools form the backbone of the Solana development environment, allowing you to efficiently build, test, and deploy applications on the Solana blockchain.
+And don’t forget to install the [Phantom wallet](https://phantom.app/) to use Solana.
+
+# Section 1: Understanding Solana
+Solana is a high-performance blockchain platform known for its scalability and speed, largely due to a unique consensus mechanism called Proof of History (PoH). Unlike traditional consensus mechanisms such as Proof of Work (PoW) used in Bitcoin or Proof of Stake (PoS) used in many other blockchains, PoH is a new approach to recording the order of events and confirming transactions.
+Proof of History (PoH):
+PoH is not a standalone consensus mechanism, but rather works alongside PoS in Solana to improve its efficiency. It uses a cryptographic timestamp to create a verifiable sequence of events, allowing verifiers to agree on the timing and order of transactions without the need for extensive communication between them. This is achieved by creating a hash chain in which each hash is a function of the previous one, effectively acting as a decentralized clock. This method provides a secure and accurate timestamp of each transaction, facilitating rapid consensus on the state of the blockchain.
+Benefits of PoH:
+- Scalability: By efficiently organizing transactions and reducing the need for validators to communicate to verify the order of events, PoH allows Solana to process thousands of transactions per second.- Low Latency: Transactions are processed quickly due to a simplified verification process, improving the usability of dApps and services running on Solana.- Security: The cryptographic nature of PoH combined with the PoS consensus in Solana keeps the network safe from attacks.- Energy Efficiency: PoH is greener than PoW as it does not require energy-intensive mining activities.
+Solana architecture:
+The Solana architecture is designed to maximize throughput and minimize transaction confirmation time. This is achieved through several innovative technologies, including the Gulf Stream protocol for transaction forwarding, Sealevel for parallel processing of smart contracts, and Turbine for block propagation. Together with PoH, these technologies enable Solana to achieve unprecedented speed and scalability among blockchain networks.
+Solana’s consensus mechanism is a combination of PoH for timekeeping and PoS for transaction confirmation and network security. This combination provides a high degree of decentralization and scalability, positioning Solana as a competitive platform for decentralized applications (dApps), decentralized finance (DeFi) and non-functionalized tokens (NFTs).
+The introduction of PoH represents a significant advancement in blockchain technology, removing common bottlenecks related to scalability and transaction speed. As blockchain technology continues to evolve, Solana’s innovative approach to consensus can inspire new developments in this area.
+
+# Key concepts in Solana development (accounts, programs, transactions):
+Solana development revolves around three critical concepts: accounts, programs, and transactions. Understanding these elements is fundamental to building applications on the Solana blockchain.
+
+## Accounts:
+Accounts are storage locations on the Solana blockchain that can hold data, SOLs (Solana’s native currency), or smart contract code. Each account has a public key that serves as its unique identifier. Accounts can be of different types, including user wallets, program accounts (containing executable code), and data storage accounts. These accounts are required to manage state, ownership, and permissions on the Solana blockchain. Solana’s account model is slightly different from the account models of other blockchains such as Ethereum, as it requires that accounts have enough SOLs to cover the “rent” or data storage costs.
+
+## Programs:
+In Solana, programs are synonymous with smart contracts on other blockchains, but they are designed to be more flexible and efficient. Programs are state-less, meaning they do not store any state themselves. Instead, all state is stored in the accounts with which the programs interact. Solana programs are unique in that they can be updated, allowing for more dynamic and adaptable applications. These programs process instructions sent by transactions and can interact with other programs through a feature called cross-program call, which enables interoperability in the Solana ecosystem.
+Transactions:Transactions in Solana are the means by which users interact with programs, similar to function calls in traditional programming. A transaction contains one or more instructions that tell a program what to do, such as translate a SOL, change account data, or invoke program logic. Each transaction is signed with one or more private keys, which confirms that the initiator of the transaction has the authority to perform the specified actions. Transactions can change the state stored in accounts, and if any part of the transaction fails, the entire transaction is canceled, ensuring atomicity. This model allows Solana to process transactions quickly and efficiently, which contributes to its high throughput.
+For developers who come from other blockchains or are new to blockchain development, understanding these concepts is critical to successfully building the Solana platform. The platform’s unique consensus (proof of history) approach, combined with the account and program model, allows for a level of scalability and efficiency not often found in other blockchain ecosystems. To dive deeper into Solana development, explore the official Solana documentation and resources such as QuickNode and posts in the DEV community that can provide comprehensive guides and tutorials.
+
+## Installing Solana CLI tools:
+You can do it by offical guide by this [link](https://docs.solanalabs.com/cli/install).
+
+## Setting up the local Solana blockchain (test validator):
+To configure the Solana local blockchain (test validator), first make sure the Solana CLI is installed. Then run the command
+
+```
+solana-test-validator
+```
+
+in a new terminal window. This will start a local blockchain cluster on your machine. Use the
+
+```
+solana config set --url localhost
+```
+
+command to configure the Solana CLI to communicate with the local cluster. Create a file system wallet using solana-keygen new to deploy programs and manage transactions
+
+```
+solana-keygen new --outfile /path/to/save/your/program-keypair.json#example#solana-keygen new -o /Users/user/.config/solana/id.json
+```
+
+Finally, transfer SOL tokens to your wallet using solana airdrop 2 to pay for transactions. Detailed steps can be found in [Solana’s guide](https://solana.com/developers/guides/getstarted/setup-local-development) to setting up local development.
+
+## Why Anchor?:
+The Anchor framework simplifies the development of Solana smart contracts by providing a layer of abstraction above the core Solana development kit. It offers tools and runtime environment to efficiently build, test and deploy programs on the Solana blockchain. Anchor is designed to simplify the development process, reduce boilerplate code and introduce familiar programming patterns into Solana, making it more accessible to developers familiar with other smart contract platforms. By offering a Rust-based framework that automates many of the lower-level details involved in developing programs on Solana, Anchor allows developers to focus on the logic of the application rather than the intricacies of the blockchain itself.
+
+# Section 3: Building Your First Solana Program with Rust and Anchor:
+
+Prerequisites:1. Basic understanding of programming in the [Rust](https://www.rust-lang.org/tools/install) language.2. Solana CLI and Rust are installed on your computer.
+
+## Step 1: Create a new project with Anchor:
+1. Install Anchor:
+If you have not installed Anchor yet, run the command:
+
+```
+cargo install --git https://github.com/project-serum/anchor anchor-cli --locked
+```
+
+Anchor simplifies Solana development by providing a framework for the Sealevel Solana runtime environment.
+2. Initialize a new Anchor project:
+
+```
+anchor init my_solana_dapp --javascript
+```
+
+flag to create a new project. The — javascript flag sets up a project with JavaScript examples to integrate with the frontend.
+Notice the programs/ directory where your Rust programs will live, and the tests/ directory for your program tests.
+3. Navigate to the project directory:
+
+```
+cd my_solana_dapp
+```
+
+## Step 2: Writing the Program Logic
+1. Open the lib.rs file: Find this file by this commands:
+
+```
+cd programscd my_solana_dappcd src
+```
+
+This is where you will write the logic for your program.
+1. Define your program: Replace the contents of lib.rs with the following Rust code. This example creates a simple program that writes a number.
+
+```
+//after declare_id replace logic with it#[program]pub mod my_solana_dapp {    use super::*;    pub fn create_greeting(ctx: Context<CreateGreeting>) -> Result<()> {        let greeting_account = &mut ctx.accounts.greeting_account;        greeting_account.counter = 0;        Ok(())    }    pub fn increment_greeting(ctx: Context<IncrementGreeting>) -> Result<()> {        let greeting_account = &mut ctx.accounts.greeting_account;        greeting_account.counter += 1;        Ok(())    }}#[derive(Accounts)]pub struct CreateGreeting<'info> {    #[account(init, payer = user, space = 8 + 8)]    pub greeting_account: Account<'info, GreetingAccount>,    #[account(mut)]    pub user: Signer<'info>,    pub system_program: Program<'info, System>,}#[derive(Accounts)]pub struct IncrementGreeting<'info> {    #[account(mut)]    pub greeting_account: Account<'info, GreetingAccount>,}#[account]pub struct GreetingAccount {    pub counter: u64,}
+```
+
+3. Understand the code: The program consists of two main functions: create_greeting and increment_greeting, as well as the necessary data structures for account management. Here is a breakdown of its components:
+Program declaration:
+
+# [program] marks the my_solana_dapp module as containing smart contract entry points. Within this module, the business logic of the contract is defined.Functions
+
+create_greeting(ctx: Context<CreateGreeting>) -> Result<()>: This function initializes a new “greeting” account with the counter set to 0. It accepts a context that includes the accounts required for this operation.
+increment_greeting(ctx: Context<IncrementGreeting>) -> Result<()>: This function increments the counter in the specified “greeting” account by 1. It also takes a context specifying which account to increment.
+Account structures:#[derive(Accounts)]: This macro is used to specify the accounts each function expects. It helps Anchor perform security and ownership checks.
+CreateGreeting<’info>: This structure defines the accounts needed for the create_greeting function. It includes the new greeting account to be created (greeting_account), the user who will pay to create the account and sign the transaction (user), and a reference to the system program that is needed to create the accounts on Solana.
+IncrementGreeting<’info>: This structure defines the account required for the increment_greeting function, namely the greeting account whose counter will be incremented.
+GreetingAccount: This is the data structure for the greeting accounts managed by this program. It contains a single field, the counter, which keeps track of how many times the greeting has been incremented.
+Key concepts:Account Initialization: The create_greeting function demonstrates how to initialize a new account on Solana using Anchor. The #[account(init, payer = user, space = 8 + 8)] attribute specifies that account_greeting should be initialized, the user will pay to create the account, and the account requires enough space for an account discriminator (8 bytes automatically added by Anchor for disambiguation) plus a counter field (8 bytes for u64).
+Signatories and permissions: The user in CreateGreeting is tagged with #[account(mut)] to indicate that they are a signatory to the transaction and that their account can be changed (for transaction payment and account creation).
+Simple state management: The program demonstrates a basic state management pattern in Solana, where the state (counter) is stored in an account (GreetingAccount) and transactions modify that state using program functions.
+This code provides a basic but complete example of a Solana program that interacts with accounts on the blockchain to perform simple state changes, demonstrating account creation, transaction signing, and state management principles in the context of the Solana blockchain and the Anchor framework.
+You can learn more by this [link](https://www.soldev.app/course/intro-to-anchor).
+
+## Step 3: Building the Program
+
+Build your project:
+Run the anchor build command:
+
+```
+anchor build
+```
+
+This command will compile your Rust program into a BPF (Berkeley Packet Filter) bytecode that can be deployed on the Solana blockchain.
+Find your program ID:
+After building, find your program ID in target/idl/my_solana_dapp.json or by running:
+
+```
+solana address -k target/deploy/my_solana_dapp-keypair.json
+```
+
+## Prerequisites:
+- Local Solana test validator running.
+- Anchor and Solana CLI tools installed.
+
+## Program compilation:
+If you followed the build step in the previous section, your program is already compiled. Make sure your Solana LAN (test validator) is running.
+
+## Deploying the program:
+1. Start the Solana test validator (if it is not already running):
+
+```
+solana-test-validator
+```
+
+2. Configure the Solana CLI to use the local network:
+Run:
+
+```
+solana config set - url localhost
+```
+
+3. Deploy the program:
+Go to your project directory and run this command:
+
+```
+anchor deploy
+```
+
+This command will deploy your compiled program to the Solana local network. After successful deployment, Anchor will display the program ID.
+Anchor updates your project’s Anchor.toml and JavaScript files with the deployed program's ID, simplifying the integration with your frontend.
+4. Verify deployment:
+You can verify the deployment by running
+
+```
+solana program show <PROGRAM_ID>/* example of output:> solana program show CC3EongBFU71ru4LRdUe3wNg5ULLLnCnJLhRhbUcP93oProgram Id: CC3EongBFU71ru4LRdUe3wNg5ULLLnCnJLhRhbUcP93oOwner: BPFLoaderUpgradeab1e11111111111111111111111ProgramData Address: 6nnAVBvmJHJyN4keECcZDswfF6zzeLAEs2qZGWMcuhFjAuthority: 9HGR7nJ2VQ4T23SyHA7BhqrShj9MokwNKdgTh1en61fCLast Deployed In Slot: 8777Data Length: 200840 (0x31088) bytesBalance: 1.39905048 SOL*/
+```
+
+command, replacing <PROGRAM_ID> with your program ID. This command will show detailed information about your program if it has been successfully deployed.
+
+## Conclusion:
+You have now created and deployed a simple Solana program using Rust and Anchor. Experimenting with more complex logic and interactions will help you better understand Solana’s capabilities.
+
+## Setting Up a React Application:
+Just delete /app directory and create a new react app with this command:
+
+```
+npx create-react-app app#after itcd app/npm install @solana/web3.js @project-serum/anchor @solana/wallet-adapter-react \@solana/wallet-adapter-react-ui @solana/wallet-adapter-wallets \@solana/wallet-adapter-basenpm install @solana/wallet-adapter-react @solana/wallet-adapter-phantom @solana/web3.js
+```
+
+## Prerequisites:
+1. Installed Node.js.
+2. Navigate to the app/ directory of your project.
+
+## Dependency installation:
+Connecting to the localhost blockchain using Phantom Wallet
+
+## Phantom Integration:
+Use the [@solana/wallet-adapter-react](https://www.npmjs.com/package/@solana/wallet-adapter-react) libraries to connect to Phantom. This should already be part of your settings if you initialized the project with Anchor.Sending transactions and interacting with the Solana program
+
+## Modifying the frontend:
+Modify app/src/App.js to connect to the Solana program and send transactions:Use the generated IDL (Interface Description Language) file from the Anchor build to interact with your program. Just move it from directory target/idl to src in your app directory.Implement functions to connect your wallet, create a greeting account, and increment the greeting counter:
+
+```
+import { useState } from "react";import { useAnchorWallet } from "@solana/wallet-adapter-react";import { Connection, PublicKey, SystemProgram, Keypair } from "@solana/web3.js";import { Program, AnchorProvider } from "@project-serum/anchor";import { useWallet } from "@solana/wallet-adapter-react";import {  WalletMultiButton,  WalletDisconnectButton,} from "@solana/wallet-adapter-react-ui";import idl from "./my_solana_dapp.json"; // The path to your JSON IDL fileconst programID = new PublicKey(idl.metadata.address);const network = "http://127.0.0.1:8899"; // Adjust for your environment: local, devnet, or mainnet-betaconst opts = { preflightCommitment: "processed" };const App = () => {  const wallet = useAnchorWallet();  const { connected } = useWallet();  const [greetingAccountPublicKey, setGreetingAccountPublicKey] =    useState(null);  const [error, setError] = useState("");  const getProvider = () => {    if (!wallet) return null;    const connection = new Connection(network, opts.preflightCommitment);    return new AnchorProvider(connection, wallet, opts.preflightCommitment);  };  const createGreeting = async () => {    setError("");    if (!connected) {      setError("Wallet is not connected.");      return;    }    const provider = getProvider();    if (!provider) {      setError("Provider is not available.");      return;    }    const program = new Program(idl, programID, provider);    try {      const greetingAccount = Keypair.generate();      await program.rpc.createGreeting({        accounts: {          greetingAccount: greetingAccount.publicKey,          user: provider.wallet.publicKey,          systemProgram: SystemProgram.programId,        },        signers: [greetingAccount],      });      console.log("Greeting account created!");      setGreetingAccountPublicKey(greetingAccount.publicKey.toString());    } catch (err) {      console.error("Error creating greeting account:", err);      setError("Failed to create greeting account. Please try again.");    }  };  const incrementGreeting = async () => {    setError("");    if (!connected) {      setError("Wallet is not connected.");      return;    }    if (!greetingAccountPublicKey) {      setError("Greeting account not created or public key not set.");      return;    }    const provider = getProvider();    if (!provider) {      setError("Provider is not available.");      return;    }    const program = new Program(idl, programID, provider);    try {      await program.rpc.incrementGreeting({        accounts: {          greetingAccount: new PublicKey(greetingAccountPublicKey),          user: provider.wallet.publicKey,        },        signers: [],      });      console.log("Greeting incremented!");    } catch (err) {      console.error("Error incrementing greeting:", err);      setError("Failed to increment greeting. Please try again.");    }  };  return (    <div>      <WalletMultiButton />      <WalletDisconnectButton />      <button onClick={createGreeting}>Create Greeting</button>      {greetingAccountPublicKey && (        <button onClick={incrementGreeting}>Increment Greeting</button>      )}      {error && <p style={{ color: "red" }}>{error}</p>}    </div>  );};export default App;
+```
+
+And index.js:
+
+## Modifying the frontend:
+
+```
+import React from "react";import { createRoot } from "react-dom/client";import "./index.css";import App from "./App";import {  ConnectionProvider,  WalletProvider,} from "@solana/wallet-adapter-react";import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";import { clusterApiUrl } from "@solana/web3.js";import "@solana/wallet-adapter-react-ui/styles.css";import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";const wallets = [new PhantomWalletAdapter()];const rootElement = document.getElementById("root");const root = createRoot(rootElement);root.render(  <React.StrictMode>    <ConnectionProvider endpoint="http://127.0.0.1:8899">      {" "}      {/* Use your desired network */}      <WalletProvider wallets={wallets} autoConnect>        <WalletModalProvider>          <App />        </WalletModalProvider>      </WalletProvider>    </ConnectionProvider>  </React.StrictMode>);
+```
+
+And now we need to airdrop some SOL on our wallet in our localhost network:
+
+```
+solana airdrop 10 3EEQVdGGCqiY4CEHiZ3S9CiTnGqE8mztUfFFZmTjYq4V#solana airdrop amount wallet_address
+```
+
+And now if we run the app:
+
+```
+npm run
+```
+
+We will see this:
+And now by pressing “Select Wallet” we can connect wallet and press “Create Greeting”
+Gretting created and now we can increment it by pressing “Increment Greeting”:
+So our app is working!
+
+# Section 6: Testing and Deployment:
+
+In tests we have file my_solana_dapp.js and insert here this code:
+
+```
+use anchor_lang::prelude::*;use anchor_lang::solana_program::system_program;use my_solana_dapp::{self, *};use anchor_lang::ToAccountInfo;use anchor_lang::solana_program::pubkey::Pubkey;#[tokio::test]async fn test_create_and_increment_greeting() {    let program_test = anchor_lang::solana_program_test!(my_solana_dapp);    program_test.start().await;    // Create test environment    let (mut banks_client, payer, recent_blockhash) = program_test.banks_client().await;    // Derive a new account to be the greeting account    let greeting_account = Keypair::new();    // Create Greeting Account    {        let create_greeting_ix = instruction::create_greeting(            &my_solana_dapp::id(),            &greeting_account.pubkey(),            &payer.pubkey(),        );        let mut transaction = Transaction::new_with_payer(            &[create_greeting_ix],            Some(&payer.pubkey()),        );        transaction.sign(&[&payer, &greeting_account], recent_blockhash);        banks_client.process_transaction(transaction).await.unwrap();    }    // Increment Greeting Account    {        let increment_greeting_ix = instruction::increment_greeting(            &my_solana_dapp::id(),            &greeting_account.pubkey(),        );        let mut transaction = Transaction::new_with_payer(            &[increment_greeting_ix],            Some(&payer.pubkey()),        );        transaction.sign(&[&payer], recent_blockhash);        banks_client.process_transaction(transaction).await.unwrap();    }    // Fetch the updated greeting account    let greeting_account_data: GreetingAccount = banks_client        .get_account(greeting_account.pubkey())        .await        .expect("get_account")        .expect("account not found")        .try_into()        .expect("account deserialization");    // Verify the counter has been incremented    assert_eq!(greeting_account_data.counter, 1);}
+```
+
+and run command:
+
+```
+> anchor testFinished release [optimized] target(s) in 0.12s
+```
+
+## Deploying applications to the devnet and mainnet:
+
+When using Anchor, a framework designed to facilitate Solana development, the process of deploying to devnet and mainnet becomes more streamlined, providing developers with powerful abstractions and tools. Here is a complete guide to deploying Solana applications based on Anchor.
+Preparing for deployment:
+Make sure your application is fully tested and optimized. Use the Anchor testing system to test your program’s logic and scripts. Security audits and performance optimization are critical before deploying to any network.
+Configuring Anchor for deployment:
+1.Customize Anchor.toml: Your Anchor.toml file contains configurations for different networks (localnet, devnet, and mainnet). Check the settings for each, making sure they point to the correct RPC endpoints and have the appropriate wallet configurations.
+2. Build the project: Before deployment, build the project using Anchor to make sure all artifacts are up to date:
+
+```
+anchor build
+```
+
+This step compiles your Rust program into executable BPF bytecode.
+Deploying to devnet:
+Deploying to devnet allows you to test your application in an environment similar to mainnet without risking real assets.
+1. Deploy to devnet in Anchor.toml: Ensure that the default configuration in the Anchor.toml file points to devnet.
+2. Fill your wallet: Use faucet to add a test SOL to your wallet, if necessary. By default, Anchor uses the wallet configured in the Anchor.toml file or the Solana CLI wallet.
+3. Deploying with Anchor: Deploy your program to devnet using:
+
+```
+anchor deploy - provider.cluster devnet
+```
+
+Anchor automates the process by selecting the correct Solana CLI configurations and deploying your program to the specified network. Remember the program ID output from this command for future communication.
+Move to the primary network:
+After verifying that your application is working correctly on the devnet, the next step is to transition to the core network.
+1. Transition to the mainnet in Anchor.toml: Update your Anchor.toml to point to the mainnet settings. This includes changing the RPC URL and possibly the wallet used for deployment.
+2. Make sure you have a miner SOL: A true SOL is required to deploy the mainnet. Make sure you have enough SOL on your wallet to cover deployment and transaction costs.
+3. Mainnet Deployment using Anchor: Perform a mainnet deployment using:
+
+```
+anchor deploy - provider.cluster mainnet
+```
+
+This command deploys your program to mainnet. As before, pay attention to the program ID for live interaction with your DApp.
+Post-Deployment:
+After deployment, closely monitor your application’s performance and user interaction. Use tools like Solana Explorer and Anchor’s logging features to troubleshoot and optimize. Engage with your user community for feedback and support to grow and improve your DApp.
+
+# Finish:
+Thanks to this guide, you now have a basic understanding of developing on Solana using Anchor and integrating with the React frontend. This combination will prepare you for the exciting world of decentralized application development. Remember, the blockchain journey is continuous and filled with learning and innovation. Thanks for reading and good luck on your development journey. Let’s build the future, one blockchain at a time. Happy coding!
+
+# Link to follow me:
+[LinkedIn](https://www.linkedin.com/in/anatolii-zhadan/)
+[Hackernoon](https://hackernoon.com/u/zhadan)
+[Solana Network](https://medium.com/tag/solana-network?source=post_page-----18a1e1bdbb3b---------------------------------------)
+[Solana Blockchain](https://medium.com/tag/solana-blockchain?source=post_page-----18a1e1bdbb3b---------------------------------------)
+[Development](https://medium.com/tag/development?source=post_page-----18a1e1bdbb3b---------------------------------------)
+[Blockchain](https://medium.com/tag/blockchain?source=post_page-----18a1e1bdbb3b---------------------------------------)
+[Web3](https://medium.com/tag/web3?source=post_page-----18a1e1bdbb3b---------------------------------------)
+--
+--
+3
+[Written by Anatolii Zhadan](https://medium.com/@Anatolii_Zhadan?source=post_page---post_author_info--18a1e1bdbb3b---------------------------------------)
+
+## Written by Anatolii Zhadan
+[46 Followers](https://medium.com/@Anatolii_Zhadan/followers?source=post_page---post_author_info--18a1e1bdbb3b---------------------------------------)
+[2 Following](https://medium.com/@Anatolii_Zhadan/following?source=post_page---post_author_info--18a1e1bdbb3b---------------------------------------)
+My linkedIn: [https://www.linkedin.com/in/anatolii-zhadan](https://www.linkedin.com/in/anatolii-zhadan)
+
+## Responses (3)
+[Help](https://help.medium.com/hc/en-us?source=post_page-----18a1e1bdbb3b---------------------------------------)
+Help
+[Status](https://medium.statuspage.io/?source=post_page-----18a1e1bdbb3b---------------------------------------)
+Status
+[About](https://medium.com/about?autoplay=1&source=post_page-----18a1e1bdbb3b---------------------------------------)
+About
+[Careers](https://medium.com/jobs-at-medium/work-at-medium-959d1a85284e?source=post_page-----18a1e1bdbb3b---------------------------------------)
+Careers
+[Press](mailto:pressinquiries@medium.com)
+Press
+[Blog](https://blog.medium.com/?source=post_page-----18a1e1bdbb3b---------------------------------------)
+Blog
+[Privacy](https://policy.medium.com/medium-privacy-policy-f03bf92035c9?source=post_page-----18a1e1bdbb3b---------------------------------------)
+Privacy
+[Rules](https://policy.medium.com/medium-rules-30e5502c4eb4?source=post_page-----18a1e1bdbb3b---------------------------------------)
+Rules
+[Terms](https://policy.medium.com/medium-terms-of-service-9db0094a1e0f?source=post_page-----18a1e1bdbb3b---------------------------------------)
+Terms
+[Text to speech](https://speechify.com/medium?source=post_page-----18a1e1bdbb3b---------------------------------------)
+Text to speech

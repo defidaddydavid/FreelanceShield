@@ -27,13 +27,19 @@ export function FreelanceInsuranceSDKProvider({ children }: SDKProviderProps) {
 
   // Initialize SDK when connection and wallet are available
   const sdk = useMemo(() => {
-    if (!connection || !wallet.publicKey) {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') return null;
+    
+    // Create SDK even without publicKey for initial app loading
+    // The SDK will handle null publicKey cases internally
+    try {
+      console.log('Initializing FreelanceInsurance SDK with Privy/Solana integration');
+      return new FreelanceInsuranceSDK(connection, wallet as SolanaWallet);
+    } catch (err) {
+      console.error('Error initializing FreelanceInsurance SDK:', err);
       return null;
     }
-
-    console.log('Initializing FreelanceInsurance SDK with real Solana connection');
-    return new FreelanceInsuranceSDK(connection, wallet as SolanaWallet);
-  }, [connection, wallet, wallet.publicKey]);
+  }, [connection, wallet]);
 
   return (
     <FreelanceInsuranceSDKContext.Provider value={sdk}>

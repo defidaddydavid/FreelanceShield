@@ -16,7 +16,7 @@ pub use state::*;
 pub use utils::*;
 pub use bayesian_scoring::{BayesianParameters, BayesianEvidence, calculate_bayesian_reputation, calculate_premium_discount};
 
-declare_id!("CQFYdGCbRf4bZ8dFd4123sBB4o83KWMMBKKz1AUkdnFs");
+declare_id!("ErqSUDAvmuZicGV9zBBAV9eSUo6sJoj7zjuWgASJQxD9");
 
 #[program]
 pub mod reputation_program {

@@ -1,0 +1,2308 @@
+{
+  "config": {
+    "filename": "FileScopeMCP-tree.json",
+    "baseDirectory": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts",
+    "projectRoot": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts",
+    "lastUpdated": "2025-04-19T00:58:22.751Z"
+  },
+  "fileTree": {
+    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts",
+    "name": "freelance-safeguard-contracts",
+    "isDirectory": true,
+    "children": [
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/.cargo",
+        "name": ".cargo",
+        "isDirectory": true,
+        "children": [
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/.cargo/config.toml",
+            "name": "config.toml",
+            "isDirectory": false,
+            "importance": 2,
+            "dependencies": [],
+            "packageDependencies": [],
+            "dependents": []
+          }
+        ]
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/ARCHITECTURE.md",
+        "name": "ARCHITECTURE.md",
+        "isDirectory": false,
+        "importance": 1,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/Anchor.toml",
+        "name": "Anchor.toml",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/Cargo.toml",
+        "name": "Cargo.toml",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/README.md",
+        "name": "README.md",
+        "isDirectory": false,
+        "importance": 2,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app",
+        "name": "app",
+        "isDirectory": true,
+        "children": [
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/README.md",
+            "name": "README.md",
+            "isDirectory": false,
+            "importance": 4,
+            "dependencies": [],
+            "packageDependencies": [],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/package.json",
+            "name": "package.json",
+            "isDirectory": false,
+            "importance": 5,
+            "dependencies": [],
+            "packageDependencies": [],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src",
+            "name": "src",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/App.tsx",
+                "name": "App.tsx",
+                "isDirectory": false,
+                "importance": 10,
+                "dependencies": [
+                  "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/utils/wallet-adapter.ts",
+                  "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/components/WalletConnect.tsx",
+                  "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/components/Dashboard.tsx",
+                  "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/styles/main.css"
+                ],
+                "packageDependencies": [
+                  {
+                    "name": "react",
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react"
+                  },
+                  {
+                    "name": "react-router-dom",
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react-router-dom"
+                  },
+                  {
+                    "name": "react-toastify",
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react-toastify"
+                  },
+                  {
+                    "name": "react-toastify",
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react-toastify/dist/ReactToastify.css"
+                  }
+                ],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/components",
+                "name": "components",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/components/Dashboard.tsx",
+                    "name": "Dashboard.tsx",
+                    "isDirectory": false,
+                    "importance": 9,
+                    "dependencies": [
+                      "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/utils/contract-integration.ts",
+                      "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/utils/idl-loader.ts"
+                    ],
+                    "packageDependencies": [
+                      {
+                        "name": "react",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react"
+                      },
+                      {
+                        "name": "@solana/wallet-adapter-react",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/wallet-adapter-react",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "@solana/web3.ts",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/web3.ts",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "react-toastify",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react-toastify"
+                      },
+                      {
+                        "name": "react-router-dom",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react-router-dom"
+                      }
+                    ],
+                    "dependents": [
+                      "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/App.tsx"
+                    ]
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/components/WalletConnect.tsx",
+                    "name": "WalletConnect.tsx",
+                    "isDirectory": false,
+                    "importance": 7,
+                    "dependencies": [],
+                    "packageDependencies": [
+                      {
+                        "name": "react",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react"
+                      },
+                      {
+                        "name": "@solana/wallet-adapter-react",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/wallet-adapter-react",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "@solana/wallet-adapter-react-ui",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/wallet-adapter-react-ui",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "react-router-dom",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react-router-dom"
+                      },
+                      {
+                        "name": "@solana/wallet-adapter-react-ui",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/wallet-adapter-react-ui/styles.css",
+                        "scope": "@solana"
+                      }
+                    ],
+                    "dependents": [
+                      "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/App.tsx"
+                    ]
+                  }
+                ]
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/styles",
+                "name": "styles",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/styles/main.css",
+                    "name": "main.css",
+                    "isDirectory": false,
+                    "importance": 5,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": [
+                      "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/App.tsx"
+                    ]
+                  }
+                ]
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/utils",
+                "name": "utils",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/utils/contract-integration.ts",
+                    "name": "contract-integration.ts",
+                    "isDirectory": false,
+                    "importance": 7,
+                    "dependencies": [],
+                    "packageDependencies": [
+                      {
+                        "name": "@project-serum/anchor",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@project-serum/anchor",
+                        "scope": "@project-serum"
+                      },
+                      {
+                        "name": "@solana/web3.ts",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/web3.ts",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "@solana/wallet-adapter-react",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/wallet-adapter-react",
+                        "scope": "@solana"
+                      }
+                    ],
+                    "dependents": [
+                      "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/components/Dashboard.tsx"
+                    ]
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/utils/idl-loader.ts",
+                    "name": "idl-loader.ts",
+                    "isDirectory": false,
+                    "importance": 7,
+                    "dependencies": [],
+                    "packageDependencies": [
+                      {
+                        "name": "@project-serum/anchor",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@project-serum/anchor",
+                        "scope": "@project-serum"
+                      }
+                    ],
+                    "dependents": [
+                      "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/components/Dashboard.tsx"
+                    ]
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/utils/program-integration.ts",
+                    "name": "program-integration.ts",
+                    "isDirectory": false,
+                    "importance": 6,
+                    "dependencies": [],
+                    "packageDependencies": [
+                      {
+                        "name": "@project-serum/anchor",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@project-serum/anchor",
+                        "scope": "@project-serum"
+                      },
+                      {
+                        "name": "@solana/web3.ts",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/web3.ts",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "@solana/spl-token",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/spl-token",
+                        "scope": "@solana"
+                      }
+                    ],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/utils/wallet-adapter.ts",
+                    "name": "wallet-adapter.ts",
+                    "isDirectory": false,
+                    "importance": 7,
+                    "dependencies": [],
+                    "packageDependencies": [
+                      {
+                        "name": "@solana/wallet-adapter-base",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/wallet-adapter-base",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "@solana/wallet-adapter-react",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/wallet-adapter-react",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "@solana/wallet-adapter-wallets",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/wallet-adapter-wallets",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "@solana/web3.ts",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/web3.ts",
+                        "scope": "@solana"
+                      },
+                      {
+                        "name": "react",
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/react"
+                      }
+                    ],
+                    "dependents": [
+                      "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/app/src/App.tsx"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/build.rs",
+        "name": "build.rs",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/core_log.txt",
+        "name": "core_log.txt",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/dependency_log.txt",
+        "name": "dependency_log.txt",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/mcp-debug.log",
+        "name": "mcp-debug.log",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/package.json",
+        "name": "package.json",
+        "isDirectory": false,
+        "importance": 3,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/policy_nft_log.txt",
+        "name": "policy_nft_log.txt",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs",
+        "name": "programs",
+        "isDirectory": true,
+        "children": [
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/claims-processor",
+            "name": "claims-processor",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/claims-processor/# Update solana-tokio patch below when u.txt",
+                "name": "# Update solana-tokio patch below when u.txt",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/claims-processor/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/claims-processor/Cargo.toml.backup.20250322215918",
+                "name": "Cargo.toml.backup.20250322215918",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/claims-processor/Cargo.toml.backup.20250322224421",
+                "name": "Cargo.toml.backup.20250322224421",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/claims-processor/Cargo.toml.backup.20250322224525",
+                "name": "Cargo.toml.backup.20250322224525",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/claims-processor/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/claims-processor/src/bayesian_verification.rs",
+                    "name": "bayesian_verification.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/claims-processor/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core",
+            "name": "core",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/SmartContractsStructure.md",
+                "name": "SmartContractsStructure.md",
+                "isDirectory": false,
+                "importance": 1,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/cpi_validation.rs",
+                    "name": "cpi_validation.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/error_helpers.rs",
+                    "name": "error_helpers.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions",
+                    "name": "instructions",
+                    "isDirectory": true,
+                    "children": [
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/claim",
+                        "name": "claim",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/claim/arbitrate.rs",
+                            "name": "arbitrate.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/claim/dispute.rs",
+                            "name": "dispute.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/claim/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/claim/pay.rs",
+                            "name": "pay.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/claim/process.rs",
+                            "name": "process.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/claim/submit.rs",
+                            "name": "submit.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/claim/vote.rs",
+                            "name": "vote.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/mod.rs",
+                        "name": "mod.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/policy",
+                        "name": "policy",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/policy/cancel.rs",
+                            "name": "cancel.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/policy/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/policy/purchase.rs",
+                            "name": "purchase.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/policy/renew.rs",
+                            "name": "renew.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/policy/tokenize.rs",
+                            "name": "tokenize.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/policy/update.rs",
+                            "name": "update.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/product",
+                        "name": "product",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/product/activate.rs",
+                            "name": "activate.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/product/create.rs",
+                            "name": "create.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/product/deactivate.rs",
+                            "name": "deactivate.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/product/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/product/update.rs",
+                            "name": "update.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/program",
+                        "name": "program",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/program/initialize.rs",
+                            "name": "initialize.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/program/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/program/update.rs",
+                            "name": "update.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/risk",
+                        "name": "risk",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/risk/deposit.rs",
+                            "name": "deposit.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/risk/initialize_pool.rs",
+                            "name": "initialize_pool.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/risk/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/risk/simulate.rs",
+                            "name": "simulate.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/risk/update_metrics.rs",
+                            "name": "update_metrics.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/risk/withdraw.rs",
+                            "name": "withdraw.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/treasury",
+                        "name": "treasury",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/treasury/initialize.rs",
+                            "name": "initialize.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/treasury/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/treasury/send_payment.rs",
+                            "name": "send_payment.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/instructions/treasury/update.rs",
+                            "name": "update.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state",
+                    "name": "state",
+                    "isDirectory": true,
+                    "children": [
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/capital_provider.rs",
+                        "name": "capital_provider.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/claim.rs",
+                        "name": "claim.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/common.rs",
+                        "name": "common.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/constants.rs",
+                        "name": "constants.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/domain_treasury.rs",
+                        "name": "domain_treasury.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/mod.rs",
+                        "name": "mod.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/policy.rs",
+                        "name": "policy.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/product.rs",
+                        "name": "product.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/program_state.rs",
+                        "name": "program_state.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/state/risk_pool.rs",
+                        "name": "risk_pool.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      }
+                    ]
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/utils",
+                    "name": "utils",
+                    "isDirectory": true,
+                    "children": [
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/utils/arbitration_fees.rs",
+                        "name": "arbitration_fees.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/utils/mod.rs",
+                        "name": "mod.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/core/src/utils/risk_calculations.rs",
+                        "name": "risk_calculations.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/dao-governance",
+            "name": "dao-governance",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/dao-governance/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/dao-governance/Cargo.toml.backup.20250322215918",
+                "name": "Cargo.toml.backup.20250322215918",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/dao-governance/Cargo.toml.backup.20250322224421",
+                "name": "Cargo.toml.backup.20250322224421",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/dao-governance/Cargo.toml.backup.20250322224525",
+                "name": "Cargo.toml.backup.20250322224525",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/dao-governance/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/dao-governance/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/dao-governance/src/token_integration.rs",
+                    "name": "token_integration.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-claims",
+            "name": "enhanced-claims",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-claims/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-claims/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-claims/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-cover",
+            "name": "enhanced-cover",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-cover/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-cover/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-cover/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-risk-pool",
+            "name": "enhanced-risk-pool",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-risk-pool/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-risk-pool/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/enhanced-risk-pool/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/escrow-program",
+            "name": "escrow-program",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/escrow-program/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/escrow-program/Cargo.toml.backup.20250322215918",
+                "name": "Cargo.toml.backup.20250322215918",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/escrow-program/Cargo.toml.backup.20250322224421",
+                "name": "Cargo.toml.backup.20250322224421",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/escrow-program/Cargo.toml.backup.20250322224526",
+                "name": "Cargo.toml.backup.20250322224526",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/escrow-program/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/escrow-program/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance",
+            "name": "freelance-insurance",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/Cargo.toml.backup.20250322215919",
+                "name": "Cargo.toml.backup.20250322215919",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/Cargo.toml.backup.20250322224421",
+                "name": "Cargo.toml.backup.20250322224421",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/Cargo.toml.backup.20250322224526",
+                "name": "Cargo.toml.backup.20250322224526",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions",
+                    "name": "instructions",
+                    "isDirectory": true,
+                    "children": [
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/admin",
+                        "name": "admin",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/admin/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/admin/update_bayesian_model.rs",
+                            "name": "update_bayesian_model.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/admin/update_risk_parameters.rs",
+                            "name": "update_risk_parameters.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/claim",
+                        "name": "claim",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/claim/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/claim/process.rs",
+                            "name": "process.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/claim/submit.rs",
+                            "name": "submit.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/initialize.rs",
+                        "name": "initialize.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/mod.rs",
+                        "name": "mod.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/payment",
+                        "name": "payment",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/payment/confirm.rs",
+                            "name": "confirm.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/payment/missed.rs",
+                            "name": "missed.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/payment/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/payment/verify.rs",
+                            "name": "verify.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/policy",
+                        "name": "policy",
+                        "isDirectory": true,
+                        "children": [
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/policy/calculate_premium.rs",
+                            "name": "calculate_premium.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/policy/collect_policy_data.rs",
+                            "name": "collect_policy_data.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/policy/create.rs",
+                            "name": "create.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/policy/mod.rs",
+                            "name": "mod.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          },
+                          {
+                            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/instructions/policy/process_claim_data.rs",
+                            "name": "process_claim_data.rs",
+                            "isDirectory": false,
+                            "importance": 0,
+                            "dependencies": [],
+                            "packageDependencies": [],
+                            "dependents": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/state",
+                    "name": "state",
+                    "isDirectory": true,
+                    "children": [
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/state/claim.rs",
+                        "name": "claim.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/state/constants.rs",
+                        "name": "constants.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/state/insurance_state.rs",
+                        "name": "insurance_state.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/state/mod.rs",
+                        "name": "mod.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/state/payment.rs",
+                        "name": "payment.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/state/policy.rs",
+                        "name": "policy.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/state/risk_pool.rs",
+                        "name": "risk_pool.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      }
+                    ]
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/utils",
+                    "name": "utils",
+                    "isDirectory": true,
+                    "children": [
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/utils/math.rs",
+                        "name": "math.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/utils/mod.rs",
+                        "name": "mod.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      },
+                      {
+                        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/freelance-insurance/src/utils/validation.rs",
+                        "name": "validation.rs",
+                        "isDirectory": false,
+                        "importance": 0,
+                        "dependencies": [],
+                        "packageDependencies": [],
+                        "dependents": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/insurance-program",
+            "name": "insurance-program",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/insurance-program/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/insurance-program/Cargo.toml.backup.20250322215919",
+                "name": "Cargo.toml.backup.20250322215919",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/insurance-program/Cargo.toml.backup.20250322224421",
+                "name": "Cargo.toml.backup.20250322224421",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/insurance-program/Cargo.toml.backup.20250322224526",
+                "name": "Cargo.toml.backup.20250322224526",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/insurance-program/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/insurance-program/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/policy-nft",
+            "name": "policy-nft",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/policy-nft/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/policy-nft/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/policy-nft/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/policy-nft/src/metadata_compatibility.rs",
+                    "name": "metadata_compatibility.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/policy-nft/src/metadata_wrapper.rs",
+                    "name": "metadata_wrapper.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program",
+            "name": "reputation-program",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/Cargo.toml.backup.20250322215919",
+                "name": "Cargo.toml.backup.20250322215919",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/Cargo.toml.backup.20250322224421",
+                "name": "Cargo.toml.backup.20250322224421",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/Cargo.toml.backup.20250322224526",
+                "name": "Cargo.toml.backup.20250322224526",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/src/bayesian_scoring.rs",
+                    "name": "bayesian_scoring.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/src/constants.rs",
+                    "name": "constants.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/src/errors.rs",
+                    "name": "errors.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/src/instructions.rs",
+                    "name": "instructions.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/src/state.rs",
+                    "name": "state.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/src/utils.rs",
+                    "name": "utils.rs",
+                    "isDirectory": false,
+                    "importance": 2,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/tests",
+                "name": "tests",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/tests/integration_tests.rs",
+                    "name": "integration_tests.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/reputation-program/tests/unit_tests.rs",
+                    "name": "unit_tests.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program",
+            "name": "risk-pool-program",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/Cargo.toml.backup.20250322215919",
+                "name": "Cargo.toml.backup.20250322215919",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/Cargo.toml.backup.20250322224421",
+                "name": "Cargo.toml.backup.20250322224421",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/Cargo.toml.backup.20250322224526",
+                "name": "Cargo.toml.backup.20250322224526",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/src/domain_integration.rs",
+                    "name": "domain_integration.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/src/premium_calculation.rs",
+                    "name": "premium_calculation.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/src/reputation_integration.rs",
+                    "name": "reputation_integration.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/src/staking_integration.rs",
+                    "name": "staking_integration.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  },
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/risk-pool-program/src/utils.rs",
+                    "name": "utils.rs",
+                    "isDirectory": false,
+                    "importance": 2,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/staking-program",
+            "name": "staking-program",
+            "isDirectory": true,
+            "children": [
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/staking-program/Cargo.toml",
+                "name": "Cargo.toml",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/staking-program/Cargo.toml.backup.20250322215919",
+                "name": "Cargo.toml.backup.20250322215919",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/staking-program/Cargo.toml.backup.20250322224421",
+                "name": "Cargo.toml.backup.20250322224421",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/staking-program/Cargo.toml.backup.20250322224527",
+                "name": "Cargo.toml.backup.20250322224527",
+                "isDirectory": false,
+                "importance": 0,
+                "dependencies": [],
+                "packageDependencies": [],
+                "dependents": []
+              },
+              {
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/staking-program/src",
+                "name": "src",
+                "isDirectory": true,
+                "children": [
+                  {
+                    "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/programs/staking-program/src/lib.rs",
+                    "name": "lib.rs",
+                    "isDirectory": false,
+                    "importance": 0,
+                    "dependencies": [],
+                    "packageDependencies": [],
+                    "dependents": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/run-deploy.bat",
+        "name": "run-deploy.bat",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/rust-toolchain.toml",
+        "name": "rust-toolchain.toml",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/scripts",
+        "name": "scripts",
+        "isDirectory": true,
+        "children": [
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/scripts/build-programs.bat",
+            "name": "build-programs.bat",
+            "isDirectory": false,
+            "importance": 0,
+            "dependencies": [],
+            "packageDependencies": [],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/scripts/copy-idls.js",
+            "name": "copy-idls.js",
+            "isDirectory": false,
+            "importance": 3,
+            "dependencies": [],
+            "packageDependencies": [
+              {
+                "name": "fs",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/fs"
+              },
+              {
+                "name": "path",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/path"
+              }
+            ],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/scripts/deploy-to-devnet.js",
+            "name": "deploy-to-devnet.js",
+            "isDirectory": false,
+            "importance": 3,
+            "dependencies": [],
+            "packageDependencies": [
+              {
+                "name": "child_process",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/child_process"
+              },
+              {
+                "name": "fs",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/fs"
+              },
+              {
+                "name": "path",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/path"
+              }
+            ],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/scripts/fix-cargo-files.bat",
+            "name": "fix-cargo-files.bat",
+            "isDirectory": false,
+            "importance": 0,
+            "dependencies": [],
+            "packageDependencies": [],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/scripts/setup-solana-env.bat",
+            "name": "setup-solana-env.bat",
+            "isDirectory": false,
+            "importance": 0,
+            "dependencies": [],
+            "packageDependencies": [],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/scripts/verify-dependencies.bat",
+            "name": "verify-dependencies.bat",
+            "isDirectory": false,
+            "importance": 0,
+            "dependencies": [],
+            "packageDependencies": [],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/scripts/verify-dependencies.sh",
+            "name": "verify-dependencies.sh",
+            "isDirectory": false,
+            "importance": 0,
+            "dependencies": [],
+            "packageDependencies": [],
+            "dependents": []
+          }
+        ]
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/setup-wsl.sh",
+        "name": "setup-wsl.sh",
+        "isDirectory": false,
+        "importance": 0,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/tempanchor-source",
+        "name": "tempanchor-source",
+        "isDirectory": true,
+        "children": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/test-deployment.ts",
+        "name": "test-deployment.ts",
+        "isDirectory": false,
+        "importance": 4,
+        "dependencies": [],
+        "packageDependencies": [
+          {
+            "name": "@coral-xyz/anchor",
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@coral-xyz/anchor",
+            "scope": "@coral-xyz",
+            "version": "^0.31.0"
+          },
+          {
+            "name": "@coral-xyz/anchor",
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@coral-xyz/anchor",
+            "scope": "@coral-xyz",
+            "version": "^0.31.0"
+          },
+          {
+            "name": "@solana/web3.ts",
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/web3.ts",
+            "scope": "@solana"
+          },
+          {
+            "name": "fs",
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/fs"
+          },
+          {
+            "name": "path",
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/path"
+          }
+        ],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/test-package.json",
+        "name": "test-package.json",
+        "isDirectory": false,
+        "importance": 1,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/tests",
+        "name": "tests",
+        "isDirectory": true,
+        "children": [
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/tests/bayesian_model_test.ts",
+            "name": "bayesian_model_test.ts",
+            "isDirectory": false,
+            "importance": 5,
+            "dependencies": [],
+            "packageDependencies": [
+              {
+                "name": "@coral-xyz/anchor",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@coral-xyz/anchor",
+                "scope": "@coral-xyz",
+                "version": "^0.31.0"
+              },
+              {
+                "name": "@coral-xyz/anchor",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@coral-xyz/anchor",
+                "scope": "@coral-xyz",
+                "version": "^0.31.0"
+              },
+              {
+                "name": "chai",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/chai"
+              }
+            ],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/tests/core_critical_paths.ts",
+            "name": "core_critical_paths.ts",
+            "isDirectory": false,
+            "importance": 5,
+            "dependencies": [],
+            "packageDependencies": [
+              {
+                "name": "@coral-xyz/anchor",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@coral-xyz/anchor",
+                "scope": "@coral-xyz",
+                "version": "^0.31.0"
+              },
+              {
+                "name": "@coral-xyz/anchor",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@coral-xyz/anchor",
+                "scope": "@coral-xyz",
+                "version": "^0.31.0"
+              },
+              {
+                "name": "@solana/web3.ts",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/web3.ts",
+                "scope": "@solana"
+              },
+              {
+                "name": "@solana/spl-token",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/spl-token",
+                "scope": "@solana"
+              },
+              {
+                "name": "chai",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/chai"
+              }
+            ],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/tests/devnet-test.ts",
+            "name": "devnet-test.ts",
+            "isDirectory": false,
+            "importance": 5,
+            "dependencies": [],
+            "packageDependencies": [
+              {
+                "name": "@coral-xyz/anchor",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@coral-xyz/anchor",
+                "scope": "@coral-xyz",
+                "version": "^0.31.0"
+              },
+              {
+                "name": "@coral-xyz/anchor",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@coral-xyz/anchor",
+                "scope": "@coral-xyz",
+                "version": "^0.31.0"
+              },
+              {
+                "name": "@solana/web3.ts",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/web3.ts",
+                "scope": "@solana"
+              },
+              {
+                "name": "chai",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/chai"
+              },
+              {
+                "name": "fs",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/fs"
+              },
+              {
+                "name": "path",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/path"
+              }
+            ],
+            "dependents": []
+          },
+          {
+            "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/tests/integration-test.ts",
+            "name": "integration-test.ts",
+            "isDirectory": false,
+            "importance": 5,
+            "dependencies": [],
+            "packageDependencies": [
+              {
+                "name": "@project-serum/anchor",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@project-serum/anchor",
+                "scope": "@project-serum"
+              },
+              {
+                "name": "@project-serum/anchor",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@project-serum/anchor",
+                "scope": "@project-serum"
+              },
+              {
+                "name": "@solana/web3.ts",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/web3.ts",
+                "scope": "@solana"
+              },
+              {
+                "name": "@solana/spl-token",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/@solana/spl-token",
+                "scope": "@solana"
+              },
+              {
+                "name": "chai",
+                "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/node_modules/chai"
+              }
+            ],
+            "dependents": []
+          }
+        ]
+      },
+      {
+        "path": "/Users/davidknezevic/Projects/FreelanceShield/freelance-safeguard-contracts/tsconfig.json",
+        "name": "tsconfig.json",
+        "isDirectory": false,
+        "importance": 3,
+        "dependencies": [],
+        "packageDependencies": [],
+        "dependents": []
+      }
+    ]
+  }
+}

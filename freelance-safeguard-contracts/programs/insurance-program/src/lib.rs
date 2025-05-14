@@ -4,7 +4,7 @@ use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 use anchor_spl::associated_token::AssociatedToken;
 use std::convert::TryFrom;
 
-declare_id!("3kPLKUmAatsTybjtysJGxeBTVsMxLSPxYhcK1aiJuTqJ");
+declare_id!("BcZfN4TJYzWZsNXpLFjgEiZSqV124W2uJPEgFHdsp9TD");
 
 // Constants for premium calculation
 pub const BASE_PREMIUM_RATE: u64 = 100_000; // 0.1 SOL in lamports

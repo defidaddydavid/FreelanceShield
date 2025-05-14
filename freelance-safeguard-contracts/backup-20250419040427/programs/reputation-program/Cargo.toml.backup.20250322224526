@@ -1,0 +1,23 @@
+[package]
+name = "reputation-program"
+version = "0.1.0"
+description = "Reputation program for FreelanceShield"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "reputation_program"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+zeroize = { workspace = true }
+anchor-lang = { workspace = true }
+anchor-spl = { workspace = true }
+spl-token-2022 = { workspace = true }
+solana-program = { workspace = true }

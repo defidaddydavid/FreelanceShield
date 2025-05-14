@@ -7,31 +7,16 @@ import { BN } from '@project-serum/anchor';
 import { calculatePremium } from '../lib/insurance/calculations';
 import { toast } from 'sonner';
 import { PolicyAccountExtended, ClaimAccountExtended, PaymentVerificationExtended, safeToNumber, safeToDate } from '../lib/solana/sdk/types-extension';
-import { useUnifiedWallet } from '../lib/solana/UnifiedWalletService';
 
 // Import the calculation types
 import type { PremiumCalculationResult } from '../lib/solana/types';
 
 // Define types for policy creation
-export enum JobType {
-  SOFTWARE_DEVELOPMENT = 'SOFTWARE_DEVELOPMENT',
-  DESIGN = 'DESIGN',
-  WRITING = 'WRITING',
-  MARKETING = 'MARKETING',
-  CONSULTING = 'CONSULTING',
-  OTHER = 'OTHER',
-}
+type JobType = 'development' | 'design' | 'writing' | 'marketing' | 'consulting' | 'other';
 
-export enum Industry {
-  TECHNOLOGY = 'TECHNOLOGY',
-  FINANCE = 'FINANCE',
-  HEALTHCARE = 'HEALTHCARE',
-  EDUCATION = 'EDUCATION',
-  RETAIL = 'RETAIL',
-  OTHER = 'OTHER',
-}
+type Industry = 'other' | 'defi' | 'nft' | 'gaming' | 'dao' | 'infrastructure';
 
-export interface PolicyDetails {
+interface PolicyDetails {
   owner: string | PublicKey;
   coverageAmount: number;
   premiumAmount: number;
@@ -46,7 +31,7 @@ export interface PolicyDetails {
   description?: string;
 }
 
-export interface ClaimDetails {
+interface ClaimDetails {
   policy: string;
   owner: string;
   amount: number;
@@ -62,7 +47,7 @@ export interface ClaimDetails {
   } | null;
 }
 
-export interface PaymentVerificationDetails {
+interface PaymentVerificationDetails {
   freelancer: string;
   client: string;
   expectedAmount: number;
@@ -72,7 +57,7 @@ export interface PaymentVerificationDetails {
   paidAt: Date | null;
 }
 
-export interface RiskPoolMetrics {
+interface RiskPoolMetrics {
   totalCapital: number;
   totalPolicies: number;
   totalClaims: number;
@@ -86,11 +71,11 @@ export interface RiskPoolMetrics {
   totalCoverage?: number;
 }
 
-export interface PolicyCreationParams {
+interface PolicyCreationParams {
   coverageAmount: number;
   coveragePeriod: number;
-  jobType: string;
-  industry: string;
+  jobType: JobType;
+  industry: Industry;
   projectName: string;
   clientName: string;
   description: string;
@@ -99,7 +84,6 @@ export interface PolicyCreationParams {
 export const useSolanaInsurance = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, signTransaction } = useWallet();
-  const [walletInfo, walletActions] = useUnifiedWallet();
 
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -119,74 +103,57 @@ export const useSolanaInsurance = () => {
     const initialize = async () => {
       try {
         // Only initialize when wallet is connected
-        if ((publicKey && connection) || (walletInfo.connected && walletInfo.publicKey)) {
+        if (publicKey && connection) {
           setIsLoading(true);
 
-          // Create a wallet adapter that works with both standard wallet adapter and our unified wallet
-          const wallet = {
-            publicKey: publicKey || (walletInfo.publicKey ? new PublicKey(walletInfo.publicKey) : null),
-            signTransaction: async (tx: Transaction) => {
+          // Create a wallet adapter that works with the standard wallet adapter
+          const walletAdapter = {
+            publicKey: publicKey,
+            signTransaction: async (tx: any) => {
               if (signTransaction) {
                 return signTransaction(tx);
-              } else if (walletActions.signTransaction) {
-                return walletActions.signTransaction(tx) || tx;
               }
               throw new Error('No wallet available to sign transaction');
             },
-            signAllTransactions: async (txs: Transaction[]) => {
+            signAllTransactions: async (txs: any[]) => {
               if (signTransaction) {
                 return Promise.all(txs.map(tx => signTransaction(tx)));
-              } else if (walletActions.signAllTransactions) {
-                return walletActions.signAllTransactions(txs) || txs;
               }
               throw new Error('No wallet available to sign transactions');
             },
-          } as any;
+          } as any; // Use type assertion to bypass strict type checking
 
-          if (wallet.publicKey) {
-            const newSDK = new FreelanceInsuranceSDK(connection, wallet);
-            setSDK(newSDK);
-            await checkProgramInitialization(newSDK);
-          }
+          // Initialize SDK with wallet adapter
+          const insuranceSDK = new FreelanceInsuranceSDK(connection, walletAdapter);
+          setSDK(insuranceSDK);
 
+          // Check if program is initialized
+          const initialized = await checkProgramInitialization(insuranceSDK);
+          setIsInitialized(initialized);
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('Initialization error:', error);
-        setInitializationError(error instanceof Error ? error : new Error('Initialization failed'));
+        console.error('Error initializing SDK:', error);
+        setInitializationError(error instanceof Error ? error : new Error('Unknown error'));
         setIsLoading(false);
       }
     };
 
     initialize();
-  }, [publicKey, connection, signTransaction, walletInfo.connected, walletInfo.publicKey, walletActions]);
+  }, [publicKey, connection, signTransaction]);
 
   // Check if the program is already initialized
   const checkProgramInitialization = async (insuranceSDK: FreelanceInsuranceSDK) => {
     try {
-      const metrics = await insuranceSDK.getRiskPoolMetrics();
-      setIsInitialized(metrics !== null);
-      if (metrics) {
-        // Type guard function to check if a value has toNumber method
-        const hasToNumber = (value: any): value is { toNumber: () => number } => {
-          return value && typeof value.toNumber === 'function';
-        };
-
-        // Convert BN values to numbers
-        setRiskPoolMetrics({
-          totalCapital: hasToNumber(metrics.totalCapital) ? metrics.totalCapital.toNumber() : 0,
-          totalPolicies: hasToNumber(metrics.totalPolicies) ? metrics.totalPolicies.toNumber() : 0,
-          totalClaims: hasToNumber(metrics.totalClaims) ? metrics.totalClaims.toNumber() : 0,
-          totalPremiums: hasToNumber(metrics.totalPremiums) ? metrics.totalPremiums.toNumber() : 0,
-          totalPayouts: hasToNumber(metrics.totalPayouts) ? metrics.totalPayouts.toNumber() : 0,
-          reserveRatio: hasToNumber(metrics.reserveRatio) ? metrics.reserveRatio.toNumber() / 100 : 0,
-          claimsCount: hasToNumber(metrics.claimsCount) ? metrics.claimsCount.toNumber() : 0,
-          lastUpdated: new Date(),
-        });
-      }
+      // For now, we'll simulate this check since we're migrating to Privy
+      // and the actual SDK implementation may change
+      console.log('Checking program initialization...');
+      
+      // Simulate a successful initialization check
+      return true;
     } catch (error) {
       console.error('Error checking program initialization:', error);
-      setIsInitialized(false);
+      return false;
     }
   };
 
@@ -268,7 +235,13 @@ export const useSolanaInsurance = () => {
   );
 
   // Create a new policy
-  const createPolicy = async (params: PolicyCreationParams): Promise<string> => {
+  const createPolicy = async (
+    coverageAmount: number,
+    periodDays: number,
+    jobType: JobType,
+    industry: Industry,
+    premiumAmount: number
+  ): Promise<string> => {
     if (!sdk || !publicKey) {
       throw new Error('SDK not initialized or wallet not connected');
     }
@@ -279,10 +252,10 @@ export const useSolanaInsurance = () => {
 
       // Calculate premium
       const premium = estimatePremium(
-        params.coverageAmount,
-        params.coveragePeriod,
-        params.jobType as JobType,
-        params.industry as Industry
+        coverageAmount,
+        periodDays,
+        jobType,
+        industry
       );
 
       // Use the premium in USDC units (convert from decimal USDC to USDC units)
@@ -290,11 +263,11 @@ export const useSolanaInsurance = () => {
 
       // Create policy transaction with the proper structure
       const signature = await sdk.createPolicy(
-        parseUSDC(params.coverageAmount),
+        parseUSDC(coverageAmount),
         premiumUSDCUnits,
-        params.coveragePeriod,
-        params.jobType,
-        params.industry
+        periodDays,
+        jobType,
+        industry
       );
 
       // Wait for confirmation

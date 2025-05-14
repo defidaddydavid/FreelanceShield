@@ -7,7 +7,7 @@ mod domain_integration;
 mod reputation_integration;
 mod utils;
 
-declare_id!("6XfRdPTe7xA34TVurpBau6U2L1gh2c9eYfM1aFiDhKja");
+declare_id!("2nxmHdqSuwVoyae1PpKRgJrKPTVPy59crNJZnqXNbVL2");
 
 // Constants for calculations
 pub const BASIS_POINTS_DIVISOR: u16 = 10000;

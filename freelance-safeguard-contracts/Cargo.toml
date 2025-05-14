@@ -1,63 +1,109 @@
 [workspace]
 members = [
-    "programs/risk-pool-program",
-    "programs/claims-processor",
-    "programs/escrow-program",
-    "programs/insurance-program",
-    "programs/reputation-program",
-    "programs/freelance-insurance",
     "programs/core",
+    "programs/insurance-program",
+    "programs/claims-processor",
+    "programs/reputation-program",
     "programs/enhanced-cover",
-    "programs/enhanced-risk-pool",
-    "programs/policy-nft",
-    "programs/dao-governance",
-    "programs/staking-program",
-    "programs/enhanced-claims"
 ]
 resolver = "2"
+
+[workspace.dependencies]
+# Anchor dependencies
+anchor-lang = "=0.31.0"
+anchor-spl = { version = "=0.31.0", features = ["token", "associated_token"], default-features = false }
+
+# Solana dependencies - use 1.16.16 (LTS and stable)
+solana-program = "=1.16.16"
+solana-sdk = "=1.16.16"
+solana-client = "=1.16.16"
+solana-cli-config = "=1.16.16"
+solana-logger = "=1.16.16"
+solana-program-entrypoint = "=1.16.16"
+solana-program-error = "=1.16.16"
+solana-program-memory = "=1.16.16"
+solana-program-option = "=1.16.16"
+solana-program-pack = "=1.16.16"
+solana-pubkey = "=1.16.16"
+solana-rent = "=1.16.16"
+solana-sanitize = "=1.16.16"
+solana-secp256k1-recover = "=1.16.16"
+solana-serde-varint = "=1.16.16"
+solana-serialize-utils = "=1.16.16"
+solana-sha256-hasher = "=1.16.16"
+solana-short-vec = "=1.16.16"
+solana-signature = "=1.16.16"
+solana-slot-hashes = "=1.16.16"
+solana-slot-history = "=1.16.16"
+solana-stable-layout = "=1.16.16"
+solana-transaction-error = "=1.16.16"
+solana-zk-sdk = "=1.16.16"
+solana-zk-token-sdk = "=1.16.16"
+solana-transaction-status = "=1.16.16"
+solana-version = "=1.16.16"
+solana-account = "=1.16.16"
+solana-account-info = "=1.16.16"
+solana-atomic-u64 = "=1.16.16"
+solana-bincode = "=1.16.16"
+solana-borsh = "=1.16.16"
+solana-clock = "=1.16.16"
+solana-cpi = "=1.16.16"
+solana-curve25519 = "=1.16.16"
+solana-decode-error = "=1.16.16"
+solana-define-syscall = "=1.16.16"
+solana-derivation-path = "=1.16.16"
+solana-epoch-schedule = "=1.16.16"
+solana-fee-calculator = "=1.16.16"
+solana-hash = "=1.16.16"
+solana-instruction = "=1.16.16"
+solana-last-restart-slot = "=1.16.16"
+solana-msg = "=1.16.16"
+solana-native-token = "=1.16.16"
+solana-address-lookup-table-program = "=1.16.16"
+
+# SPL dependencies (compatible with Solana 1.16.x)
+spl-associated-token-account = "=1.1.2"
+spl-token = "=3.5.0"
+
+# Other dependencies (unchanged)
+thiserror = "=1.0.66"
+borsh = "=0.10.3"
+borsh-derive = "=0.10.3"
+proc-macro2 = "=1.0.67"
+quote = "=1.0.33"
+syn = { version = "=2.0.37", features = ["full", "extra-traits"] }
+subtle = "=2.5.0"
+bytemuck = "=1.14.0"
+bytemuck_derive = "=1.5.0"
+arrayref = "=0.3.7"
+num-derive = "=0.4.1"
+num-traits = "=0.2.17"
+num_enum = "=0.7.1"
+serde = { version = "=1.0.193", features = ["derive"] }
+serde_json = "=1.0.108"
+serde_bytes = "=0.11.12"
+toml = "=0.8.8"
+sha2 = "=0.10.8"
+sha3 = "=0.10.8"
+base64 = "=0.21.5"
+rand = "=0.8.5"
+getrandom = { version = "=0.2.11", features = ["js"] }
+bs58 = "=0.5.0"
+bincode = "=1.3.3"
+lazy_static = "=1.4.0"
+log = "=0.4.20"
+regex = "=1.10.2"
+rustversion = "=1.0.14"
+chrono = { version = "=0.4.31", default-features = false, features = ["alloc"] }
+tokio = { version = "=1.34.0", features = ["full"] }
+wasm-bindgen = "=0.2.89"
+zeroize = "1.3.0"
 
 [profile.release]
 overflow-checks = true
 lto = "fat"
 codegen-units = 1
-
 [profile.release.build-override]
 opt-level = 3
 incremental = false
 codegen-units = 1
-
-[profile.dev]
-split-debuginfo = "unpacked"
-opt-level = 0
-
-[profile.test]
-opt-level = 3
-
-[workspace.metadata.solana]
-sdk-version = "1.17.0"
-
-[workspace.dependencies]
-anchor-lang = "=0.31.0"
-anchor-spl = { version = "=0.31.0", features = ["token", "associated_token"], default-features = false }
-solana-program = "=1.17.0"
-spl-token = { version = "=4.0.0", features = ["no-entrypoint"] }
-spl-associated-token-account = "=1.1.3"
-thiserror = "=1.0.65"
-zeroize = "=1.3.0"
-proc-macro2 = "=1.0.66"
-quote = "=1.0.35"  # Upgraded to meet thiserror-impl's minimum requirement
-syn = { version = "=2.0.29", features = ["full", "extra-traits"] }
-subtle = "=2.4.1"
-borsh = "=0.10.3"
-borsh-derive = "=0.10.3"
-mpl-token-metadata = { version = "=1.11.1", features = ["no-entrypoint"] }
-unicode-ident = "=1.0.8"
-rustc_version = "=0.4.0"
-
-# Patch section to force specific versions
-[patch.crates-io]
-solana-program = { git = "https://github.com/solana-labs/solana.git", tag = "v1.17.0" }
-quote = { git = "https://github.com/dtolnay/quote.git", tag = "1.0.35" }
-thiserror-impl = { git = "https://github.com/dtolnay/thiserror.git", tag = "1.0.65" }
-thiserror = { git = "https://github.com/dtolnay/thiserror.git", tag = "1.0.65" }
-proc-macro2 = { git = "https://github.com/dtolnay/proc-macro2.git", tag = "1.0.66" }

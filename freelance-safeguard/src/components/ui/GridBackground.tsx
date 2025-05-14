@@ -12,7 +12,7 @@ interface GridBackgroundProps {
 }
 
 /**
- * GridBackground Component
+ * GridBackground
  * 
  * A reusable component that provides the retro-futuristic grid background pattern.
  * It supports both dark and light modes and includes optional top/bottom accent lines.

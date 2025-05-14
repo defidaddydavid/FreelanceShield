@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useSolanaTheme } from '@/contexts/SolanaThemeProvider';
 import PrivyAuthButton from '../auth/PrivyAuthButton';
@@ -11,6 +11,12 @@ interface PrivyNavbarProps {
 
 export const PrivyNavbar: React.FC<PrivyNavbarProps> = ({ className }) => {
   const { isDark } = useSolanaTheme();
+  const location = useLocation();
+  
+  // Function to check if a link is active
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
   
   return (
     <header className={cn(
@@ -20,20 +26,28 @@ export const PrivyNavbar: React.FC<PrivyNavbarProps> = ({ className }) => {
         : "bg-white/80 border-gray-200",
       className
     )}>
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container mx-auto px-4 flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <Shield className="h-6 w-6 text-[#9945FF]" />
-          <span className="font-bold text-lg">FreelanceShield</span>
+          <img 
+            src="/logo.png" 
+            alt="FreelanceShield Logo" 
+            className="h-10 w-10 object-contain"
+          />
+          <span className="font-['NT_Brick_Sans'] text-lg font-bold tracking-wide">
+            FreelanceShield
+          </span>
         </Link>
         
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-8">
           <Link 
             to="/how-it-works" 
             className={cn(
-              "text-sm font-medium transition-colors hover:text-[#9945FF]",
-              isDark ? "text-gray-200" : "text-gray-700"
+              "font-['NT_Brick_Sans'] text-sm font-medium transition-colors hover:text-[#9945FF]",
+              isActive('/how-it-works') 
+                ? "text-[#9945FF]" 
+                : isDark ? "text-gray-200" : "text-gray-700"
             )}
           >
             How It Works
@@ -41,8 +55,10 @@ export const PrivyNavbar: React.FC<PrivyNavbarProps> = ({ className }) => {
           <Link 
             to="/pricing" 
             className={cn(
-              "text-sm font-medium transition-colors hover:text-[#9945FF]",
-              isDark ? "text-gray-200" : "text-gray-700"
+              "font-['NT_Brick_Sans'] text-sm font-medium transition-colors hover:text-[#9945FF]",
+              isActive('/pricing') 
+                ? "text-[#9945FF]" 
+                : isDark ? "text-gray-200" : "text-gray-700"
             )}
           >
             Pricing
@@ -50,8 +66,10 @@ export const PrivyNavbar: React.FC<PrivyNavbarProps> = ({ className }) => {
           <Link 
             to="/risk-pool" 
             className={cn(
-              "text-sm font-medium transition-colors hover:text-[#9945FF]",
-              isDark ? "text-gray-200" : "text-gray-700"
+              "font-['NT_Brick_Sans'] text-sm font-medium transition-colors hover:text-[#9945FF]",
+              isActive('/risk-pool') 
+                ? "text-[#9945FF]" 
+                : isDark ? "text-gray-200" : "text-gray-700"
             )}
           >
             Risk Pool

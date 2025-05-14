@@ -4,7 +4,7 @@ import { PublicKey } from '@solana/web3.js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useFreelanceInsurance } from '@/lib/solana/hooks/useFreelanceInsurance';
-import { Policy, Claim, RiskPoolMetrics, JobType, Industry } from '@/types/insurance';
+import { Policy, Claim, RiskPoolMetrics, JobType, Industry } from '@/types';
 
 export function useInsuranceOperations() {
   const { publicKey } = useWallet();

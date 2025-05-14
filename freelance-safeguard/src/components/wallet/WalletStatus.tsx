@@ -1,5 +1,5 @@
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useWallet } from '@/hooks/useWallet';
+import { WalletMultiButton } from '@/lib/solana/wallet-adapter-compat';
 import { useEffect, useState, useMemo } from 'react';
 import { LAMPORTS_PER_SOL, Connection, Commitment } from '@solana/web3.js';
 import { toast } from 'sonner';
@@ -32,7 +32,7 @@ interface WalletStatusProps {
 }
 
 export function WalletStatus({ refreshOnLoad = false }: WalletStatusProps) {
-  const { publicKey, connected, connecting, disconnecting, wallet } = useWallet();
+  const { publicKey, connected, connecting, disconnecting } = useWallet();
   const [balance, setBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [networkStatus, setNetworkStatus] = useState<'connected' | 'connecting' | 'disconnected' | 'error'>('disconnected');
@@ -131,6 +131,14 @@ export function WalletStatus({ refreshOnLoad = false }: WalletStatusProps) {
 
   const networkHealth = getNetworkHealthStatus();
 
+  // Remove usage of 'wallet' and 'network' properties that are not present in Privy-based useWallet or config.
+  // Use only supported properties from useWallet and config.
+  // For network info, use NETWORK_CONFIG directly if needed.
+  // Example: const { publicKey, connected } = useWallet();
+  // import { NETWORK_CONFIG } from '@/lib/solana/constants';
+  // ...
+  // Use NETWORK_CONFIG.name, NETWORK_CONFIG.endpoint, etc.
+
   return (
     <Card className="border border-border/40 bg-background/95 shadow-md transition-all">
       <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/10 pb-4">
@@ -214,14 +222,6 @@ export function WalletStatus({ refreshOnLoad = false }: WalletStatusProps) {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Shield className="h-4 w-4 mr-2 text-blue-500" />
-                <span className="text-sm font-medium text-muted-foreground">Wallet:</span>
-              </div>
-              <span className="text-sm">{wallet?.adapter.name || 'Unknown'}</span>
             </div>
             
             <div className="flex justify-between items-center">

@@ -1,0 +1,28 @@
+[package]
+name = "policy-nft"
+version = "0.1.0"
+description = "NFT-based policy tokenization for FreelanceShield"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "policy_nft"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+# Use workspace dependencies for consistency
+anchor-lang = { workspace = true }
+anchor-spl = { workspace = true, default-features = false }
+spl-token = { workspace = true }
+spl-associated-token-account = { workspace = true }
+thiserror = { workspace = true }
+zeroize = { workspace = true }
+borsh = { workspace = true }
+borsh-derive = { workspace = true }
+mpl-token-metadata = { workspace = true }

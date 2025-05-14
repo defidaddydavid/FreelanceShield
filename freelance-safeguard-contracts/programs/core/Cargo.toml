@@ -1,12 +1,11 @@
 [package]
 name = "freelance-shield-core"
 version = "0.1.0"
-description = "Core insurance functionality for FreelanceShield"
+description = "FreelanceShield smart contract"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "freelance_shield_core"
 
 [features]
 no-entrypoint = []
@@ -16,9 +15,9 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = { workspace = true }
-anchor-spl = { workspace = true, default-features = false }
-spl-token = { workspace = true }
-spl-associated-token-account = { workspace = true }
+solana-program = { workspace = true }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
+borsh = { workspace = true }
+
+# Removed direct solana-program dependency for Anchor compatibility

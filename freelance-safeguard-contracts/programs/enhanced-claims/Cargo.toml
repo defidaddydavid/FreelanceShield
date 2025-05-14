@@ -1,12 +1,11 @@
 [package]
 name = "enhanced-claims"
 version = "0.1.0"
-description = "Enhanced Claims processor for FreelanceShield"
+description = "FreelanceShield smart contract"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "enhanced_claims"
 
 [features]
 no-entrypoint = []
@@ -17,8 +16,10 @@ default = []
 
 [dependencies]
 anchor-lang = { workspace = true }
-anchor-spl = { workspace = true, default-features = false }
-spl-token = { workspace = true }
-spl-associated-token-account = { workspace = true }
+solana-program = { workspace = true }
 thiserror = { workspace = true }
 zeroize = { workspace = true }
+borsh = { workspace = true }
+
+# Already removed direct solana-program dependency; let anchor-lang manage it
+# Removed direct solana-program dependency for Anchor compatibility

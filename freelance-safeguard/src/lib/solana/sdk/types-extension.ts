@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { JobType, Industry } from '@/types/insurance';
+import { JobType, Industry } from '@/types';
 
 // Extended types for the SDK to match the application's expected structure
 export interface PolicyAccountExtended {
