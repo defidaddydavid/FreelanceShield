@@ -70,9 +70,7 @@ def custom_openapi():
         title="FreelanceShield API",
         version="1.0.0",
         description="""<div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="#6a37a4" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-            </svg>
+            <img src="https://www.imghippo.com/i/qlY9353OXM.png" width="60" height="60" alt="FreelanceShield Logo">
             <h1 style="margin-left: 15px; color: #6a37a4;">FreelanceShield API</h1>
         </div>
         <p>Insurance and protection services API for freelancers.</p>
@@ -184,9 +182,7 @@ def read_root(request: Request):
     <body>
         <header>
             <div style="display: flex; align-items: center;">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="#6a37a4" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-                </svg>
+                <img src="https://www.imghippo.com/i/qlY9353OXM.png" width="40" height="40" alt="FreelanceShield Logo">
                 <h1 style="margin-left: 15px;">FreelanceShield API</h1>
             </div>
         </header>
@@ -448,9 +444,7 @@ async def welcome_page(request: Request):
     <body>
         <div class="container">
             <div class="header">
-                <svg class="logo" viewBox="0 0 24 24" fill="#6a37a4" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-                </svg>
+                <img class="logo" src="https://www.imghippo.com/i/qlY9353OXM.png" width="60" height="60" alt="FreelanceShield Logo">
                 <h1>FreelanceShield API</h1>
                 <p>Insurance and protection services for freelancers</p>
             </div>
