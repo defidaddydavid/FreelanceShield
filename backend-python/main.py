@@ -96,7 +96,6 @@ async def custom_swagger_ui_html():
         swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css",
         swagger_favicon_url="https://freelanceshield.xyz/favicon.ico"
     )
-    )
 
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
