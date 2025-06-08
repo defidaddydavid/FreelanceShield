@@ -94,63 +94,8 @@ async def custom_swagger_ui_html():
         oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
         swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js",
         swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css",
-        swagger_favicon_url="https://freelanceshield.xyz/favicon.ico",
-        custom_css="""
-        :root {
-            --primary: #6a37a4; 
-            --primary-light: #8d5cc2;
-            --primary-dark: #4f2683;
-            --secondary: #8053c0;
-            --accent: #9475d1;
-            --bg-light: #f6f4fb;
-        }
-        
-        .topbar {
-            background-color: var(--primary) !important;
-        }
-        
-        .swagger-ui .opblock .opblock-summary-method {
-            background-color: var(--primary) !important;
-        }
-        
-        .swagger-ui .btn.execute {
-            background-color: var(--primary) !important;
-            color: white !important;
-            border-color: var(--primary-dark) !important;
-        }
-        
-        .swagger-ui .btn.authorize {
-            background-color: var(--secondary) !important;
-            color: white !important;
-            border-color: var(--primary) !important;
-        }
-        
-        .swagger-ui .opblock.opblock-post {
-            border-color: var(--primary) !important;
-            background: rgba(106, 55, 164, 0.1) !important;
-        }
-        
-        .swagger-ui .opblock.opblock-post .opblock-summary {
-            border-color: var(--primary) !important;
-        }
-        
-        .swagger-ui .opblock.opblock-get {
-            border-color: var(--accent) !important;
-            background: rgba(148, 117, 209, 0.1) !important;
-        }
-        
-        .swagger-ui .opblock.opblock-get .opblock-summary {
-            border-color: var(--accent) !important;
-        }
-        
-        .swagger-ui .info .title {
-            color: var(--primary) !important;
-        }
-        
-        .swagger-ui .scheme-container {
-            background-color: var(--bg-light) !important;
-        }
-        """
+        swagger_favicon_url="https://freelanceshield.xyz/favicon.ico"
+    )
     )
 
 @app.get("/", response_class=HTMLResponse)
