@@ -12,6 +12,7 @@ from sqlalchemy.sql import func
 
 # Import database
 from database import get_db, engine, Base
+from sqlalchemy.orm import Session
 
 # Import security utilities
 from auth.security import get_current_active_user, verify_api_key, API_KEY
