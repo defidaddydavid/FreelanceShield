@@ -14,7 +14,7 @@ from sqlalchemy.sql import func
 from database import get_db, engine, Base
 
 # Import security utilities
-from auth.security import get_current_active_user, get_api_key, verify_api_key
+from auth.security import get_current_active_user, verify_api_key, API_KEY
 
 # Import routers
 from users.router import router as users_router
